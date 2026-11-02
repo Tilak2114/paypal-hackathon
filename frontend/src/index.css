@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #140c33;
+  --bg2: #1d1250;
+  --ink: #efeaff;
+  --mute: #a79fd0;
+  --mint: #34f0c8;
+  --coral: #ff6f91;
+  --line: rgba(190, 170, 255, 0.16);
+  --card: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(120% 80% at 70% 0%, var(--bg2), var(--bg) 60%);
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.clip-shield {
+  clip-path: polygon(50% 0, 100% 18%, 100% 55%, 50% 100%, 0 55%, 0 18%);
+}
