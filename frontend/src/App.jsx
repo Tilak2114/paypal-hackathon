@@ -8,6 +8,7 @@ import Hero3D from './components/Hero3D';
 export default function App() {
   const [user, setUser] = useState(null); // null = unauthenticated (shows Sign In on front)
   const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'dashboard' | 'add'
+  const [hasScanned, setHasScanned] = useState(false); // Tracks if user has scanned subscriptions
 
   const handleSignInSuccess = (userData) => {
     setUser(userData);
@@ -16,6 +17,21 @@ export default function App() {
 
   const handleSignOut = () => {
     setUser(null);
+    setCurrentPage('landing');
+    setHasScanned(false);
+  };
+
+  // Main CTA logic: New user goes to Scanner (add), existing goes to Dashboard
+  const handleGetStarted = () => {
+    if (hasScanned) {
+      setCurrentPage('dashboard');
+    } else {
+      setCurrentPage('add');
+    }
+  };
+
+  const handleSeeDemo = () => {
+    setCurrentPage('dashboard');
   };
 
   return (
@@ -43,7 +59,7 @@ export default function App() {
             </span>
           </div>
 
-          {/* Nav links only visible once signed in */}
+          {/* Nav links once signed in */}
           {user ? (
             <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold">
               <button
@@ -57,8 +73,10 @@ export default function App() {
               >
                 Overview
               </button>
+
+              {/* Dedicated "See a demo" navbar button */}
               <button
-                onClick={() => setCurrentPage('dashboard')}
+                onClick={handleSeeDemo}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
                   currentPage === 'dashboard'
                     ? 'bg-white/10'
@@ -66,8 +84,9 @@ export default function App() {
                 }`}
                 style={currentPage === 'dashboard' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
               >
-                Dashboard
+                See a demo
               </button>
+
               <button
                 onClick={() => setCurrentPage('add')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
@@ -77,7 +96,7 @@ export default function App() {
                 }`}
                 style={currentPage === 'add' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
               >
-                AI Scanner
+                Scanner
               </button>
 
               <div className="flex items-center gap-2.5 ml-2">
@@ -124,9 +143,24 @@ export default function App() {
           />
         ) : (
           <>
-            {currentPage === 'landing' && <Landing onNavigate={setCurrentPage} />}
-            {currentPage === 'dashboard' && <Dashboard onNavigate={setCurrentPage} />}
-            {currentPage === 'add' && <AddSubscriptions onNavigate={setCurrentPage} />}
+            {currentPage === 'landing' && (
+              <Landing 
+                onGetStarted={handleGetStarted}
+                onSeeDemo={handleSeeDemo}
+                hasScanned={hasScanned}
+              />
+            )}
+            {currentPage === 'dashboard' && (
+              <Dashboard 
+                onNavigate={setCurrentPage} 
+              />
+            )}
+            {currentPage === 'add' && (
+              <AddSubscriptions 
+                onNavigate={setCurrentPage} 
+                onScanComplete={() => setHasScanned(true)}
+              />
+            )}
           </>
         )}
       </main>
@@ -135,7 +169,7 @@ export default function App() {
       <footer className="relative z-10 border-t border-[rgba(0,210,255,0.18)] py-8 px-6 text-center text-xs text-mute/80 space-y-1 w-full flex flex-col items-center bg-[#050a17]">
         <p>Churn Guard • Built for PayPal Hackathon 2026</p>
         <p className="text-[11px] text-mute/50">
-          Integrated with PayPal Subscriptions, Billing Agreements & Webhooks.
+          Flow: Landing → Scanner → Dashboard • Integrated with PayPal Billing API.
         </p>
       </footer>
     </div>

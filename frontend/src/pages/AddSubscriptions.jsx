@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { analyze } from '../api/client';
 import SubscriptionCard from '../components/SubscriptionCard';
 
-export default function AddSubscriptions({ onNavigate }) {
+export default function AddSubscriptions({ onNavigate, onScanComplete }) {
   const [inputText, setInputText] = useState('');
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState(null);
@@ -20,6 +20,7 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
       setScanning(true);
       const res = await analyze(text);
       setResults(res.detected || []);
+      if (onScanComplete) onScanComplete();
     } catch (err) {
       console.error(err);
     } finally {
@@ -29,20 +30,35 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-      {/* Header */}
+      {/* Header with Navigation Link back to Dashboard */}
       <div>
-        <button
-          onClick={() => onNavigate('dashboard')}
-          className="text-xs font-semibold text-mute hover:text-white transition-colors flex items-center gap-1.5 mb-3 cursor-pointer"
-        >
-          ← Return to Dashboard
-        </button>
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="text-xs font-semibold text-mute hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            ← Back to Dashboard
+          </button>
+          
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer"
+            style={{
+              border: '1px solid rgba(0, 210, 255, 0.4)',
+              color: '#00d2ff',
+              background: 'rgba(0, 210, 255, 0.08)'
+            }}
+          >
+            View Active Subscriptions →
+          </button>
+        </div>
+
         <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
           AI Statement & Subscription Scanner
         </h1>
         <p className="text-mute text-sm mt-1.5 leading-relaxed">
-          Paste exported statements, bank transaction summaries, or messy subscription lists.
-          Person C's parsing model detects amounts, frequencies, and idle usage flags automatically.
+          Step 2 of your flow: Paste your bank statement, credit card summary, or raw text below.
+          Our parsing model extracts recurring merchants, amounts, and waste flags automatically.
         </p>
       </div>
 
@@ -86,7 +102,7 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
         <div className="flex items-center justify-between flex-wrap gap-4 pt-2">
           <div className="text-xs text-mute flex items-center gap-2">
             <span className="w-2 h-2 rounded-full" style={{ background: '#00d2ff' }} />
-            <span>Parses dates, currency symbols, and merchant entities.</span>
+            <span>AI extracts merchants, frequencies, and cancellation links.</span>
           </div>
 
           <button
@@ -102,7 +118,7 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
             {scanning ? (
               <>
                 <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                <span>Running AI Extractor...</span>
+                <span>Extracting Subscriptions...</span>
               </>
             ) : (
               <span>Scan & Identify Subscriptions →</span>
@@ -131,14 +147,14 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
 
             <button
               onClick={() => onNavigate('dashboard')}
-              className="px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-full text-xs font-extrabold transition-all cursor-pointer shadow-lg"
               style={{
-                background: 'rgba(37, 99, 235, 0.2)',
-                border: '1px solid rgba(37, 99, 235, 0.4)',
-                color: '#93c5fd'
+                background: '#00d2ff',
+                color: '#030814',
+                boxShadow: '0 0 20px rgba(0, 210, 255, 0.35)'
               }}
             >
-              View in Dashboard →
+              Continue to Dashboard →
             </button>
           </div>
 
