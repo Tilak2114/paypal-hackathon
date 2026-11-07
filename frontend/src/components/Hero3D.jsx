@@ -9,26 +9,26 @@ export default function Hero3D() {
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || 500;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-    // Load Three.js dynamically or use global window.THREE
     const initThree = (THREE) => {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(width, height);
+      container.innerHTML = '';
       container.appendChild(renderer.domElement);
 
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-      camera.position.set(0, 0, 8.5);
+      camera.position.set(0, 0, 9);
 
-      scene.add(new THREE.AmbientLight(0x9a8cff, 0.8));
-      const L1 = new THREE.PointLight(0x34f0c8, 2.5, 40);
+      scene.add(new THREE.AmbientLight(0x9a8cff, 0.7));
+      const L1 = new THREE.PointLight(0x34f0c8, 2.2, 40);
       L1.position.set(4, 4, 6);
       scene.add(L1);
 
-      const L2 = new THREE.PointLight(0xff6f91, 1.8, 40);
+      const L2 = new THREE.PointLight(0xff6f91, 1.6, 40);
       L2.position.set(-5, -3, 4);
       scene.add(L2);
 
@@ -65,11 +65,11 @@ export default function Hero3D() {
       ring.rotation.x = Math.PI / 2.4;
       group.add(ring);
 
-      // Starfield / ambient dots
+      // Starfield particles
       const pg = new THREE.BufferGeometry();
       const pa = [];
-      for (let i = 0; i < 400; i++) {
-        const r = 5 + Math.random() * 8;
+      for (let i = 0; i < 500; i++) {
+        const r = 6 + Math.random() * 10;
         const a = Math.random() * 6.28;
         const b = Math.acos(2 * Math.random() - 1);
         pa.push(r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a));
@@ -77,16 +77,18 @@ export default function Hero3D() {
       pg.setAttribute('position', new THREE.Float32BufferAttribute(pa, 3));
       pts = new THREE.Points(
         pg,
-        new THREE.PointsMaterial({ color: 0xc9bfff, size: 0.05, transparent: true, opacity: 0.7 })
+        new THREE.PointsMaterial({ color: 0xc9bfff, size: 0.06, transparent: true, opacity: 0.7 })
       );
       scene.add(pts);
 
-      // Orbiting Subscriptions
       const subs = [
         ['Streamly', '$15.99', '#7b6cff'],
         ['TuneBox', '$10.99', '#34f0c8'],
         ['FitClub', '$39.00', '#ffb86b'],
+        ['CloudDrive', '$9.99', '#6bb7ff'],
         ['PixelPro', '$22.50', '#ff9ad5'],
+        ['NewsPlus', '$12.00', '#c4f06b'],
+        ['GameVault', '$14.99', '#ff8a6b'],
         ['TuneWave', '$10.99', '#34f0c8'],
       ];
 
@@ -121,13 +123,13 @@ export default function Hero3D() {
         ctx.font = '700 38px sans-serif';
         ctx.fillText(s[0], 130, 92);
 
-        ctx.font = '800 64px sans-serif';
+        ctx.font = '800 66px sans-serif';
         ctx.fillStyle = isDead ? '#ff6f91' : '#efeaff';
         ctx.fillText(isDead ? 'Cancelled' : s[1] + '/mo', 40, 208);
 
-        ctx.font = '400 24px sans-serif';
+        ctx.font = '400 26px sans-serif';
         ctx.fillStyle = '#a79fd0';
-        ctx.fillText(isDead ? 'Saved ' + s[1] + '/mo' : 'Last used 41d ago', 40, 254);
+        ctx.fillText(isDead ? 'Saved ' + s[1] + ' a month' : 'Last used 41 days ago', 40, 254);
       }
 
       cards = subs.map((s, i) => {
@@ -137,7 +139,7 @@ export default function Hero3D() {
         drawCard(cn, s, false);
         const texture = new THREE.CanvasTexture(cn);
         const mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(2.2, 1.3),
+          new THREE.PlaneGeometry(2.4, 1.4),
           new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide })
         );
         group.add(mesh);
@@ -146,65 +148,103 @@ export default function Hero3D() {
           cn,
           texture,
           s,
-          ang: (i / subs.length) * Math.PI * 2,
-          y: i % 2 ? 0.6 : -0.6,
+          ang: (i / subs.length) * 6.283,
+          y: i % 2 ? 0.7 : -0.7,
           state: 0,
           k: 0,
         };
       });
 
-      let nextKill = 2.5;
+      let nextKill = 2;
       const clock = new THREE.Clock();
+      let mx = 0, my = 0, tx = 0, ty = 0;
+
+      const handlePointerMove = (e) => {
+        mx = e.clientX / window.innerWidth - 0.5;
+        my = e.clientY / window.innerHeight - 0.5;
+      };
+      window.addEventListener('pointermove', handlePointerMove);
+
+      const resize = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+
+        // Exact responsive positioning so it doesn't overlap centered text on widescreen
+        group.position.x = w > 1024 ? 2.6 : 0;
+        group.position.y = w > 1024 ? 0 : 1.4;
+        group.scale.setScalar(w > 1024 ? 1 : 0.75);
+      };
+
+      window.addEventListener('resize', resize);
+      resize();
 
       const animate = () => {
         animId = requestAnimationFrame(animate);
         const t = clock.getElapsedTime();
 
-        core.rotation.y = t * 0.4;
-        core.rotation.x = t * 0.25;
-        wire.rotation.y = -t * 0.2;
-        const pulse = 1 + Math.sin(t * 2) * 0.05;
+        core.rotation.y = t * 0.5;
+        core.rotation.x = t * 0.3;
+        wire.rotation.y = -t * 0.25;
+        wire.rotation.z = t * 0.15;
+        const pulse = 1 + Math.sin(t * 2) * 0.04;
         core.scale.setScalar(pulse);
+
+        pts.rotation.y = t * 0.02;
+        tx += (mx - tx) * 0.05;
+        ty += (my - ty) * 0.05;
+        group.rotation.y = tx * 0.8 + Math.sin(t * 0.3) * 0.1;
+        group.rotation.x = ty * 0.5;
+
+        const sy = Math.min(window.scrollY / window.innerHeight, 1.2);
+        camera.position.z = 9 + sy * 3;
+        if (renderer.domElement) {
+          renderer.domElement.style.opacity = Math.max(0.22, 1 - sy * 0.8);
+        }
 
         if (t > nextKill) {
           const live = cards.filter((c) => c.state === 0);
           if (live.length) {
-            const target = live[Math.floor(Math.random() * live.length)];
-            target.state = 1;
-            target.k = 0;
-            drawCard(target.cn, target.s, true);
-            target.texture.needsUpdate = true;
+            const c = live[Math.floor(Math.random() * live.length)];
+            c.state = 1;
+            c.k = 0;
+            drawCard(c.cn, c.s, true);
+            c.texture.needsUpdate = true;
           }
-          nextKill = t + 2.8;
+          nextKill = t + 2.6;
         }
 
         cards.forEach((c) => {
-          const a = c.ang + t * 0.2;
-          const rad = 3.3;
-          c.mesh.position.set(Math.cos(a) * rad, c.y + Math.sin(t + c.ang * 2) * 0.12, Math.sin(a) * rad);
+          const a = c.ang + t * 0.22;
+          const rad = 3.5;
+          c.mesh.position.set(Math.cos(a) * rad, c.y + Math.sin(t + c.ang * 3) * 0.12, Math.sin(a) * rad);
           c.mesh.lookAt(c.mesh.position.x * 2, c.mesh.position.y, c.mesh.position.z * 2);
 
           if (c.state === 1) {
-            c.k += 0.015;
-            c.mesh.position.multiplyScalar(1 + c.k * 0.5);
-            c.mesh.position.y -= c.k * c.k * 3;
+            c.k += 0.012;
+            c.mesh.position.multiplyScalar(1 + c.k * 0.6);
+            c.mesh.position.y -= c.k * c.k * 4;
             c.mesh.material.opacity = Math.max(0, 1 - c.k);
+            c.mesh.scale.setScalar(1 + c.k * 0.3);
             if (c.k >= 1) {
               c.state = 2;
               c.k = 0;
               c.mesh.visible = false;
             }
           } else if (c.state === 2) {
-            c.k += 0.02;
+            c.k += 0.016;
             if (c.k > 2) {
               drawCard(c.cn, c.s, false);
               c.texture.needsUpdate = true;
               c.mesh.visible = true;
               c.state = 3;
               c.k = 0;
+              c.mesh.scale.setScalar(0.01);
             }
           } else if (c.state === 3) {
-            c.k += 0.05;
+            c.k += 0.04;
             const e = Math.min(c.k, 1);
             c.mesh.scale.setScalar(e);
             c.mesh.material.opacity = e;
@@ -216,6 +256,11 @@ export default function Hero3D() {
       };
 
       animate();
+
+      return () => {
+        window.removeEventListener('pointermove', handlePointerMove);
+        window.removeEventListener('resize', resize);
+      };
     };
 
     if (window.THREE) {
@@ -227,25 +272,13 @@ export default function Hero3D() {
       document.head.appendChild(script);
     }
 
-    const handleResize = () => {
-      if (!renderer || !camera || !container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight || 500;
-      renderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-
-    window.addEventListener('resize', handleResize);
-
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener('resize', handleResize);
       if (renderer && renderer.domElement && container) {
-        container.removeChild(renderer.domElement);
+        container.innerHTML = '';
       }
     };
   }, []);
 
-  return <div ref={mountRef} className="w-full h-full min-h-[440px] relative pointer-events-none" />;
+  return <div ref={mountRef} className="fixed inset-0 w-full h-full pointer-events-none z-0" />;
 }
