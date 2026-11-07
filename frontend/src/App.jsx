@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Landing from './pages/Landing';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import AddSubscriptions from './pages/AddSubscriptions';
 import SignIn from './pages/SignIn';
@@ -7,7 +8,7 @@ import Hero3D from './components/Hero3D';
 
 export default function App() {
   const [user, setUser] = useState(null); // null = unauthenticated (shows Sign In on front)
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'dashboard' | 'add'
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'about' | 'dashboard' | 'add'
   const [pageHistory, setPageHistory] = useState(['landing']);
   const [hasScanned, setHasScanned] = useState(false); // Tracks if user has scanned subscriptions
 
@@ -53,20 +54,6 @@ export default function App() {
 
   const handleSeeDemo = () => {
     navigateTo('dashboard');
-  };
-
-  // Scroll to "About Churn Guard" feature slide
-  const handleAboutClick = () => {
-    if (currentPage !== 'landing') {
-      navigateTo('landing');
-      setTimeout(() => {
-        const el = document.getElementById('about-section');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      const el = document.getElementById('about-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (
@@ -130,8 +117,13 @@ export default function App() {
 
               {/* Dedicated "About Churn Guard" button directly to the right of Overview */}
               <button
-                onClick={handleAboutClick}
-                className="px-3.5 py-1.5 rounded-full text-mute hover:text-white transition-all cursor-pointer hover:bg-white/5"
+                onClick={() => navigateTo('about')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentPage === 'about'
+                    ? 'bg-white/10'
+                    : 'text-mute hover:text-white'
+                }`}
+                style={currentPage === 'about' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
               >
                 About Churn Guard
               </button>
@@ -210,6 +202,12 @@ export default function App() {
                 onGetStarted={handleGetStarted}
                 onSeeDemo={handleSeeDemo}
                 hasScanned={hasScanned}
+              />
+            )}
+            {currentPage === 'about' && (
+              <About 
+                onNavigate={navigateTo}
+                onGetStarted={handleGetStarted}
               />
             )}
             {currentPage === 'dashboard' && (
