@@ -172,10 +172,11 @@ export default function Hero3D() {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
 
-        // Exact responsive positioning so it doesn't overlap centered text on widescreen
-        group.position.x = w > 1024 ? 2.6 : 0;
-        group.position.y = w > 1024 ? 0 : 1.4;
-        group.scale.setScalar(w > 1024 ? 1 : 0.75);
+        // Shift 3D scene cleanly to the right side so it never collides with hero/signin text
+        const isDesktop = w > 1024;
+        group.position.x = isDesktop ? Math.max(3.6, (w / 1440) * 3.8) : 0;
+        group.position.y = isDesktop ? 0 : 2.0;
+        group.scale.setScalar(isDesktop ? 0.9 : 0.65);
       };
 
       window.addEventListener('resize', resize);
@@ -195,8 +196,8 @@ export default function Hero3D() {
         pts.rotation.y = t * 0.02;
         tx += (mx - tx) * 0.05;
         ty += (my - ty) * 0.05;
-        group.rotation.y = tx * 0.8 + Math.sin(t * 0.3) * 0.1;
-        group.rotation.x = ty * 0.5;
+        group.rotation.y = tx * 0.5 + Math.sin(t * 0.3) * 0.1;
+        group.rotation.x = ty * 0.3;
 
         const sy = Math.min(window.scrollY / window.innerHeight, 1.2);
         camera.position.z = 9 + sy * 3;
@@ -218,7 +219,7 @@ export default function Hero3D() {
 
         cards.forEach((c) => {
           const a = c.ang + t * 0.22;
-          const rad = 3.5;
+          const rad = 2.8; // Compact orbit radius so cards stay on the right half
           c.mesh.position.set(Math.cos(a) * rad, c.y + Math.sin(t + c.ang * 3) * 0.12, Math.sin(a) * rad);
           c.mesh.lookAt(c.mesh.position.x * 2, c.mesh.position.y, c.mesh.position.z * 2);
 
