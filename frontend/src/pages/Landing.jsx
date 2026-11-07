@@ -27,7 +27,7 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
             Churn Guard reads your subscriptions, spots the ones you never open, and warns you before trials end or prices rise. Pause or cancel with one tap through PayPal.
           </p>
 
-          {/* Exactly 2 Clean Buttons: Get started (main) + See a demo */}
+          {/* Dynamic Button: "Get started" for new users, "View my audit" once ≥1 sub added */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={onGetStarted}
@@ -38,7 +38,7 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
                 boxShadow: '0 0 25px rgba(0, 210, 255, 0.45)'
               }}
             >
-              <span>Get started</span>
+              <span>{hasScanned ? 'View my audit' : 'Get started'}</span>
               <span>→</span>
             </button>
 
@@ -57,7 +57,7 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
 
           <p className="text-[11px] text-mute/80 pt-1">
             {hasScanned 
-              ? "✓ Subscriptions already synced — clicks directly to your active dashboard."
+              ? "✓ Audit ready — review detected subscriptions, savings, and flags."
               : "New here? 'Get started' launches the scanner to import your statement in 30 seconds."}
           </p>
 
