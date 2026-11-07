@@ -58,10 +58,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050a17] text-[#f0f6ff] flex flex-col justify-between relative overflow-x-hidden">
-      {/* 3D Global Canvas in Background */}
-      <div className={`fixed inset-0 pointer-events-none transition-opacity duration-700 ${!user || currentPage === 'landing' ? 'opacity-85' : 'opacity-20'}`}>
-        <Hero3D />
-      </div>
+      {/* 3D Global Canvas in Background (ONLY active on Overview/Landing and Sign In to avoid distraction) */}
+      {(!user || currentPage === 'landing') && (
+        <div className="fixed inset-0 pointer-events-none transition-opacity duration-700 opacity-85">
+          <Hero3D />
+        </div>
+      )}
 
       {/* Top Navbar in Dark Navy & Ice Cyan */}
       <header className="sticky top-0 z-40 bg-[#050a17]/90 backdrop-blur-xl border-b border-[rgba(0,210,255,0.18)] w-full flex justify-center">
