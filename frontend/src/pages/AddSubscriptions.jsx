@@ -30,16 +30,9 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-      {/* Header with Back Button and Navigation Link back to Dashboard */}
+      {/* Header */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={onBack ? onBack : () => onNavigate('dashboard')}
-            className="text-xs font-bold text-[#00d2ff] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-full border border-[rgba(0,210,255,0.3)] bg-[rgba(0,210,255,0.06)]"
-          >
-            ← Back
-          </button>
-          
+        <div className="flex items-center justify-end mb-3">
           <button
             onClick={() => onNavigate('dashboard')}
             className="text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer"

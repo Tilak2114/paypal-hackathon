@@ -67,11 +67,11 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-[#050a17]/90 backdrop-blur-xl border-b border-[rgba(0,210,255,0.18)] w-full flex justify-center">
         <nav className="max-w-7xl w-full px-6 sm:px-12 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Back Button (visible when not on landing) */}
+            {/* Back Arrow Button (only in the top navbar) */}
             {user && currentPage !== 'landing' && (
               <button
                 onClick={handleBack}
-                className="px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 hover:-translate-x-0.5"
+                className="w-8 h-8 rounded-full text-base font-bold transition-all cursor-pointer flex items-center justify-center hover:-translate-x-0.5"
                 style={{
                   border: '1px solid rgba(0, 210, 255, 0.4)',
                   color: '#00d2ff',
@@ -79,8 +79,7 @@ export default function App() {
                 }}
                 title="Go back"
               >
-                <span>←</span>
-                <span>Back</span>
+                ←
               </button>
             )}
 

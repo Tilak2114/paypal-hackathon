@@ -18,15 +18,8 @@ export default function About({ onNavigate, onGetStarted }) {
   return (
     <div className="relative z-10 w-full min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-16 px-6 sm:px-12 animate-fadeIn">
       <div className="max-w-7xl w-full">
-        {/* Header with back button */}
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => onNavigate('landing')}
-            className="text-xs font-bold text-[#00d2ff] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-full border border-[rgba(0,210,255,0.3)] bg-[rgba(0,210,255,0.06)]"
-          >
-            ← Back to Overview
-          </button>
-
+        {/* Header tag */}
+        <div className="flex items-center justify-end mb-8">
           <span 
             className="text-xs font-semibold px-3 py-1 rounded-full text-[#00d2ff]"
             style={{
