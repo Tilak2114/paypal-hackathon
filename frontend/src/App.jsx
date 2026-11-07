@@ -6,23 +6,22 @@ import SignIn from './pages/SignIn';
 import Hero3D from './components/Hero3D';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('landing');
-  const [user, setUser] = useState(null); // { name, email, method }
+  const [user, setUser] = useState(null); // null = unauthenticated (shows Sign In on front)
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'dashboard' | 'add'
 
   const handleSignInSuccess = (userData) => {
     setUser(userData);
-    setCurrentPage('dashboard');
+    setCurrentPage('landing'); // Opens the landing page right after signing in
   };
 
   const handleSignOut = () => {
     setUser(null);
-    setCurrentPage('landing');
   };
 
   return (
     <div className="min-h-screen bg-bg text-ink selection:bg-mint selection:text-slate-950 flex flex-col justify-between relative overflow-x-hidden">
-      {/* 3D Global Canvas in Background */}
-      <div className={`fixed inset-0 pointer-events-none transition-opacity duration-700 ${currentPage === 'landing' ? 'opacity-85' : 'opacity-20'}`}>
+      {/* 3D Global Canvas in Background (always alive behind sign in & landing) */}
+      <div className={`fixed inset-0 pointer-events-none transition-opacity duration-700 ${!user || currentPage === 'landing' ? 'opacity-85' : 'opacity-20'}`}>
         <Hero3D />
       </div>
 
@@ -30,8 +29,8 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-bg/85 backdrop-blur-xl border-b border-line/50 w-full flex justify-center">
         <nav className="max-w-7xl w-full px-6 sm:px-12 py-4 flex items-center justify-between">
           <div
-            onClick={() => setCurrentPage('landing')}
-            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => user && setCurrentPage('landing')}
+            className={`flex items-center gap-3 ${user ? 'cursor-pointer group' : ''}`}
           >
             <div className="w-5 h-6 bg-gradient-to-tr from-mint to-indigo-500 clip-shield group-hover:scale-105 transition-transform" />
             <span className="font-display font-extrabold text-xl tracking-tight text-ink group-hover:text-mint transition-colors">
@@ -39,40 +38,40 @@ export default function App() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold">
-            <button
-              onClick={() => setCurrentPage('landing')}
-              className={`px-3.5 py-1.5 rounded-full transition-all ${
-                currentPage === 'landing'
-                  ? 'bg-white/10 text-mint'
-                  : 'text-mute hover:text-ink'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setCurrentPage('dashboard')}
-              className={`px-3.5 py-1.5 rounded-full transition-all ${
-                currentPage === 'dashboard'
-                  ? 'bg-white/10 text-mint'
-                  : 'text-mute hover:text-ink'
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setCurrentPage('add')}
-              className={`px-3.5 py-1.5 rounded-full transition-all ${
-                currentPage === 'add'
-                  ? 'bg-white/10 text-mint'
-                  : 'text-mute hover:text-ink'
-              }`}
-            >
-              AI Scanner
-            </button>
+          {/* Nav links only visible once signed in */}
+          {user ? (
+            <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold">
+              <button
+                onClick={() => setCurrentPage('landing')}
+                className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  currentPage === 'landing'
+                    ? 'bg-white/10 text-mint'
+                    : 'text-mute hover:text-ink'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setCurrentPage('dashboard')}
+                className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  currentPage === 'dashboard'
+                    ? 'bg-white/10 text-mint'
+                    : 'text-mute hover:text-ink'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentPage('add')}
+                className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  currentPage === 'add'
+                    ? 'bg-white/10 text-mint'
+                    : 'text-mute hover:text-ink'
+                }`}
+              >
+                AI Scanner
+              </button>
 
-            {/* Auth State Button */}
-            {user ? (
               <div className="flex items-center gap-2.5 ml-2">
                 <span className="hidden sm:inline-block px-3 py-1.5 rounded-full bg-white/5 border border-line text-mint text-[11px] font-medium">
                   ● {user.name}
@@ -84,32 +83,31 @@ export default function App() {
                   Sign Out
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => setCurrentPage('signin')}
-                className={`ml-2 px-5 py-2 rounded-full font-bold transition-all shadow-md ${
-                  currentPage === 'signin'
-                    ? 'bg-white/15 text-mint border border-mint/40'
-                    : 'bg-mint text-slate-950 hover:shadow-lg hover:shadow-mint/30 hover:-translate-y-0.5'
-                }`}
-              >
-                Sign In
-              </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-mute font-semibold">
+              <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-mint/30 bg-mint/10 text-mint text-[11px]">
+                PayPal Hackathon Gate
+              </span>
+            </div>
+          )}
         </nav>
       </header>
 
       {/* Main View Router */}
       <main className="flex-1 w-full relative z-10 flex flex-col items-center">
-        {currentPage === 'landing' && <Landing onNavigate={setCurrentPage} />}
-        {currentPage === 'dashboard' && <Dashboard onNavigate={setCurrentPage} />}
-        {currentPage === 'add' && <AddSubscriptions onNavigate={setCurrentPage} />}
-        {currentPage === 'signin' && (
+        {/* If user is NOT signed in: Front page is ONLY the Sign In modal over the 3D background */}
+        {!user ? (
           <SignIn
-            onNavigate={setCurrentPage}
             onSignInSuccess={handleSignInSuccess}
           />
+        ) : (
+          /* Once signed in: show the landing, dashboard, or add screens */
+          <>
+            {currentPage === 'landing' && <Landing onNavigate={setCurrentPage} />}
+            {currentPage === 'dashboard' && <Dashboard onNavigate={setCurrentPage} />}
+            {currentPage === 'add' && <AddSubscriptions onNavigate={setCurrentPage} />}
+          </>
         )}
       </main>
 
