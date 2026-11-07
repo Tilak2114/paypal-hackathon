@@ -23,12 +23,12 @@ export default function Hero3D() {
       camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
       camera.position.set(0, 0, 9);
 
-      scene.add(new THREE.AmbientLight(0x9a8cff, 0.7));
-      const L1 = new THREE.PointLight(0x34f0c8, 2.2, 40);
+      scene.add(new THREE.AmbientLight(0x7da4d9, 0.7));
+      const L1 = new THREE.PointLight(0x00d2ff, 2.6, 40);
       L1.position.set(4, 4, 6);
       scene.add(L1);
 
-      const L2 = new THREE.PointLight(0xff6f91, 1.6, 40);
+      const L2 = new THREE.PointLight(0x2563eb, 2.0, 40);
       L2.position.set(-5, -3, 4);
       scene.add(L2);
 
@@ -38,10 +38,10 @@ export default function Hero3D() {
       core = new THREE.Mesh(
         new THREE.IcosahedronGeometry(1.1, 1),
         new THREE.MeshStandardMaterial({
-          color: 0x34f0c8,
-          emissive: 0x0b6a58,
-          metalness: 0.5,
-          roughness: 0.25,
+          color: 0x00d2ff,
+          emissive: 0x044778,
+          metalness: 0.6,
+          roughness: 0.2,
           flatShading: true,
         })
       );
@@ -50,17 +50,17 @@ export default function Hero3D() {
       wire = new THREE.Mesh(
         new THREE.IcosahedronGeometry(1.6, 1),
         new THREE.MeshBasicMaterial({
-          color: 0x9a8cff,
+          color: 0x2563eb,
           wireframe: true,
           transparent: true,
-          opacity: 0.35,
+          opacity: 0.4,
         })
       );
       group.add(wire);
 
       ring = new THREE.Mesh(
         new THREE.TorusGeometry(2.1, 0.015, 8, 120),
-        new THREE.MeshBasicMaterial({ color: 0x34f0c8, transparent: true, opacity: 0.5 })
+        new THREE.MeshBasicMaterial({ color: 0x00d2ff, transparent: true, opacity: 0.6 })
       );
       ring.rotation.x = Math.PI / 2.4;
       group.add(ring);

@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --bg: #140c33;
-  --bg2: #1d1250;
-  --ink: #efeaff;
-  --mute: #a79fd0;
-  --mint: #34f0c8;
-  --coral: #ff6f91;
-  --line: rgba(190, 170, 255, 0.16);
-  --card: rgba(255, 255, 255, 0.06);
+  --bg: #050a17;
+  --bg2: #0b162e;
+  --ink: #f0f6ff;
+  --mute: #8295b5;
+  --mint: #00d2ff;
+  --coral: #ff3d71;
+  --line: rgba(0, 210, 255, 0.15);
+  --card: rgba(255, 255, 255, 0.04);
 }
 
 body {
   margin: 0;
-  background: radial-gradient(120% 80% at 70% 0%, var(--bg2), var(--bg) 60%);
-  background-color: var(--bg);
-  color: var(--ink);
+  background: radial-gradient(120% 80% at 70% 0%, #0d1e3d, #050a17 70%);
+  background-color: #050a17;
+  color: #f0f6ff;
   font-family: 'DM Sans', system-ui, sans-serif;
   overflow-x: hidden;
 }

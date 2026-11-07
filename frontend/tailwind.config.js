@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#140c33',
-        bg2: '#1d1250',
-        ink: '#efeaff',
-        mute: '#a79fd0',
-        mint: '#34f0c8',
-        coral: '#ff6f91',
-        card: 'rgba(255, 255, 255, 0.06)',
-        line: 'rgba(190, 170, 255, 0.16)',
+        bg: '#050a17',
+        bg2: '#0b162e',
+        ink: '#f0f6ff',
+        mute: '#8295b5',
+        mint: '#00d2ff', // Electric Cyan / Ice Cobalt
+        coral: '#ff3d71', // Neon Pink / Coral
+        card: 'rgba(255, 255, 255, 0.04)',
+        line: 'rgba(0, 210, 255, 0.15)',
       },
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
