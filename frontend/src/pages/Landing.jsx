@@ -21,57 +21,56 @@ export default function Landing({ onNavigate }) {
       <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 sm:px-12 py-16">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Left Column: Perfectly Centered Content Area */}
-          <div className="lg:col-span-7 flex flex-col justify-center items-start text-left space-y-6 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-mint/30 bg-mint/10 text-mint text-xs font-bold tracking-wide shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-mint animate-ping" />
+          {/* Left Column: Compact Content Area that leaves ample space */}
+          <div className="lg:col-span-6 flex flex-col justify-center items-start text-left space-y-4 max-w-lg">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-mint/30 bg-mint/10 text-mint text-xs font-bold tracking-wide shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-mint animate-ping" />
               PayPal Subscriptions & Recurring Payments Guard
             </div>
 
-            <h1 className="font-display font-black text-4xl sm:text-6xl lg:text-7xl text-ink leading-[1.05] tracking-tight">
+            <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-ink leading-[1.08] tracking-tight">
               Cancel what you forgot you were paying for.
             </h1>
 
-            <p className="text-mute text-base sm:text-xl font-normal leading-relaxed">
+            <p className="text-mute text-sm sm:text-base font-normal leading-relaxed max-w-md">
               Churn Guard reads your subscriptions, spots the ones you never open, and warns you before trials end or prices rise. Pause or cancel with one tap through PayPal.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="px-8 py-4 rounded-full bg-mint hover:bg-mint/90 text-slate-950 font-bold text-base shadow-xl shadow-mint/25 hover:shadow-mint/40 hover:-translate-y-0.5 transition-all"
+                className="px-6 py-3 rounded-full bg-mint hover:bg-mint/90 text-slate-950 font-bold text-sm shadow-xl shadow-mint/25 hover:shadow-mint/40 hover:-translate-y-0.5 transition-all"
               >
                 Launch Dashboard Demo →
               </button>
 
               <button
                 onClick={() => onNavigate('add')}
-                className="px-7 py-4 rounded-full border border-line bg-card/60 hover:bg-card hover:border-mint/50 text-ink font-semibold text-base backdrop-blur-md hover:-translate-y-0.5 transition-all"
+                className="px-5 py-3 rounded-full border border-line bg-card/60 hover:bg-card hover:border-mint/50 text-ink font-semibold text-sm backdrop-blur-md hover:-translate-y-0.5 transition-all"
               >
                 Scan Raw Text (AI)
               </button>
             </div>
 
             {/* Quick Stat Bar */}
-            <div className="pt-6 border-t border-line/40 grid grid-cols-3 gap-6 text-left w-full">
+            <div className="pt-4 border-t border-line/40 grid grid-cols-3 gap-4 text-left w-full">
               <div>
-                <div className="font-display font-black text-2xl text-mint">$420+</div>
-                <div className="text-xs text-mute mt-0.5">Avg. Yearly Saved</div>
+                <div className="font-display font-black text-xl text-mint">$420+</div>
+                <div className="text-[11px] text-mute mt-0.5">Avg. Yearly Saved</div>
               </div>
               <div>
-                <div className="font-display font-black text-2xl text-ink">1-Tap</div>
-                <div className="text-xs text-mute mt-0.5">PayPal Pause/Cancel</div>
+                <div className="font-display font-black text-xl text-ink">1-Tap</div>
+                <div className="text-[11px] text-mute mt-0.5">PayPal Pause/Cancel</div>
               </div>
               <div>
-                <div className="font-display font-black text-2xl text-coral">48h</div>
-                <div className="text-xs text-mute mt-0.5">Advance Warnings</div>
+                <div className="font-display font-black text-xl text-coral">48h</div>
+                <div className="text-[11px] text-mute mt-0.5">Advance Warnings</div>
               </div>
             </div>
           </div>
 
           {/* Right Column: Visual Anchor on Widescreen (keeps hero balanced) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col items-center justify-center pointer-events-none">
-            {/* Ambient placeholder spacer for the 3D rotating universe */}
+          <div className="hidden lg:flex lg:col-span-6 flex-col items-center justify-center pointer-events-none">
             <div className="w-full h-[450px]" />
           </div>
 
