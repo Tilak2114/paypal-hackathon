@@ -22,14 +22,21 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
   const getTagBadge = () => {
     if (sub.status === 'paused') {
       return (
-        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-mint/15 text-mint border border-mint/20">
+        <span 
+          className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+          style={{
+            background: 'rgba(0, 210, 255, 0.15)',
+            color: '#00d2ff',
+            border: '1px solid rgba(0, 210, 255, 0.3)'
+          }}
+        >
           Paused
         </span>
       );
     }
     if (sub.status === 'cancelled') {
       return (
-        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-coral/15 text-coral border border-coral/20">
+        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-coral/15 text-coral border border-coral/25">
           Cancelled
         </span>
       );
@@ -50,7 +57,7 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
     }
     if (sub.flag === 'unused' || sub.flag === 'low_usage') {
       return (
-        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-400/20 text-purple-300 border border-purple-400/30">
+        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-400/20 text-blue-300 border border-blue-400/30">
           Unused
         </span>
       );
@@ -67,24 +74,27 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
         isInactive
           ? 'opacity-40 bg-card/40 border-line/40'
           : sub.flag
-          ? 'bg-gradient-to-r from-card to-card/70 border-coral/40 shadow-lg shadow-coral/5'
-          : 'bg-card border-line hover:border-mint/40 hover:shadow-lg hover:shadow-mint/5'
+          ? 'bg-card border-coral/40 shadow-lg shadow-coral/5'
+          : 'bg-card border-line hover:border-[#00d2ff]/60 hover:shadow-lg hover:shadow-[#00d2ff]/10'
       }`}
-      style={{ transitionProperty: 'opacity, background-color, border-color, box-shadow, transform' }}
+      style={{
+        transitionProperty: 'opacity, background-color, border-color, box-shadow, transform',
+        background: isInactive ? 'rgba(5, 10, 23, 0.5)' : 'rgba(11, 22, 46, 0.7)'
+      }}
     >
       <div className="flex items-center justify-between gap-4">
         {/* Left: Icon & Details */}
         <div className="flex items-center gap-3.5 min-w-0">
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center font-display font-black text-slate-950 text-lg shadow-inner flex-shrink-0"
-            style={{ backgroundColor: sub.color || '#34f0c8' }}
+            style={{ backgroundColor: sub.color || '#00d2ff' }}
           >
             {sub.name.charAt(0)}
           </div>
 
           <div className="truncate">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-display font-bold text-ink text-base tracking-tight truncate">
+              <h3 className="font-display font-bold text-white text-base tracking-tight truncate">
                 {sub.name}
               </h3>
               {getTagBadge()}
@@ -92,7 +102,7 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
             <div className="text-xs text-mute mt-0.5 flex items-center gap-2">
               <span>{sub.lastUsed}</span>
               <span>•</span>
-              <span className={`font-medium ${isInactive ? 'line-through text-mute/60' : 'text-ink/90'}`}>
+              <span className={`font-medium ${isInactive ? 'line-through text-mute/60' : 'text-white'}`}>
                 ${sub.cost.toFixed(2)}/mo
               </span>
             </div>
@@ -114,7 +124,7 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
       {sub.suggestion && !isInactive && (
         <div className="mt-3.5 pt-3 border-t border-line/50 text-xs text-mute flex items-center gap-2">
           <span className="text-coral">💡</span>
-          <span className="text-ink/80 italic">{sub.suggestion}</span>
+          <span className="text-white/85 italic">{sub.suggestion}</span>
         </div>
       )}
     </div>

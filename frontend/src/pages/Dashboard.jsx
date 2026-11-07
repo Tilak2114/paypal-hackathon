@@ -73,8 +73,16 @@ export default function Dashboard({ onNavigate }) {
     <div className="max-w-7xl mx-auto px-6 sm:px-12 py-10 space-y-10">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-bg border border-mint/40 text-mint px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce">
-          <span className="w-2 h-2 rounded-full bg-mint" />
+        <div 
+          className="fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce"
+          style={{
+            background: '#0b162e',
+            border: '1px solid #00d2ff',
+            color: '#00d2ff',
+            boxShadow: '0 0 25px rgba(0, 210, 255, 0.3)'
+          }}
+        >
+          <span className="w-2 h-2 rounded-full" style={{ background: '#00d2ff' }} />
           <span className="text-sm font-semibold">{toast.message}</span>
         </div>
       )}
@@ -82,7 +90,7 @@ export default function Dashboard({ onNavigate }) {
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display font-black text-3xl sm:text-4xl text-ink tracking-tight">
+          <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
             Subscription Command Center
           </h1>
           <p className="text-mute text-sm mt-1">
@@ -93,24 +101,28 @@ export default function Dashboard({ onNavigate }) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigate('add')}
-            className="px-5 py-2.5 rounded-full bg-mint hover:bg-mint/90 text-slate-950 text-xs font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2"
+            className="px-5 py-2.5 rounded-full text-slate-950 text-xs font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
+            style={{
+              background: '#00d2ff',
+              boxShadow: '0 0 20px rgba(0, 210, 255, 0.35)'
+            }}
           >
             <span>+</span> Paste & Scan New
           </button>
         </div>
       </div>
 
-      {/* 2-Column Responsive Layout: Left cards, Right stats & alert feed */}
+      {/* 2-Column Responsive Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column (7 cols): Cards */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm uppercase font-bold tracking-wider text-mute">
+            <h2 className="text-xs uppercase font-bold tracking-wider text-mute">
               Monitored Recurring Plans ({subscriptions.length})
             </h2>
             <button
               onClick={fetchSubs}
-              className="text-xs text-mute hover:text-ink transition-colors flex items-center gap-1"
+              className="text-xs text-mute hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
             >
               ↻ Refresh
             </button>
@@ -142,7 +154,13 @@ export default function Dashboard({ onNavigate }) {
             activeMonthly={activeMonthly}
           />
 
-          <div className="bg-card border border-line rounded-3xl p-6 backdrop-blur-xl">
+          <div 
+            className="rounded-3xl p-6 backdrop-blur-xl"
+            style={{
+              background: 'rgba(11, 22, 46, 0.75)',
+              border: '1px solid rgba(0, 210, 255, 0.2)'
+            }}
+          >
             <AlertFeed subscriptions={subscriptions} />
           </div>
         </div>

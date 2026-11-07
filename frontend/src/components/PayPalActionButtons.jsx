@@ -18,10 +18,15 @@ export default function PayPalActionButtons({ sub, onPause, onCancel, onUndo }) 
         <button
           onClick={() => handleAction('undo', onUndo)}
           disabled={loadingAction !== null}
-          className="text-xs font-semibold px-3 py-1.5 rounded-full border border-mint/40 text-mint bg-mint/10 hover:bg-mint/20 transition-all flex items-center gap-1.5 shadow-sm"
+          className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+          style={{
+            border: '1px solid rgba(0, 210, 255, 0.5)',
+            color: '#00d2ff',
+            background: 'rgba(0, 210, 255, 0.1)'
+          }}
         >
           {loadingAction === 'undo' ? (
-            <span className="w-3 h-3 border-2 border-mint border-t-transparent rounded-full animate-spin inline-block" />
+            <span className="w-3 h-3 border-2 border-t-transparent rounded-full animate-spin inline-block" style={{ borderColor: '#00d2ff', borderTopColor: 'transparent' }} />
           ) : (
             <span>↺</span>
           )}
@@ -36,10 +41,10 @@ export default function PayPalActionButtons({ sub, onPause, onCancel, onUndo }) 
       <button
         onClick={() => handleAction('pause', onPause)}
         disabled={loadingAction !== null}
-        className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line text-ink/80 hover:text-ink hover:bg-white/10 transition-all flex items-center gap-1.5"
+        className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line text-white/80 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
       >
         {loadingAction === 'pause' ? (
-          <span className="w-3 h-3 border-2 border-ink border-t-transparent rounded-full animate-spin inline-block" />
+          <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
         ) : (
           <span>⏸</span>
         )}
@@ -49,7 +54,7 @@ export default function PayPalActionButtons({ sub, onPause, onCancel, onUndo }) 
       <button
         onClick={() => handleAction('cancel', onCancel)}
         disabled={loadingAction !== null}
-        className="text-xs font-semibold px-3 py-1.5 rounded-full border border-coral/30 text-coral/90 hover:text-coral hover:bg-coral/10 hover:border-coral transition-all flex items-center gap-1.5"
+        className="text-xs font-semibold px-3 py-1.5 rounded-full border border-coral/30 text-coral/90 hover:text-coral hover:bg-coral/10 hover:border-coral transition-all flex items-center gap-1.5 cursor-pointer"
       >
         {loadingAction === 'cancel' ? (
           <span className="w-3 h-3 border-2 border-coral border-t-transparent rounded-full animate-spin inline-block" />
