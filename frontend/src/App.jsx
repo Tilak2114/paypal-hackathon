@@ -8,30 +8,65 @@ import Hero3D from './components/Hero3D';
 export default function App() {
   const [user, setUser] = useState(null); // null = unauthenticated (shows Sign In on front)
   const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'dashboard' | 'add'
+  const [pageHistory, setPageHistory] = useState(['landing']);
   const [hasScanned, setHasScanned] = useState(false); // Tracks if user has scanned subscriptions
+
+  const navigateTo = (nextPage) => {
+    if (nextPage === currentPage) return;
+    setPageHistory((prev) => [...prev, nextPage]);
+    setCurrentPage(nextPage);
+  };
+
+  const handleBack = () => {
+    if (pageHistory.length > 1) {
+      const newHistory = [...pageHistory];
+      newHistory.pop(); // Remove current
+      const previousPage = newHistory[newHistory.length - 1];
+      setPageHistory(newHistory);
+      setCurrentPage(previousPage);
+    } else {
+      setCurrentPage('landing');
+    }
+  };
 
   const handleSignInSuccess = (userData) => {
     setUser(userData);
-    setCurrentPage('landing'); // Opens the landing page right after signing in
+    setCurrentPage('landing');
+    setPageHistory(['landing']);
   };
 
   const handleSignOut = () => {
     setUser(null);
     setCurrentPage('landing');
+    setPageHistory(['landing']);
     setHasScanned(false);
   };
 
   // Main CTA logic: New user goes to Scanner (add), existing goes to Dashboard
   const handleGetStarted = () => {
     if (hasScanned) {
-      setCurrentPage('dashboard');
+      navigateTo('dashboard');
     } else {
-      setCurrentPage('add');
+      navigateTo('add');
     }
   };
 
   const handleSeeDemo = () => {
-    setCurrentPage('dashboard');
+    navigateTo('dashboard');
+  };
+
+  // Scroll to "About Churn Guard" feature slide
+  const handleAboutClick = () => {
+    if (currentPage !== 'landing') {
+      navigateTo('landing');
+      setTimeout(() => {
+        const el = document.getElementById('about-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById('about-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -44,26 +79,45 @@ export default function App() {
       {/* Top Navbar in Dark Navy & Ice Cyan */}
       <header className="sticky top-0 z-40 bg-[#050a17]/90 backdrop-blur-xl border-b border-[rgba(0,210,255,0.18)] w-full flex justify-center">
         <nav className="max-w-7xl w-full px-6 sm:px-12 py-4 flex items-center justify-between">
-          <div
-            onClick={() => user && setCurrentPage('landing')}
-            className={`flex items-center gap-3 ${user ? 'cursor-pointer group' : ''}`}
-          >
-            <div 
-              className="w-5 h-6 clip-shield group-hover:scale-105 transition-transform" 
-              style={{ background: 'linear-gradient(135deg, #00d2ff, #2563eb)' }}
-            />
-            <span 
-              className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors"
+          <div className="flex items-center gap-3">
+            {/* Back Button (visible when not on landing) */}
+            {user && currentPage !== 'landing' && (
+              <button
+                onClick={handleBack}
+                className="px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 hover:-translate-x-0.5"
+                style={{
+                  border: '1px solid rgba(0, 210, 255, 0.4)',
+                  color: '#00d2ff',
+                  background: 'rgba(0, 210, 255, 0.08)'
+                }}
+                title="Go back"
+              >
+                <span>←</span>
+                <span>Back</span>
+              </button>
+            )}
+
+            <div
+              onClick={() => user && navigateTo('landing')}
+              className={`flex items-center gap-3 ${user ? 'cursor-pointer group' : ''}`}
             >
-              Churn Guard
-            </span>
+              <div 
+                className="w-5 h-6 clip-shield group-hover:scale-105 transition-transform" 
+                style={{ background: 'linear-gradient(135deg, #00d2ff, #2563eb)' }}
+              />
+              <span 
+                className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors"
+              >
+                Churn Guard
+              </span>
+            </div>
           </div>
 
           {/* Nav links once signed in */}
           {user ? (
             <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold">
               <button
-                onClick={() => setCurrentPage('landing')}
+                onClick={() => navigateTo('landing')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
                   currentPage === 'landing'
                     ? 'bg-white/10'
@@ -72,6 +126,14 @@ export default function App() {
                 style={currentPage === 'landing' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
               >
                 Overview
+              </button>
+
+              {/* Dedicated "About Churn Guard" button directly to the right of Overview */}
+              <button
+                onClick={handleAboutClick}
+                className="px-3.5 py-1.5 rounded-full text-mute hover:text-white transition-all cursor-pointer hover:bg-white/5"
+              >
+                About Churn Guard
               </button>
 
               {/* Dedicated "See a demo" navbar button */}
@@ -88,7 +150,7 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setCurrentPage('add')}
+                onClick={() => navigateTo('add')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
                   currentPage === 'add'
                     ? 'bg-white/10'
@@ -152,12 +214,14 @@ export default function App() {
             )}
             {currentPage === 'dashboard' && (
               <Dashboard 
-                onNavigate={setCurrentPage} 
+                onNavigate={navigateTo} 
+                onBack={handleBack}
               />
             )}
             {currentPage === 'add' && (
               <AddSubscriptions 
-                onNavigate={setCurrentPage} 
+                onNavigate={navigateTo} 
+                onBack={handleBack}
                 onScanComplete={() => setHasScanned(true)}
               />
             )}

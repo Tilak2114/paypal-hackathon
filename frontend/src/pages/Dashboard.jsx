@@ -4,7 +4,7 @@ import SavingsMeter from '../components/SavingsMeter';
 import AlertFeed from '../components/AlertFeed';
 import { getSubscriptions, pauseSub, cancelSub, undoSub } from '../api/client';
 
-export default function Dashboard({ onNavigate }) {
+export default function Dashboard({ onNavigate, onBack }) {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -89,13 +89,23 @@ export default function Dashboard({ onNavigate }) {
 
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
-            Subscription Command Center
-          </h1>
-          <p className="text-mute text-sm mt-1">
-            Review active PayPal billing plans and optimize redundant spending.
-          </p>
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="text-xs font-bold text-[#00d2ff] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-full border border-[rgba(0,210,255,0.3)] bg-[rgba(0,210,255,0.06)]"
+            >
+              ← Back
+            </button>
+          )}
+          <div>
+            <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
+              Subscription Command Center
+            </h1>
+            <p className="text-mute text-sm mt-1">
+              Review active PayPal billing plans and optimize redundant spending.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">

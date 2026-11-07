@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { analyze } from '../api/client';
 import SubscriptionCard from '../components/SubscriptionCard';
 
-export default function AddSubscriptions({ onNavigate, onScanComplete }) {
+export default function AddSubscriptions({ onNavigate, onBack, onScanComplete }) {
   const [inputText, setInputText] = useState('');
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState(null);
@@ -30,14 +30,14 @@ Mar 15 - OPENAI CHATGPT PLUS - $20.00`;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-      {/* Header with Navigation Link back to Dashboard */}
+      {/* Header with Back Button and Navigation Link back to Dashboard */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <button
-            onClick={() => onNavigate('dashboard')}
-            className="text-xs font-semibold text-mute hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+            onClick={onBack ? onBack : () => onNavigate('dashboard')}
+            className="text-xs font-bold text-[#00d2ff] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-full border border-[rgba(0,210,255,0.3)] bg-[rgba(0,210,255,0.06)]"
           >
-            ← Back to Dashboard
+            ← Back
           </button>
           
           <button

@@ -17,11 +17,11 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
 
   return (
     <div className="relative z-10 w-full">
-      {/* Hero Section: Centered max-width container with responsive padding */}
+      {/* Hero Section */}
       <section className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 sm:px-12 py-16">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Left Column: Compact Content Area in Navy & Icy Blue */}
+          {/* Left Column: Content Area in Navy & Icy Blue */}
           <div className="lg:col-span-6 flex flex-col justify-center items-start text-left space-y-4 max-w-lg">
             <div 
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm"
@@ -102,8 +102,8 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
         </div>
       </section>
 
-      {/* Feature Section: Navy & Ice Blue Cards */}
-      <section className="py-24 px-6 sm:px-12 border-t border-line/40 flex justify-center">
+      {/* Feature Section: "About Churn Guard" Slide */}
+      <section id="about-section" className="py-24 px-6 sm:px-12 border-t border-line/40 flex justify-center scroll-mt-20">
         <div className="max-w-7xl w-full">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
             <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
@@ -192,29 +192,6 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Bottom CTA Banner */}
-      <section className="py-24 px-6 sm:px-12 border-t border-line/30 flex justify-center text-center">
-        <div className="max-w-3xl w-full flex flex-col items-center space-y-6">
-          <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Keep the money you meant to keep.
-          </h2>
-          <p className="text-mute text-base sm:text-lg max-w-xl">
-            See your total monthly drain and start reclaiming yearly cash in under 60 seconds.
-          </p>
-          <button
-            onClick={onGetStarted}
-            className="mt-4 px-10 py-4 rounded-full font-extrabold text-base shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
-            style={{
-              background: '#00d2ff',
-              color: '#030814',
-              boxShadow: '0 0 30px rgba(0, 210, 255, 0.45)'
-            }}
-          >
-            Get started now →
-          </button>
         </div>
       </section>
     </div>
