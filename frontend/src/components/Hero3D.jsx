@@ -81,15 +81,16 @@ export default function Hero3D() {
       );
       scene.add(pts);
 
+      // Each subscription has [name, price, accentColor, daysAgo]
       const subs = [
-        ['Streamly', '$15.99', '#7b6cff'],
-        ['TuneBox', '$10.99', '#34f0c8'],
-        ['FitClub', '$39.00', '#ffb86b'],
-        ['CloudDrive', '$9.99', '#6bb7ff'],
-        ['PixelPro', '$22.50', '#ff9ad5'],
-        ['NewsPlus', '$12.00', '#c4f06b'],
-        ['GameVault', '$14.99', '#ff8a6b'],
-        ['TuneWave', '$10.99', '#34f0c8'],
+        ['Streamly', '$15.99', '#00d2ff', 2],
+        ['TuneBox', '$10.99', '#2563eb', 5],
+        ['FitClub', '$39.00', '#ff3d71', 41],     // > 30 days -> eligible for cancellation
+        ['CloudDrive', '$9.99', '#38bdf8', 1],
+        ['PixelPro', '$22.50', '#a855f7', 14],
+        ['NewsPlus', '$12.00', '#00d2ff', 58],    // > 30 days -> eligible for cancellation
+        ['GameVault', '$14.99', '#f97316', 36],   // > 30 days -> eligible for cancellation
+        ['TuneWave', '$10.99', '#2563eb', 52],    // > 30 days -> eligible for cancellation
       ];
 
       function rr(ctx, a, b, w, h, r) {
@@ -106,30 +107,31 @@ export default function Hero3D() {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 512, 300);
         rr(ctx, 8, 8, 496, 284, 40);
-        ctx.fillStyle = isDead ? 'rgba(60,12,40,0.92)' : 'rgba(24,14,70,0.9)';
+        ctx.fillStyle = isDead ? 'rgba(50, 10, 30, 0.94)' : 'rgba(8, 18, 42, 0.92)';
         ctx.fill();
         ctx.lineWidth = 3;
-        ctx.strokeStyle = isDead ? '#ff6f91' : 'rgba(190,170,255,0.45)';
+        ctx.strokeStyle = isDead ? '#ff3d71' : 'rgba(0, 210, 255, 0.45)';
         ctx.stroke();
 
         rr(ctx, 40, 44, 70, 70, 20);
-        ctx.fillStyle = isDead ? '#ff6f91' : s[2];
+        ctx.fillStyle = isDead ? '#ff3d71' : s[2];
         ctx.fill();
-        ctx.fillStyle = '#0b0b22';
+        ctx.fillStyle = '#050a17';
         ctx.font = '800 40px sans-serif';
         ctx.fillText(s[0][0], 62, 92);
 
-        ctx.fillStyle = '#efeaff';
+        ctx.fillStyle = '#f0f6ff';
         ctx.font = '700 38px sans-serif';
         ctx.fillText(s[0], 130, 92);
 
         ctx.font = '800 66px sans-serif';
-        ctx.fillStyle = isDead ? '#ff6f91' : '#efeaff';
+        ctx.fillStyle = isDead ? '#ff3d71' : '#f0f6ff';
         ctx.fillText(isDead ? 'Cancelled' : s[1] + '/mo', 40, 208);
 
         ctx.font = '400 26px sans-serif';
-        ctx.fillStyle = '#a79fd0';
-        ctx.fillText(isDead ? 'Saved ' + s[1] + ' a month' : 'Last used 41 days ago', 40, 254);
+        ctx.fillStyle = '#8295b5';
+        const lastUsedText = s[3] === 1 ? 'Last used yesterday' : `Last used ${s[3]} days ago`;
+        ctx.fillText(isDead ? 'Saved ' + s[1] + ' a month' : lastUsedText, 40, 254);
       }
 
       cards = subs.map((s, i) => {
@@ -206,9 +208,10 @@ export default function Hero3D() {
         }
 
         if (t > nextKill) {
-          const live = cards.filter((c) => c.state === 0);
-          if (live.length) {
-            const c = live[Math.floor(Math.random() * live.length)];
+          // Cancel only goes to inactive subscriptions unused for more than 30 days
+          const eligibleToCancel = cards.filter((c) => c.state === 0 && c.s[3] > 30);
+          if (eligibleToCancel.length) {
+            const c = eligibleToCancel[Math.floor(Math.random() * eligibleToCancel.length)];
             c.state = 1;
             c.k = 0;
             drawCard(c.cn, c.s, true);
