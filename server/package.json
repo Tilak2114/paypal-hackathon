@@ -1,0 +1,25 @@
+{
+  "name": "churn-guard-backend",
+  "version": "1.0.0",
+  "description": "Backend API, AI Statement Analyzer, and PayPal Subscriptions service for Churn Guard (PayPal Hackathon 2026)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "node test/test-analyzer.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "paypal",
+    "hackathon",
+    "churn-guard",
+    "subscriptions",
+    "ai-analyzer"
+  ],
+  "author": "Person C (Churn Guard Team)",
+  "license": "MIT"
+}
