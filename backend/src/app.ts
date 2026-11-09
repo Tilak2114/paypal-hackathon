@@ -16,6 +16,7 @@ import demoRouter from './routes/demo.routes.js';
 import subscriptionRouter from './routes/subscription.routes.js';
 import ingestRouter from './routes/ingest.routes.js';
 import alertRouter from './routes/alert.routes.js';
+import analyzeRouter from './routes/analyze.routes.js';
 
 export function createApp() {
   const app = express();
@@ -74,6 +75,14 @@ export function createApp() {
   app.use('/api/subscriptions', authMiddleware, subscriptionRouter);
   app.use('/api/ingest', authMiddleware, ingestRouter);
   app.use('/api/alerts', authMiddleware, alertRouter);
+  app.use('/api/analyze', authMiddleware, analyzeRouter);
+
+  // Friendly aliases for frontend integration without /api prefix
+  app.use('/subscriptions', authMiddleware, subscriptionRouter);
+  app.use('/alerts', authMiddleware, alertRouter);
+  app.use('/analyze', authMiddleware, analyzeRouter);
+  app.use('/events', eventRouter);
+  app.use('/health', healthRouter);
 
   // 404 Handler
   app.use((req, res) => {

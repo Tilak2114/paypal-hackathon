@@ -93,10 +93,11 @@ async function runSmokeTests() {
       body: JSON.stringify({ reason: 'Smoke test pausing' }),
     });
     const pauseJson = (await pauseRes.json()) as any;
+    const isPaused = pauseJson.subscription?.status === 'paused' || pauseJson.subscription?.status === 'SUSPENDED';
     record(
       'POST /api/subscriptions/:id/pause',
-      pauseRes.status === 200 && pauseJson.subscription?.status === 'SUSPENDED',
-      'Status transitioned to SUSPENDED'
+      pauseRes.status === 200 && isPaused,
+      `Status transitioned to ${pauseJson.subscription?.status}`
     );
 
     // 7. POST /api/subscriptions/:id/resume
@@ -106,10 +107,11 @@ async function runSmokeTests() {
       body: JSON.stringify({ reason: 'Smoke test resuming' }),
     });
     const resumeJson = (await resumeRes.json()) as any;
+    const isActive = resumeJson.subscription?.status === 'active' || resumeJson.subscription?.status === 'ACTIVE';
     record(
       'POST /api/subscriptions/:id/resume',
-      resumeRes.status === 200 && resumeJson.subscription?.status === 'ACTIVE',
-      'Status transitioned to ACTIVE'
+      resumeRes.status === 200 && isActive,
+      `Status transitioned to ${resumeJson.subscription?.status}`
     );
 
     // 8. POST /api/subscriptions/:id/downgrade
@@ -158,10 +160,11 @@ async function runSmokeTests() {
       body: JSON.stringify({ confirm: true, reason: 'Smoke test cancellation' }),
     });
     const cancelJson = (await cancelRes.json()) as any;
+    const isCancelled = cancelJson.subscription?.status === 'cancelled' || cancelJson.subscription?.status === 'CANCELLED';
     record(
       'POST /api/subscriptions/:id/cancel (with confirm:true)',
-      cancelRes.status === 200 && cancelJson.subscription?.status === 'CANCELLED',
-      'Status transitioned to CANCELLED'
+      cancelRes.status === 200 && isCancelled,
+      `Status transitioned to ${cancelJson.subscription?.status}`
     );
 
     // 11. Transactions

@@ -1,8 +1,8 @@
 // frontend/src/api/client.js
 import { subscriptions as mockSubscriptions } from '../mock/subscriptions';
 
-const BASE = import.meta.env.VITE_API_URL;
-const USE_MOCK = !BASE;
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 // In-memory state for mock sessions
 let subsState = [...mockSubscriptions];
@@ -49,7 +49,7 @@ export async function cancelSub(id) {
     subsState = subsState.map((s) => (s.id === id ? { ...s, status: 'cancelled' } : s));
     return { success: true, message: 'Cancelled via PayPal' };
   }
-  return post(`/subscriptions/${id}/cancel`);
+  return post(`/subscriptions/${id}/cancel`, { confirm: true, reason: 'Cancelled via Churn Guard' });
 }
 
 export async function undoSub(id) {
