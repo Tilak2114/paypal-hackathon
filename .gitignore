@@ -1,16 +1,29 @@
-# Python
+# Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+
+# SQLite & Backend Databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+logs/
+*.log
+
+# Python & AI
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
-.env
-.env.local
 
-# Node
-node_modules/
-dist/
-dist-ssr/
-*.local
-
-# macOS
+# OS
 .DS_Store
+Thumbs.db

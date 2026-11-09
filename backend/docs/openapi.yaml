@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  title: Churn Guard API
+  description: Backend API for Smart Subscription & Churn Guard (PayPal AI Hackathon 2026)
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Local development / mock server
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Server status and runtime mode
+  /auth/login:
+    post:
+      summary: Login to obtain JWT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT token and user profile
+  /subscriptions:
+    get:
+      summary: List all subscriptions
+      parameters:
+        - name: sync
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Force real-time sync with PayPal sandbox
+      responses:
+        '200':
+          description: Array of subscriptions
+  /subscriptions/{id}:
+    get:
+      summary: Get subscription by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subscription details
+        '404':
+          description: Subscription not found
+  /subscriptions/{id}/pause:
+    post:
+      summary: Pause/suspend a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Subscription paused successfully
+        '409':
+          description: Subscription is external (Audit only)
+  /subscriptions/{id}/resume:
+    post:
+      summary: Resume/activate a suspended subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subscription activated successfully
+        '409':
+          description: Subscription is external (Audit only)
+  /subscriptions/{id}/cancel:
+    post:
+      summary: Cancel a subscription (irreversible, requires confirm:true)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - confirm
+              properties:
+                confirm:
+                  type: boolean
+                  enum: [true]
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Subscription cancelled successfully
+        '400':
+          description: Missing confirm:true
+        '409':
+          description: Subscription is external (Audit only)
+  /subscriptions/{id}/downgrade:
+    post:
+      summary: Downgrade subscription to a cheaper plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetPlanId:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Subscription plan revised
+  /subscriptions/{id}/transactions:
+    get:
+      summary: Get subscription transaction history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of transactions
+  /ingest:
+    post:
+      summary: Person C AI Parser Ingest Endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubscriptionInput'
+      responses:
+        '201':
+          description: Ingested subscriptions summary
+  /alerts:
+    get:
+      summary: List alerts
+      parameters:
+        - name: unread
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of alerts
+    post:
+      summary: Person C Post Alerts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AlertInput'
+      responses:
+        '201':
+          description: Created alerts
+  /alerts/{id}/read:
+    post:
+      summary: Mark alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated alert
+  /events:
+    get:
+      summary: Server-Sent Events (SSE) Stream
+      responses:
+        '200':
+          description: SSE event stream (subscription_updated, alert_created, webhook_received)
+  /webhooks/paypal:
+    post:
+      summary: PayPal Webhook receiver
+      responses:
+        '200':
+          description: Webhook processed or ignored duplicate
+  /demo/reset:
+    post:
+      summary: Reset demo database fixtures
+      responses:
+        '200':
+          description: Demo state reset successfully
+
+components:
+  schemas:
+    Subscription:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - price
+        - currency
+        - interval
+        - status
+        - source
+        - managedByPaypal
+        - createdAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        price:
+          type: string
+        currency:
+          type: string
+        interval:
+          type: string
+          enum: [MONTH, YEAR]
+        status:
+          type: string
+          enum: [APPROVAL_PENDING, ACTIVE, SUSPENDED, CANCELLED, EXTERNAL]
+        source:
+          type: string
+          enum: [paypal, external]
+        managedByPaypal:
+          type: boolean
+        paypalSubscriptionId:
+          type: string
+          nullable: true
+        planId:
+          type: string
+          nullable: true
+        downgradePlanId:
+          type: string
+          nullable: true
+        nextBillingTime:
+          type: string
+          nullable: true
+        trialEndsAt:
+          type: string
+          nullable: true
+        lastUsedAt:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+    SubscriptionInput:
+      type: object
+      required:
+        - name
+        - category
+        - price
+        - interval
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        price:
+          type: string
+        interval:
+          type: string
+          enum: [MONTH, YEAR]
+        currency:
+          type: string
+        lastUsedAt:
+          type: string
+    AlertInput:
+      type: object
+      required:
+        - subscriptionId
+        - type
+        - severity
+        - message
+        - recommendation
+        - reason
+      properties:
+        subscriptionId:
+          type: string
+        type:
+          type: string
+          enum: [trial_ending, price_increase, unused, overlap, payment_failed]
+        severity:
+          type: string
+          enum: [low, medium, high]
+        message:
+          type: string
+        recommendation:
+          type: string
+          enum: [pause, downgrade, cancel, keep]
+        reason:
+          type: string
+

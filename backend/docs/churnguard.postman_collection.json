@@ -1,0 +1,203 @@
+{
+  "info": {
+    "name": "Churn Guard API Collection",
+    "description": "Postman Collection for Smart Subscription & Churn Guard (PayPal AI Hackathon 2026)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) { pm.collectionVariables.set('token', jsonData.token); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"demo@churnguard.local\",\n  \"password\": \"demopassword\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Subscriptions - List All",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/subscriptions",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Subscriptions - Get One",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/subscriptions/sub-tunebox",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Subscriptions - Pause (Suspend)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/subscriptions/sub-tunebox/pause",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Temporarily pausing to reduce monthly spend\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Subscriptions - Resume (Activate)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/subscriptions/sub-tunebox/resume",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Resuming service upon customer request\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Subscriptions - Downgrade Plan",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/subscriptions/sub-streamly/downgrade",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Downgrading to basic plan\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Subscriptions - Cancel (Irreversible)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/subscriptions/sub-soundwave/cancel",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"confirm\": true,\n  \"reason\": \"Duplicate overlapping music service\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Subscriptions - Get Transactions",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/subscriptions/sub-tunebox/transactions",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Ingest - Person C Statement Subscriptions",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/ingest",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"name\": \"Equinox Fitness Club\",\n    \"category\": \"Fitness\",\n    \"price\": \"280.00\",\n    \"currency\": \"USD\",\n    \"interval\": \"MONTH\",\n    \"lastUsedAt\": \"2026-09-01T00:00:00.000Z\"\n  }\n]"
+        }
+      }
+    },
+    {
+      "name": "Alerts - List All",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/alerts",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Alerts - Post Alerts (Person C)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/alerts",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"subscriptionId\": \"sub-fitclub\",\n    \"type\": \"unused\",\n    \"severity\": \"high\",\n    \"message\": \"FitClub unused for 74 days\",\n    \"recommendation\": \"pause\",\n    \"reason\": \"Zero visits in 74 days. Pausing saves $49/mo.\"\n  }\n]"
+        }
+      }
+    },
+    {
+      "name": "Alerts - Mark Read",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/alerts/alert-overlap-music/read",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Demo - Reset State",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/demo/reset",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "Webhooks - PayPal Simulator",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/webhooks/paypal",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"WH-SIMULATED-001\",\n  \"event_type\": \"BILLING.SUBSCRIPTION.PAYMENT.FAILED\",\n  \"resource\": {\n    \"id\": \"I-MOCK-TUNEBOX\"\n  }\n}"
+        }
+      }
+    }
+  ]
+}
+
