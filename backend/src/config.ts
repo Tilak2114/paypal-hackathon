@@ -26,6 +26,8 @@ const ConfigSchema = z.object({
   PAYPAL_CLIENT_ID: z.string().optional().default(''),
   PAYPAL_CLIENT_SECRET: z.string().optional().default(''),
   PAYPAL_WEBHOOK_ID: z.string().optional().default(''),
+  PAYPAL_RETURN_URL: z.string().default('https://example.com/return'),
+  PAYPAL_CANCEL_URL: z.string().default('https://example.com/cancel'),
 });
 
 const parsed = ConfigSchema.safeParse(process.env);

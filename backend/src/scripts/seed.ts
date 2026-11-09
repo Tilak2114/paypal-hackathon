@@ -401,20 +401,35 @@ export async function runSeed(): Promise<{ subscriptionsCount: number; alertsCou
     console.log(`[REAL PAYPAL] Created Downgrade Plan: ${downgradePlan.id}`);
     console.log(`[REAL PAYPAL] Created Trial Plan: ${trialPlan.id}`);
 
+    let returnUrl = config.PAYPAL_RETURN_URL;
+    let cancelUrl = config.PAYPAL_CANCEL_URL;
+    if (config.PUBLIC_BASE_URL.startsWith('https://')) {
+      returnUrl = `${config.PUBLIC_BASE_URL}/api/demo/return`;
+      cancelUrl = `${config.PUBLIC_BASE_URL}/api/demo/cancel`;
+    }
+
     // 3. Create Subscriptions and print Approval Links
     const sub1 = await paypalClient.createSubscription({
       plan_id: standardPlan.id,
       application_context: {
-        return_url: `${config.PUBLIC_BASE_URL}/api/demo/return`,
-        cancel_url: `${config.PUBLIC_BASE_URL}/api/demo/cancel`,
+        brand_name: 'Churn Guard',
+        locale: 'en-US',
+        shipping_preference: 'NO_SHIPPING',
+        user_action: 'SUBSCRIBE_NOW',
+        return_url: returnUrl,
+        cancel_url: cancelUrl,
       },
     });
 
     const sub2 = await paypalClient.createSubscription({
       plan_id: trialPlan.id,
       application_context: {
-        return_url: `${config.PUBLIC_BASE_URL}/api/demo/return`,
-        cancel_url: `${config.PUBLIC_BASE_URL}/api/demo/cancel`,
+        brand_name: 'Churn Guard',
+        locale: 'en-US',
+        shipping_preference: 'NO_SHIPPING',
+        user_action: 'SUBSCRIBE_NOW',
+        return_url: returnUrl,
+        cancel_url: cancelUrl,
       },
     });
 

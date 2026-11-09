@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "seed": "tsx src/scripts/seed.ts",
+    "reapprove": "tsx src/scripts/reapprove.ts",
     "sync": "tsx src/scripts/sync.ts",
     "test:smoke": "tsx src/scripts/smoke-test.ts",
     "build": "tsc",

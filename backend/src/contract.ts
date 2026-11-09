@@ -9,6 +9,7 @@ export const SubscriptionStatusSchema = z.enum([
   'SUSPENDED',
   'CANCELLED',
   'EXTERNAL',
+  'STALE',
 ]);
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatusSchema>;
 
