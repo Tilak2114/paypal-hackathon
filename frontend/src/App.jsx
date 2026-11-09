@@ -3,6 +3,7 @@ import Landing from './pages/Landing';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import AddSubscriptions from './pages/AddSubscriptions';
+import AppDirectory from './pages/AppDirectory';
 import SignIn from './pages/SignIn';
 import Hero3D from './components/Hero3D';
 
@@ -142,6 +143,19 @@ export default function App() {
                 See a demo
               </button>
 
+              {/* App Directory button directly matching Person A's design */}
+              <button
+                onClick={() => navigateTo('directory')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentPage === 'directory'
+                    ? 'bg-white/10'
+                    : 'text-mute hover:text-white'
+                }`}
+                style={currentPage === 'directory' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
+              >
+                App Directory
+              </button>
+
               <button
                 onClick={() => navigateTo('add')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
@@ -213,6 +227,12 @@ export default function App() {
             )}
             {currentPage === 'dashboard' && (
               <Dashboard 
+                onNavigate={navigateTo} 
+                onBack={handleBack}
+              />
+            )}
+            {currentPage === 'directory' && (
+              <AppDirectory 
                 onNavigate={navigateTo} 
                 onBack={handleBack}
               />
