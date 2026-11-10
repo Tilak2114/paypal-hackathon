@@ -3,6 +3,7 @@ import SubscriptionCard from '../components/SubscriptionCard';
 import SavingsMeter from '../components/SavingsMeter';
 import AlertFeed from '../components/AlertFeed';
 import ConfirmDialog from '../components/ConfirmDialog';
+import SavingsJarPopup from '../components/SavingsJarPopup';
 import { useAuth } from '../auth/AuthContext';
 import { getSubscriptions, pauseSub, cancelSub, undoSub } from '../api/client';
 
@@ -14,6 +15,7 @@ export default function Dashboard({ onNavigate, onBack }) {
   const [pendingAction, setPendingAction] = useState(null); // { type: 'pause' | 'cancel', sub }
   const [connectPromptOpen, setConnectPromptOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [jarPopup, setJarPopup] = useState({ open: false, fromFill: 0.2, toFill: 0.65 });
 
   const fetchSubs = async () => {
     try {
@@ -72,8 +74,23 @@ export default function Dashboard({ onNavigate, onBack }) {
         setSubscriptions((prev) =>
           prev.map((s) => (s.id === sub.id ? { ...s, status: 'cancelled' } : s))
         );
-        const yearly = sub.cost * 12;
-        showToast(`Cancelled ${sub.name}. You're keeping $${yearly.toFixed(2)}/yr.`);
+        const yearly = (sub.cost || 0) * 12;
+
+        // Calculate and save accumulated savings
+        const prevSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
+        const newSaved = prevSaved + yearly;
+        localStorage.setItem('churnguard_saved', newSaved.toString());
+
+        // Previous fill vs target fuller fill
+        const prevFill = Math.min(prevSaved / 600, 0.75);
+        const nextFill = Math.min(Math.max(newSaved / 600, prevFill + 0.35), 0.95);
+
+        // Trigger top-right Savings Jar pop-up with liquid rising & cha-ching sound!
+        setJarPopup({
+          open: true,
+          fromFill: Math.max(0.18, prevFill),
+          toFill: nextFill,
+        });
       }
     } catch (err) {
       showToast(`Action failed: ${err.message}`, 'error');
@@ -116,6 +133,14 @@ export default function Dashboard({ onNavigate, onBack }) {
           <span className="text-sm font-semibold">{toast.message}</span>
         </div>
       )}
+
+      {/* Top right Savings Jar Pop-up with Cha-Ching Sound */}
+      <SavingsJarPopup
+        isOpen={jarPopup.open}
+        onClose={() => setJarPopup((prev) => ({ ...prev, open: false }))}
+        fromFill={jarPopup.fromFill}
+        toFill={jarPopup.toFill}
+      />
 
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

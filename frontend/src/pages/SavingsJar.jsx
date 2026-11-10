@@ -1,12 +1,6 @@
+// frontend/src/pages/SavingsJar.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-// ── Sample demo subscriptions ────────────────────────────────────────────────
-const DEMO_SUBS = [
-  { id: 'streamly', name: 'Streamly',  price: 649,  icon: '📺', bg: 'rgba(124,58,237,.18)',  color: '#a78bfa' },
-  { id: 'tunewave', name: 'TuneWave',  price: 119,  icon: '🎵', bg: 'rgba(5,150,105,.18)',   color: '#34d399' },
-  { id: 'fitclub',  name: 'FitClub',   price: 1500, icon: '💪', bg: 'rgba(225,29,72,.16)',   color: '#fb7185' },
-  { id: 'pixelpro', name: 'PixelPro',  price: 899,  icon: '🎨', bg: 'rgba(217,119,6,.18)',   color: '#fbbf24' },
-];
+import { getSubscriptions } from '../api/client';
 
 const PRESETS = [
   { name: 'Weekend trip',   amount: 5000,  emoji: '🏖️' },
@@ -29,7 +23,7 @@ function buildWavePath(waveY) {
   const A = 7, P = 80, startX = -P;
   let d = `M ${startX},${waveY} `;
   for (let x = startX; x < startX + 500; x += P) {
-    d += `C ${x + P * .28},${waveY - A} ${x + P * .72},${waveY + A} ${x + P},${waveY} `;
+    d += `C ${x + P * 0.28},${waveY - A} ${x + P * 0.72},${waveY + A} ${x + P},${waveY} `;
   }
   d += `L ${startX + 580},320 L ${startX},320 Z`;
   return d;
@@ -44,15 +38,16 @@ function launchConfetti(canvas) {
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const cols = ['#00d2ff','#ff6f91','#ffd700','#818cf8','#60a5fa','#f97316','#4ade80'];
+  const cols = ['#00d2ff', '#ff6f91', '#ffd700', '#818cf8', '#60a5fa', '#f97316', '#4ade80'];
   const pts = Array.from({ length: 130 }, () => ({
     x: Math.random() * canvas.width,
     y: -30 - Math.random() * 120,
-    w: 6 + Math.random() * 10, h: 4 + Math.random() * 4,
+    w: 6 + Math.random() * 10,
+    h: 4 + Math.random() * 4,
     col: cols[Math.floor(Math.random() * cols.length)],
     rot: Math.random() * Math.PI * 2,
-    rv: (Math.random() - .5) * .18,
-    vx: (Math.random() - .5) * 4.5,
+    rv: (Math.random() - 0.5) * 0.18,
+    vx: (Math.random() - 0.5) * 4.5,
     vy: 1.8 + Math.random() * 3.5,
     alpha: 1,
   }));
@@ -61,8 +56,10 @@ function launchConfetti(canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
     for (const p of pts) {
-      p.x += p.vx; p.y += p.vy; p.rot += p.rv;
-      if (p.y > canvas.height * .55) p.alpha -= .018;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rv;
+      if (p.y > canvas.height * 0.55) p.alpha -= 0.018;
       if (p.alpha > 0 && p.y < canvas.height + 20) {
         alive = true;
         ctx.save();
@@ -87,7 +84,6 @@ export default function SavingsJar() {
   const [goal, setGoal]             = useState(5000);
   const [goalName, setGoalName]     = useState('Weekend trip');
   const [activePreset, setPreset]   = useState(0);
-  const [cancelled, setCancelled]   = useState(new Set());
   const [goalHit, setGoalHit]       = useState(false);
   const [waveY, setWaveY]           = useState(JAR_BOT + 60);
   const [wavePath, setWavePath]     = useState(buildWavePath(JAR_BOT + 60));
@@ -111,7 +107,7 @@ export default function SavingsJar() {
     }
     const start = performance.now(), dur = 850;
     let fromY = null;
-    setWaveY(prev => { fromY = prev; return prev; });
+    setWaveY((prev) => { fromY = prev; return prev; });
 
     (function step(now) {
       const t = Math.min((now - start) / dur, 1);
@@ -136,53 +132,33 @@ export default function SavingsJar() {
     })(performance.now());
   }, []);
 
-  // ── Coin drop ─────────────────────────────────────────────────────────────
-  const dropCoins = useCallback((n) => {
-    if (reducedMotion()) return;
-    const newCoins = Array.from({ length: n }, (_, i) => ({
-      id: Date.now() + i,
-      left: 50 + (Math.random() - .5) * 54,
-      delay: i * 95,
-    }));
-    setCoins(prev => [...prev, ...newCoins]);
-    setTimeout(() => {
-      setCoins(prev => prev.filter(c => !newCoins.some(nc => nc.id === c.id)));
-    }, 1400);
-  }, []);
+  // ── Load savings dynamically from cancelled subscriptions & storage ───────
+  useEffect(() => {
+    async function initSavings() {
+      try {
+        const subs = await getSubscriptions();
+        const cancelledTotal = subs
+          .filter((s) => s.status === 'cancelled')
+          .reduce((sum, s) => sum + (s.cost || 0) * 12, 0);
 
-  // ── Cancel subscription ───────────────────────────────────────────────────
-  const handleCancel = useCallback((sub) => {
-    if (cancelled.has(sub.id)) return;
-    const gain = sub.price * 12;
-    setCancelled(prev => new Set([...prev, sub.id]));
-    setSaved(prev => {
-      const next = prev + gain;
-      countUp(prev, next);
-      animateFill(next, goal);
-      // Check goal
-      if (!goalHitRef.current && next >= goal) {
-        goalHitRef.current = true;
-        setGoalHit(true);
-        setTimeout(() => launchConfetti(canvasRef.current), 100);
+        const storedSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
+        const total = Math.max(cancelledTotal, storedSaved);
+
+        if (total > 0) {
+          setSaved(total);
+          countUp(0, total);
+          animateFill(total, goal);
+          if (total >= goal) {
+            goalHitRef.current = true;
+            setGoalHit(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error calculating savings:', err);
       }
-      return next;
-    });
-    dropCoins(3);
-  }, [cancelled, goal, countUp, animateFill, dropCoins]);
-
-  // ── Undo cancel ───────────────────────────────────────────────────────────
-  const handleUndo = useCallback((sub) => {
-    if (!cancelled.has(sub.id)) return;
-    const gain = sub.price * 12;
-    setCancelled(prev => { const s = new Set(prev); s.delete(sub.id); return s; });
-    setSaved(prev => {
-      const next = Math.max(0, prev - gain);
-      countUp(prev, next);
-      animateFill(next, goal);
-      if (next < goal) { goalHitRef.current = false; setGoalHit(false); }
-      return next;
-    });
-  }, [cancelled, goal, countUp, animateFill]);
+    }
+    initSavings();
+  }, [goal, animateFill, countUp]);
 
   // ── Pick preset goal ─────────────────────────────────────────────────────
   const pickPreset = useCallback((preset, idx) => {
@@ -193,7 +169,15 @@ export default function SavingsJar() {
     goalHitRef.current = false;
     setCustomName('');
     setCustomAmt('');
-    setSaved(prev => { animateFill(prev, preset.amount); return prev; });
+    setSaved((prev) => {
+      animateFill(prev, preset.amount);
+      if (prev >= preset.amount) {
+        goalHitRef.current = true;
+        setGoalHit(true);
+        setTimeout(() => launchConfetti(canvasRef.current), 100);
+      }
+      return prev;
+    });
   }, [animateFill]);
 
   // ── Apply custom goal ─────────────────────────────────────────────────────
@@ -206,7 +190,15 @@ export default function SavingsJar() {
     setPreset(-1);
     setGoalHit(false);
     goalHitRef.current = false;
-    setSaved(prev => { animateFill(prev, amt); return prev; });
+    setSaved((prev) => {
+      animateFill(prev, amt);
+      if (prev >= amt) {
+        goalHitRef.current = true;
+        setGoalHit(true);
+        setTimeout(() => launchConfetti(canvasRef.current), 100);
+      }
+      return prev;
+    });
   }, [customName, customAmt, animateFill]);
 
   // ── Progress values ───────────────────────────────────────────────────────
@@ -216,12 +208,11 @@ export default function SavingsJar() {
 
   let progressHint = '';
   if (saved > 0 && pct < 1) {
-    progressHint = pct >= .9 ? '🔥 Almost there!' : `₹${fmt(remaining)} to go`;
+    progressHint = pct >= 0.9 ? '🔥 Almost there!' : `₹${fmt(remaining)} to go`;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10 space-y-6">
-
       {/* Confetti canvas */}
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-50" />
 
@@ -232,7 +223,7 @@ export default function SavingsJar() {
             Savings Jar
           </h1>
           <p className="text-sm mt-1" style={{ color: '#8295b5' }}>
-            Cancel forgotten subscriptions and watch your savings grow.
+            Watch your savings grow as you cancel unused subscriptions across Churn Guard.
           </p>
         </div>
         <span
@@ -281,12 +272,12 @@ export default function SavingsJar() {
               maxLength={30}
               placeholder="e.g. Vacation"
               value={customName}
-              onChange={e => setCustomName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && applyCustom()}
+              onChange={(e) => setCustomName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applyCustom()}
               className="rounded-xl px-3 py-2 text-sm text-white placeholder-[#8295b5] outline-none transition-all"
               style={{ background: 'rgba(255,255,255,.05)', border: '1.5px solid rgba(255,255,255,.12)' }}
-              onFocus={e => e.target.style.borderColor = '#00d2ff'}
-              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,.12)'}
+              onFocus={(e) => (e.target.style.borderColor = '#00d2ff')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.12)')}
             />
           </div>
           <div className="flex flex-col gap-1" style={{ maxWidth: 110 }}>
@@ -297,12 +288,12 @@ export default function SavingsJar() {
               min="1"
               placeholder="0"
               value={customAmt}
-              onChange={e => setCustomAmt(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && applyCustom()}
+              onChange={(e) => setCustomAmt(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applyCustom()}
               className="rounded-xl px-3 py-2 text-sm text-white placeholder-[#8295b5] outline-none w-full transition-all"
               style={{ background: 'rgba(255,255,255,.05)', border: '1.5px solid rgba(255,255,255,.12)' }}
-              onFocus={e => e.target.style.borderColor = '#00d2ff'}
-              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,.12)'}
+              onFocus={(e) => (e.target.style.borderColor = '#00d2ff')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.12)')}
             />
           </div>
           <button
@@ -323,7 +314,7 @@ export default function SavingsJar() {
         {/* Balance */}
         <div className="text-center">
           <p className="text-[11px] font-semibold tracking-wider uppercase mb-1" style={{ color: '#8295b5' }}>
-            Money saved
+            Total Money Saved
           </p>
           <div
             className="font-display font-black tracking-tighter leading-none"
@@ -417,7 +408,7 @@ export default function SavingsJar() {
 
           {/* Coin drop overlay */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
-            {coins.map(coin => (
+            {coins.map((coin) => (
               <div
                 key={coin.id}
                 className="coin-anim absolute flex items-center justify-center rounded-full"
@@ -488,105 +479,6 @@ export default function SavingsJar() {
             </div>
           )}
         </div>
-      </div>
-
-      {/* ── Subscriptions ── */}
-      <div
-        className="rounded-3xl p-5 space-y-3"
-        style={{ background: 'rgba(11,22,46,.75)', border: '1px solid rgba(0,210,255,.18)' }}
-      >
-        <p className="text-[10.5px] font-bold tracking-widest uppercase" style={{ color: '#8295b5' }}>
-          Your subscriptions — cancel to save
-        </p>
-
-        <div className="space-y-2.5" role="list">
-          {DEMO_SUBS.map(sub => {
-            const done = cancelled.has(sub.id);
-            const yr   = sub.price * 12;
-            return (
-              <div
-                key={sub.id}
-                role="listitem"
-                className="flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300"
-                style={{
-                  background: 'rgba(255,255,255,.035)',
-                  border: done
-                    ? '1px dashed rgba(0,210,255,.22)'
-                    : '1px solid rgba(255,255,255,.10)',
-                  opacity: done ? .5 : 1,
-                }}
-              >
-                {/* Icon */}
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ background: sub.bg }}
-                >
-                  {sub.icon}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-display font-bold text-white text-[15px]">{sub.name}</div>
-                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                    <span className="text-xs font-semibold" style={{ color: '#ff6f91' }}>
-                      ₹{fmt(sub.price)}/mo
-                    </span>
-                    {done ? (
-                      <span
-                        className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(0,210,255,.12)', color: '#00d2ff' }}
-                      >
-                        +₹{fmt(yr)}/yr saved
-                      </span>
-                    ) : (
-                      <span className="text-[11px]" style={{ color: '#8295b5' }}>₹{fmt(yr)}/yr</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Action */}
-                {done ? (
-                  <button
-                    onClick={() => handleUndo(sub)}
-                    aria-label={`Undo cancel ${sub.name}`}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-all hover:border-white/30 hover:text-white flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,.05)', border: '1.5px solid rgba(255,255,255,.12)', color: '#8295b5' }}
-                  >
-                    ↩ Undo
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleCancel(sub)}
-                    aria-label={`Cancel ${sub.name}, saves ₹${fmt(yr)} per year`}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-all flex-shrink-0"
-                    style={{
-                      background: 'rgba(255,111,145,.12)',
-                      border: '1.5px solid rgba(255,111,145,.30)',
-                      color: '#ff6f91',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,111,145,.22)'; e.currentTarget.style.borderColor = '#ff6f91'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,111,145,.12)'; e.currentTarget.style.borderColor = 'rgba(255,111,145,.30)'; }}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Totals footer */}
-        {cancelled.size > 0 && (
-          <div
-            className="flex items-center justify-between pt-3 mt-1 border-t text-xs font-semibold"
-            style={{ borderColor: 'rgba(0,210,255,.12)', color: '#8295b5' }}
-          >
-            <span>{cancelled.size} subscription{cancelled.size > 1 ? 's' : ''} cancelled</span>
-            <span style={{ color: '#00d2ff' }}>
-              ₹{fmt(DEMO_SUBS.filter(s => cancelled.has(s.id)).reduce((acc, s) => acc + s.price * 12, 0))}/yr saved
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
