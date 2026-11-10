@@ -39,7 +39,8 @@ export async function getSubscriptions() {
   try {
     const r = await fetch(`${BASE}/subscriptions`);
     if (!r.ok) throw new Error('Failed to fetch subscriptions');
-    return await r.json();
+    const json = await r.json();
+    return Array.isArray(json) ? json : (json.subscriptions || [...subsState]);
   } catch (err) {
     // Graceful fallback to mock store if backend offline
     return [...subsState];
