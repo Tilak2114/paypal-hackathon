@@ -57,7 +57,7 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-120px)] flex items-center justify-center px-4 sm:px-6 py-12 relative z-10">
+    <div className="w-full min-h-[calc(100vh-120px)] flex items-center justify-start max-w-7xl mx-auto px-6 sm:px-12 py-12 relative z-10">
       <div 
         className="w-full max-w-md rounded-3xl p-8 sm:p-10 backdrop-blur-xl relative space-y-6 text-left"
         style={{

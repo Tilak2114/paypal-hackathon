@@ -27,7 +27,7 @@ export default function SignIn({ onSignInSuccess }) {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-140px)] flex items-center justify-start max-w-7xl px-6 sm:px-12 py-12 relative z-10">
+    <div className="w-full min-h-[calc(100vh-140px)] flex items-center justify-start max-w-7xl mx-auto px-6 sm:px-12 py-12 relative z-10">
       
       {/* Left-Aligned, Transparent Glass Box with Pure Ice-Cyan Borders */}
       <div 
