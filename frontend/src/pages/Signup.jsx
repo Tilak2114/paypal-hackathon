@@ -155,16 +155,16 @@ export default function Signup() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start px-4 sm:px-6 py-8 relative z-10">
+    <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-start justify-start max-w-7xl mx-auto px-6 sm:px-12 py-8 relative z-10">
       {/* Wizard Progress Bar */}
       <StepProgress currentStep={step} onStepClick={(s) => setStep(s)} />
 
       <div 
-        className="w-full max-w-2xl rounded-3xl p-6 sm:p-10 backdrop-blur-xl relative space-y-6 text-left mt-4"
+        className="w-full max-w-2xl rounded-3xl p-6 sm:p-10 backdrop-blur-md relative space-y-6 text-left mt-4"
         style={{
-          background: 'var(--card-surface)',
-          border: '1px solid var(--card-border)',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)'
+          background: 'transparent',
+          border: '2px solid #00d2ff',
+          boxShadow: '0 0 35px rgba(0, 210, 255, 0.25)'
         }}
       >
         {/* Step Heading (Focused for A11y) */}
