@@ -160,7 +160,7 @@ export default function Signup() {
       <StepProgress currentStep={step} onStepClick={(s) => setStep(s)} />
 
       <div 
-        className="w-full max-w-2xl rounded-3xl p-6 sm:p-10 backdrop-blur-md relative space-y-6 text-left mt-4"
+        className="w-full max-w-lg rounded-3xl p-6 sm:p-10 backdrop-blur-md relative space-y-6 text-left mt-4"
         style={{
           background: 'transparent',
           border: '2px solid #00d2ff',
