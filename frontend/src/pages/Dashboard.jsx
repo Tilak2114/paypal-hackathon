@@ -90,6 +90,7 @@ export default function Dashboard({ onNavigate, onBack }) {
           open: true,
           fromFill: Math.max(0.18, prevFill),
           toFill: nextFill,
+          savedAmount: yearly,
         });
       }
     } catch (err) {
@@ -140,6 +141,7 @@ export default function Dashboard({ onNavigate, onBack }) {
         onClose={() => setJarPopup((prev) => ({ ...prev, open: false }))}
         fromFill={jarPopup.fromFill}
         toFill={jarPopup.toFill}
+        savedAmount={jarPopup.savedAmount}
       />
 
       {/* Header bar */}
