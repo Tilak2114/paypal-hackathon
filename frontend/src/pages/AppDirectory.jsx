@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { addSubscription } from '../api/client';
 
 // ── App catalogue ─────────────────────────────────────────────────
 // Each app has a brand color used ONLY for the logo tile.
@@ -159,6 +160,7 @@ export default function AppDirectory({ onNavigate }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPlans, setSelectedPlans] = useState({});
   const [planModalApp, setPlanModalApp] = useState(null);
+  const [confirmApp, setConfirmApp] = useState(null); // "Are you sure?" target
   const [toast, setToast] = useState(null);
   const [subscribingId, setSubscribingId] = useState(null);
 
@@ -175,29 +177,24 @@ export default function AppDirectory({ onNavigate }) {
   const handleSubscribe = async (app) => {
     const plan = getSelectedPlan(app);
     setSubscribingId(app.id);
+    setConfirmApp(null); // close confirm modal
 
     try {
-      const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-      // Ingest into backend DB so it shows immediately on Dashboard
-      await fetch(`${BASE}/ingest`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([
-          {
-            name: `${app.name} (${plan.name})`,
-            category: app.category,
-            price: plan.price.toFixed(2),
-            currency: 'USD',
-            interval: 'MONTH',
-            source: 'paypal',
-            managedByPaypal: true,
-            status: 'ACTIVE',
-            lastUsedAt: new Date().toISOString(),
-          },
-        ]),
+      // Push to the shared client.js subsState so Dashboard sees it immediately
+      await addSubscription({
+        id: `dir-${app.id}-${Date.now()}`,
+        name: `${app.name} (${plan.name})`,
+        cost: plan.price,
+        lastUsed: 'just now',
+        status: 'active',
+        flag: null,
+        suggestion: null,
+        color: app.color,
+        category: app.category,
+        source: 'paypal',
       });
 
-      showToast(`Subscribed to ${app.name} (${plan.name}) via PayPal! Renewal alarm activated.`);
+      showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Renewal alarm activated.`);
     } catch (err) {
       console.error('Subscription error:', err);
       showToast(`Linked ${app.name} (${plan.name}) to your Churn Guard wallet.`);
@@ -236,8 +233,97 @@ export default function AppDirectory({ onNavigate }) {
         </div>
       )}
 
-      {/* ── Plan Selection Modal ── */}
-      {planModalApp && (
+      {/* ── Confirmation Modal ("Are you sure?") ── */}
+      {confirmApp && (() => {
+        const plan = getSelectedPlan(confirmApp);
+        return (
+          <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+            <div
+              className="max-w-sm w-full rounded-3xl p-7 space-y-5"
+              style={{
+                background: 'var(--modal-bg)',
+                border: '1px solid var(--card-border)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+              }}
+            >
+              {/* App logo + name */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center font-display font-black text-white text-xl flex-shrink-0"
+                  style={{ backgroundColor: confirmApp.color }}
+                >
+                  {confirmApp.letter}
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--mute)' }}>
+                    Confirm subscription
+                  </p>
+                  <h3 className="font-display font-black text-lg" style={{ color: 'var(--ink)' }}>
+                    {confirmApp.name}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Summary box */}
+              <div
+                className="rounded-2xl p-4 space-y-1"
+                style={{ background: 'var(--card-inner)', border: '1px solid var(--card-inner-border)' }}
+              >
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: 'var(--mute)' }}>Plan</span>
+                  <span className="font-semibold" style={{ color: 'var(--ink)' }}>{plan.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: 'var(--mute)' }}>Amount</span>
+                  <span className="font-black text-base" style={{ color: 'var(--mint)' }}>
+                    ${plan.price.toFixed(2)}<span className="text-xs font-normal" style={{ color: 'var(--mute)' }}>/{plan.interval}</span>
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: 'var(--mute)' }}>Payment</span>
+                  <span className="font-semibold italic" style={{ color: 'var(--ink)' }}>PayPal</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-center" style={{ color: 'var(--mute)' }}>
+                Churn Guard will track this subscription and alert you before every renewal.
+              </p>
+
+              {/* Action buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmApp(null)}
+                  className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer hover:opacity-80"
+                  style={{
+                    border: '1px solid var(--line)',
+                    color: 'var(--mute)',
+                    background: 'transparent',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSubscribe(confirmApp)}
+                  disabled={subscribingId === confirmApp.id}
+                  className="flex-1 py-2.5 rounded-full text-sm font-black text-white transition-all cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #0070ba, #003087)' }}
+                >
+                  {subscribingId === confirmApp.id ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Confirm &amp; Pay</span>
+                      <span className="italic font-black">PayPal</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Plan Selection Modal ── */}      {planModalApp && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
           <div
             className="max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-5 animate-scaleUp"
@@ -516,7 +602,7 @@ export default function AppDirectory({ onNavigate }) {
                 </span>
 
                 <button
-                  onClick={() => handleSubscribe(app)}
+                  onClick={() => setConfirmApp(app)}
                   disabled={isSubscribing}
                   className="px-4 py-2 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                   style={{

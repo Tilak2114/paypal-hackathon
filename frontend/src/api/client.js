@@ -61,6 +61,21 @@ export async function undoSub(id) {
   return post(`/subscriptions/${id}/undo`);
 }
 
+// Add a subscription purchased from the App Directory into the shared state
+// so the Dashboard immediately reflects the new entry.
+export async function addSubscription(entry) {
+  if (USE_MOCK) {
+    await new Promise((res) => setTimeout(res, 350));
+    // Avoid exact-name duplicates (idempotent for quick double-clicks)
+    if (!subsState.find((s) => s.name === entry.name)) {
+      subsState = [entry, ...subsState];
+    }
+    return { success: true };
+  }
+  // Live mode: hit the backend ingest endpoint
+  return post('/ingest', [entry]);
+}
+
 export async function analyze(text) {
   if (USE_MOCK) {
     await new Promise((res) => setTimeout(res, 1200));
