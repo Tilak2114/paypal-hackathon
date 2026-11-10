@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function SignIn({ onSignInSuccess }) {
   const [email, setEmail] = useState('judge@paypalhackathon.com');
@@ -145,6 +146,14 @@ export default function SignIn({ onSignInSuccess }) {
             )}
           </button>
         </form>
+
+        {/* Sign up link */}
+        <p className="text-xs text-mute text-center pt-1">
+          New here?{' '}
+          <Link to="/signup" className="text-[#00d2ff] font-bold hover:underline">
+            Sign Up & Connect PayPal →
+          </Link>
+        </p>
 
         {/* Security / Credentials Helper Pill */}
         <div className="mt-6 pt-5 text-left" style={{ borderTop: '1px solid rgba(0, 210, 255, 0.3)' }}>

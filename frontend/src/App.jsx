@@ -1,68 +1,77 @@
+// frontend/src/App.jsx
 import React, { useState } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import AddSubscriptions from './pages/AddSubscriptions';
 import AppDirectory from './pages/AppDirectory';
-import SignIn from './pages/SignIn';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Onboarding from './pages/Onboarding';
+import Settings from './pages/Settings';
 import Hero3D from './components/Hero3D';
+import NotificationBell from './components/NotificationBell';
+import { useAuth } from './auth/AuthContext';
+import ProtectedRoute from './auth/ProtectedRoute';
 
 export default function App() {
-  const [user, setUser] = useState(null); // null = unauthenticated (shows Sign In on front)
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing' | 'about' | 'dashboard' | 'add'
-  const [pageHistory, setPageHistory] = useState(['landing']);
-  const [hasScanned, setHasScanned] = useState(false); // Tracks if user has scanned subscriptions
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useAuth();
+
+  const [hasScanned, setHasScanned] = useState(false);
+  const [globalToast, setGlobalToast] = useState(null);
+
+  const showGlobalToast = (message) => {
+    setGlobalToast(message);
+    setTimeout(() => setGlobalToast(null), 4000);
+  };
 
   const navigateTo = (nextPage) => {
-    if (nextPage === currentPage) return;
-    setPageHistory((prev) => [...prev, nextPage]);
-    setCurrentPage(nextPage);
+    if (nextPage === 'landing') navigate('/');
+    else if (nextPage === 'dashboard') navigate('/dashboard');
+    else if (nextPage === 'directory') navigate('/directory');
+    else if (nextPage === 'add') navigate('/add');
+    else if (nextPage === 'settings') navigate('/settings/connections');
+    else if (nextPage === 'about') navigate('/about');
+    else navigate('/' + nextPage);
   };
 
   const handleBack = () => {
-    if (pageHistory.length > 1) {
-      const newHistory = [...pageHistory];
-      newHistory.pop(); // Remove current
-      const previousPage = newHistory[newHistory.length - 1];
-      setPageHistory(newHistory);
-      setCurrentPage(previousPage);
-    } else {
-      setCurrentPage('landing');
-    }
+    navigate(-1);
   };
 
-  const handleSignInSuccess = (userData) => {
-    setUser(userData);
-    setCurrentPage('landing');
-    setPageHistory(['landing']);
+  const handleSignOut = async () => {
+    await logout();
+    navigate('/login');
   };
 
-  const handleSignOut = () => {
-    setUser(null);
-    setCurrentPage('landing');
-    setPageHistory(['landing']);
-    setHasScanned(false);
-  };
-
-  // Main CTA logic: New user goes to Scanner (add), existing goes to Dashboard
-  const handleGetStarted = () => {
-    if (hasScanned) {
-      navigateTo('dashboard');
-    } else {
-      navigateTo('add');
-    }
-  };
-
-  const handleSeeDemo = () => {
-    navigateTo('dashboard');
-  };
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isLandingPage = location.pathname === '/';
 
   return (
     <div className="min-h-screen bg-[#050a17] text-[#f0f6ff] flex flex-col justify-between relative overflow-x-hidden">
-      {/* 3D Global Canvas in Background (ONLY active on Overview/Landing and Sign In to avoid distraction) */}
-      {(!user || currentPage === 'landing') && (
+      {/* 3D Global Canvas in Background */}
+      {(!user || isLandingPage || isAuthPage) && (
         <div className="fixed inset-0 pointer-events-none transition-opacity duration-700 opacity-85">
           <Hero3D />
+        </div>
+      )}
+
+      {/* Global App Toast */}
+      {globalToast && (
+        <div
+          className="fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce"
+          style={{
+            background: 'var(--toast-bg, #0b162e)',
+            border: '1px solid var(--mint, #00d2ff)',
+            color: 'var(--mint, #00d2ff)',
+            boxShadow: '0 0 25px rgba(0, 210, 255, 0.3)',
+          }}
+        >
+          <span className="w-2 h-2 rounded-full bg-mint" />
+          <span className="text-sm font-semibold text-ink">{globalToast}</span>
         </div>
       )}
 
@@ -70,33 +79,33 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-[#050a17]/90 backdrop-blur-xl border-b border-[rgba(0,210,255,0.18)] w-full flex justify-center">
         <nav className="max-w-7xl w-full px-6 sm:px-12 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Back Arrow Button (only in the top navbar) */}
-            {user && currentPage !== 'landing' && (
+            {/* Back Arrow Button */}
+            {user && !isLandingPage && location.pathname !== '/dashboard' && (
               <button
+                type="button"
                 onClick={handleBack}
                 className="w-8 h-8 rounded-full text-base font-bold transition-all cursor-pointer flex items-center justify-center hover:-translate-x-0.5"
                 style={{
                   border: '1px solid rgba(0, 210, 255, 0.4)',
                   color: '#00d2ff',
-                  background: 'rgba(0, 210, 255, 0.08)'
+                  background: 'rgba(0, 210, 255, 0.08)',
                 }}
                 title="Go back"
+                aria-label="Go back"
               >
                 ←
               </button>
             )}
 
             <div
-              onClick={() => user && navigateTo('landing')}
-              className={`flex items-center gap-3 ${user ? 'cursor-pointer group' : ''}`}
+              onClick={() => navigate(user ? '/dashboard' : '/')}
+              className="flex items-center gap-3 cursor-pointer group"
             >
-              <div 
-                className="w-5 h-6 clip-shield group-hover:scale-105 transition-transform" 
+              <div
+                className="w-5 h-6 clip-shield group-hover:scale-105 transition-transform"
                 style={{ background: 'linear-gradient(135deg, #00d2ff, #2563eb)' }}
               />
-              <span 
-                className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors"
-              >
+              <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors">
                 Churn Guard
               </span>
             </div>
@@ -104,82 +113,94 @@ export default function App() {
 
           {/* Nav links once signed in */}
           {user ? (
-            <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs font-semibold">
               <button
-                onClick={() => navigateTo('landing')}
+                type="button"
+                onClick={() => navigate('/dashboard')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  currentPage === 'landing'
+                  location.pathname === '/dashboard'
                     ? 'bg-white/10'
                     : 'text-mute hover:text-white'
                 }`}
-                style={currentPage === 'landing' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
+                style={
+                  location.pathname === '/dashboard'
+                    ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
+                    : {}
+                }
               >
-                Overview
+                Dashboard
               </button>
 
-              {/* Dedicated "About Churn Guard" button directly to the right of Overview */}
               <button
-                onClick={() => navigateTo('about')}
+                type="button"
+                onClick={() => navigate('/directory')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  currentPage === 'about'
+                  location.pathname === '/directory'
                     ? 'bg-white/10'
                     : 'text-mute hover:text-white'
                 }`}
-                style={currentPage === 'about' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
-              >
-                About Churn Guard
-              </button>
-
-              {/* Dedicated "See a demo" navbar button */}
-              <button
-                onClick={handleSeeDemo}
-                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  currentPage === 'dashboard'
-                    ? 'bg-white/10'
-                    : 'text-mute hover:text-white'
-                }`}
-                style={currentPage === 'dashboard' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
-              >
-                See a demo
-              </button>
-
-              {/* App Directory button directly matching Person A's design */}
-              <button
-                onClick={() => navigateTo('directory')}
-                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  currentPage === 'directory'
-                    ? 'bg-white/10'
-                    : 'text-mute hover:text-white'
-                }`}
-                style={currentPage === 'directory' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
+                style={
+                  location.pathname === '/directory'
+                    ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
+                    : {}
+                }
               >
                 App Directory
               </button>
 
               <button
-                onClick={() => navigateTo('add')}
+                type="button"
+                onClick={() => navigate('/add')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  currentPage === 'add'
+                  location.pathname === '/add'
                     ? 'bg-white/10'
                     : 'text-mute hover:text-white'
                 }`}
-                style={currentPage === 'add' ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' } : {}}
+                style={
+                  location.pathname === '/add'
+                    ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
+                    : {}
+                }
               >
                 Scanner
               </button>
 
-              <div className="flex items-center gap-2.5 ml-2">
-                <span 
+              <button
+                type="button"
+                onClick={() => navigate('/settings/connections')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  location.pathname === '/settings/connections'
+                    ? 'bg-white/10'
+                    : 'text-mute hover:text-white'
+                }`}
+                style={
+                  location.pathname === '/settings/connections'
+                    ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
+                    : {}
+                }
+              >
+                Settings
+              </button>
+
+              {/* Notification Bell with live alerts */}
+              <div className="ml-1">
+                <NotificationBell onActionClick={() => navigate('/dashboard')} />
+              </div>
+
+              {/* Profile Chip & Sign Out */}
+              <div className="flex items-center gap-2 ml-2">
+                <span
                   className="hidden sm:inline-block px-3 py-1.5 rounded-full text-[11px] font-medium"
                   style={{
                     background: 'rgba(0, 210, 255, 0.08)',
                     border: '1px solid rgba(0, 210, 255, 0.3)',
-                    color: '#00d2ff'
+                    color: '#00d2ff',
                   }}
                 >
                   ● {user.name}
                 </span>
                 <button
+                  type="button"
                   onClick={handleSignOut}
                   className="px-3.5 py-1.5 rounded-full border border-white/20 text-mute hover:text-coral hover:border-coral/40 transition-all text-xs cursor-pointer"
                 >
@@ -188,17 +209,21 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <span 
-                className="hidden sm:inline-block px-3 py-1 rounded-full text-[11px]"
-                style={{
-                  border: '1px solid rgba(0, 210, 255, 0.4)',
-                  background: 'rgba(0, 210, 255, 0.08)',
-                  color: '#00d2ff'
-                }}
+            <div className="flex items-center gap-3 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="px-4 py-1.5 rounded-full text-mute hover:text-white cursor-pointer transition-colors"
               >
-                PayPal Hackathon Gate
-              </span>
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/signup')}
+                className="px-4 py-1.5 rounded-full font-bold text-navy bg-mint shadow-[0_0_15px_rgba(0,210,255,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                Sign Up →
+              </button>
             </div>
           )}
         </nav>
@@ -206,53 +231,80 @@ export default function App() {
 
       {/* Main View Router */}
       <main className="flex-1 w-full relative z-10 flex flex-col items-center">
-        {!user ? (
-          <SignIn
-            onSignInSuccess={handleSignInSuccess}
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            }
           />
-        ) : (
-          <>
-            {currentPage === 'landing' && (
-              <Landing 
-                onGetStarted={handleGetStarted}
-                onSeeDemo={handleSeeDemo}
-                hasScanned={hasScanned}
-              />
-            )}
-            {currentPage === 'about' && (
-              <About 
-                onNavigate={navigateTo}
-                onGetStarted={handleGetStarted}
-              />
-            )}
-            {currentPage === 'dashboard' && (
-              <Dashboard 
-                onNavigate={navigateTo} 
-                onBack={handleBack}
-              />
-            )}
-            {currentPage === 'directory' && (
-              <AppDirectory 
-                onNavigate={navigateTo} 
-                onBack={handleBack}
-              />
-            )}
-            {currentPage === 'add' && (
-              <AddSubscriptions 
-                onNavigate={navigateTo} 
-                onBack={handleBack}
-                onScanComplete={() => setHasScanned(true)}
-              />
-            )}
-          </>
-        )}
+          <Route
+            path="/settings/connections"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard onNavigate={navigateTo} onBack={handleBack} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/directory"
+            element={
+              <ProtectedRoute>
+                <AppDirectory onNavigate={navigateTo} onBack={handleBack} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add"
+            element={
+              <ProtectedRoute>
+                <AddSubscriptions
+                  onNavigate={navigateTo}
+                  onBack={handleBack}
+                  onScanComplete={() => setHasScanned(true)}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/about"
+            element={<About onNavigate={navigateTo} onGetStarted={() => navigate(user ? '/dashboard' : '/signup')} />}
+          />
+          <Route
+            path="/"
+            element={
+              !user ? (
+                <Landing
+                  onGetStarted={() => navigate('/signup')}
+                  onSeeDemo={() => navigate('/login')}
+                  hasScanned={hasScanned}
+                />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        </Routes>
       </main>
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-[rgba(0,210,255,0.18)] py-8 px-6 text-center text-xs text-mute/80 space-y-1 w-full flex flex-col items-center bg-[#050a17]">
         <p>Churn Guard • Built for PayPal Hackathon 2026</p>
         <p className="text-[11px] text-mute/50">
-          Flow: Landing → Scanner → Dashboard • Integrated with PayPal Billing API.
+          Flow: Sign Up → Connect PayPal → Scanning → Review → Dashboard • Integrated with PayPal Sandbox.
         </p>
       </footer>
     </div>

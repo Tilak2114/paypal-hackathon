@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import SubscriptionCard from '../components/SubscriptionCard';
 import SavingsMeter from '../components/SavingsMeter';
 import AlertFeed from '../components/AlertFeed';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useAuth } from '../auth/AuthContext';
 import { getSubscriptions, pauseSub, cancelSub, undoSub } from '../api/client';
 
 export default function Dashboard({ onNavigate, onBack }) {
+  const { user, connectPayPal } = useAuth();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null); // { type: 'pause' | 'cancel', sub }
+  const [connectPromptOpen, setConnectPromptOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchSubs = async () => {
     try {
@@ -30,27 +36,51 @@ export default function Dashboard({ onNavigate, onBack }) {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const handlePause = async (id) => {
+  // Intercept Pause with PayPal connection check + explicit confirmation
+  const handlePause = (id) => {
     const target = subscriptions.find((s) => s.id === id);
-    await pauseSub(id);
-    setSubscriptions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'paused' } : s))
-    );
-    showToast(`Paused ${target ? target.name : 'subscription'} via PayPal.`);
+    if (!user?.paypalConnected) {
+      setConnectPromptOpen(true);
+      return;
+    }
+    setPendingAction({ type: 'pause', sub: target });
   };
 
-  const handleCancel = async (id) => {
+  // Intercept Cancel with PayPal connection check + explicit confirmation
+  const handleCancel = (id) => {
     const target = subscriptions.find((s) => s.id === id);
-    await cancelSub(id);
-    setSubscriptions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'cancelled' } : s))
-    );
-    const yearly = target ? target.cost * 12 : 0;
-    showToast(
-      `Cancelled ${target ? target.name : 'subscription'}. You're keeping $${yearly.toFixed(
-        2
-      )}/yr.`
-    );
+    if (!user?.paypalConnected) {
+      setConnectPromptOpen(true);
+      return;
+    }
+    setPendingAction({ type: 'cancel', sub: target });
+  };
+
+  const executeConfirmedAction = async () => {
+    if (!pendingAction) return;
+    const { type, sub } = pendingAction;
+    setActionLoading(true);
+    try {
+      if (type === 'pause') {
+        await pauseSub(sub.id);
+        setSubscriptions((prev) =>
+          prev.map((s) => (s.id === sub.id ? { ...s, status: 'paused' } : s))
+        );
+        showToast(`Paused ${sub.name} via PayPal Sandbox.`);
+      } else if (type === 'cancel') {
+        await cancelSub(sub.id);
+        setSubscriptions((prev) =>
+          prev.map((s) => (s.id === sub.id ? { ...s, status: 'cancelled' } : s))
+        );
+        const yearly = sub.cost * 12;
+        showToast(`Cancelled ${sub.name}. You're keeping $${yearly.toFixed(2)}/yr.`);
+      }
+    } catch (err) {
+      showToast(`Action failed: ${err.message}`, 'error');
+    } finally {
+      setActionLoading(false);
+      setPendingAction(null);
+    }
   };
 
   const handleUndo = async (id) => {
@@ -165,6 +195,39 @@ export default function Dashboard({ onNavigate, onBack }) {
           </div>
         </div>
       </div>
+
+      {/* Explicit Confirm Action Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(pendingAction)}
+        title={pendingAction?.type === 'pause' ? 'Pause Subscription via PayPal?' : 'Cancel Subscription via PayPal?'}
+        serviceName={pendingAction?.sub?.name}
+        amount={pendingAction?.sub?.cost}
+        effectDescription={
+          pendingAction?.type === 'pause'
+            ? 'Pausing will suspend upcoming billing cycles through your PayPal Sandbox agreement. You can restore access at any time with one click.'
+            : `Cancelling will terminate this recurring billing agreement with PayPal. You will immediately save $${((pendingAction?.sub?.cost || 0) * 12).toFixed(2)} per year.`
+        }
+        confirmText={pendingAction?.type === 'pause' ? 'Confirm Pause' : 'Confirm Cancel'}
+        confirmColor={pendingAction?.type === 'pause' ? '#00d2ff' : '#ff3d71'}
+        loading={actionLoading}
+        onConfirm={executeConfirmedAction}
+        onCancel={() => setPendingAction(null)}
+      />
+
+      {/* Connect PayPal Prompt Dialog */}
+      <ConfirmDialog
+        isOpen={connectPromptOpen}
+        isConnectPrompt={true}
+        title="Connect PayPal to Manage Subscriptions"
+        serviceName="PayPal Sandbox Integration"
+        effectDescription="To pause or cancel subscriptions with 1-click, Churn Guard requires a connected PayPal account. Connect your sandbox account to continue."
+        onConnectPayPal={async () => {
+          await connectPayPal("sandbox-judge@paypal.com");
+          setConnectPromptOpen(false);
+          showToast("Connected to PayPal Sandbox! You can now pause and cancel subscriptions.");
+        }}
+        onCancel={() => setConnectPromptOpen(false)}
+      />
     </div>
   );
 }

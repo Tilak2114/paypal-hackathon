@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { addSubscription } from '../api/client';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useAuth } from '../auth/AuthContext';
 
 // ── App catalogue ─────────────────────────────────────────────────
 // Each app has a brand color used ONLY for the logo tile.
@@ -156,6 +158,8 @@ const CATEGORIES = [
 
 // ── Component ─────────────────────────────────────────────────────
 export default function AppDirectory({ onNavigate }) {
+  const { user, connectPayPal } = useAuth();
+  const [connectPromptOpen, setConnectPromptOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPlans, setSelectedPlans] = useState({});
@@ -602,7 +606,13 @@ export default function AppDirectory({ onNavigate }) {
                 </span>
 
                 <button
-                  onClick={() => setConfirmApp(app)}
+                  onClick={() => {
+                    if (!user?.paypalConnected) {
+                      setConnectPromptOpen(true);
+                    } else {
+                      setConfirmApp(app);
+                    }
+                  }}
                   disabled={isSubscribing}
                   className="px-4 py-2 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                   style={{
@@ -624,6 +634,21 @@ export default function AppDirectory({ onNavigate }) {
           );
         })}
       </div>
+
+      {/* Connect PayPal Prompt Dialog */}
+      <ConfirmDialog
+        isOpen={connectPromptOpen}
+        isConnectPrompt={true}
+        title="Connect PayPal to Subscribe"
+        serviceName="PayPal Sandbox Integration"
+        effectDescription="To subscribe and activate 1-tap renewal management through PayPal Sandbox, you must connect your PayPal account first."
+        onConnectPayPal={async () => {
+          await connectPayPal("sandbox-judge@paypal.com");
+          setConnectPromptOpen(false);
+          showToast("Connected to PayPal Sandbox! You can now subscribe.");
+        }}
+        onCancel={() => setConnectPromptOpen(false)}
+      />
     </div>
   );
 }

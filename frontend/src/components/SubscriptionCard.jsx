@@ -62,6 +62,20 @@ export default function SubscriptionCard({ sub, onPause, onCancel, onUndo }) {
         </span>
       );
     }
+    if (sub.ownership === 'tracked') {
+      return (
+        <span
+          className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+          style={{
+            background: 'rgba(59, 130, 246, 0.15)',
+            color: '#60a5fa',
+            border: '1px solid rgba(59, 130, 246, 0.35)',
+          }}
+        >
+          🔵 Tracked
+        </span>
+      );
+    }
     return null;
   };
 
