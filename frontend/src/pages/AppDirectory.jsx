@@ -223,7 +223,6 @@ export default function AppDirectory({ onNavigate }) {
           });
         }
       } catch (e) {}
-      });
 
       showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Check your Dashboard.`);
     } catch (err) {
