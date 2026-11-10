@@ -175,9 +175,12 @@ export const mockAuthApi = {
   // Signup
   async signup(data) {
     await new Promise((r) => setTimeout(r, 350));
+    if (data.name && typeof localStorage !== 'undefined') {
+      localStorage.setItem('user_name', data.name);
+    }
     currentSessionUser = {
       id: `usr-${Date.now()}`,
-      name: data.name,
+      name: data.name || "Aahana Rao",
       email: data.email,
       country: data.country || "US",
       currency: data.currency || "USD",
@@ -215,14 +218,15 @@ export const mockAuthApi = {
   // Login with PayPal OAuth
   async loginWithPayPal() {
     await new Promise((r) => setTimeout(r, 450));
+    const savedName = typeof localStorage !== 'undefined' ? localStorage.getItem('user_name') : null;
     currentSessionUser = {
       id: "usr-paypal-demo",
-      name: "PayPal Sandbox User",
-      email: "sandbox-judge@paypal.com",
+      name: savedName || "Aahana Rao",
+      email: "aahana.rao@paypal.com",
       country: "US",
       currency: "USD",
       paypalConnected: true,
-      paypalEmail: "sandbox-judge@paypal.com",
+      paypalEmail: "aahana.rao@paypal.com",
       lastSyncAt: new Date().toISOString(),
       hasCompletedOnboarding: true
     };

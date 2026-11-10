@@ -213,7 +213,7 @@ export default function App() {
                     color: '#00d2ff',
                   }}
                 >
-                  ● {user.name}
+                  ● {user.name === 'PayPal Sandbox User' ? (typeof localStorage !== 'undefined' && localStorage.getItem('user_name') ? localStorage.getItem('user_name') : 'Aahana Rao') : (user.name || 'Aahana Rao')}
                 </span>
                 <button
                   type="button"

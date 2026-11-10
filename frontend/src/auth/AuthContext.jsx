@@ -4,6 +4,15 @@ import { mockAuthApi } from '../mock/auth';
 
 const AuthContext = createContext(null);
 
+const sanitizeUser = (u) => {
+  if (!u) return u;
+  const custom = typeof localStorage !== 'undefined' ? localStorage.getItem('user_name') : null;
+  if (u.name === 'PayPal Sandbox User' || !u.name) {
+    return { ...u, name: custom || 'Aahana Rao' };
+  }
+  return u;
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +23,7 @@ export function AuthProvider({ children }) {
     let mounted = true;
     mockAuthApi.getMe().then((me) => {
       if (mounted) {
-        setUser(me);
+        setUser(sanitizeUser(me));
         setLoading(false);
       }
     }).catch(() => {
@@ -43,21 +52,21 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await mockAuthApi.login(email, password);
-    setUser(res.user);
+    setUser(sanitizeUser(res.user));
     await refreshAlerts();
     return res.user;
   };
 
   const loginWithPayPal = async () => {
     const res = await mockAuthApi.loginWithPayPal();
-    setUser(res.user);
+    setUser(sanitizeUser(res.user));
     await refreshAlerts();
     return res.user;
   };
 
   const signup = async (data) => {
     const res = await mockAuthApi.signup(data);
-    setUser(res.user);
+    setUser(sanitizeUser(res.user));
     return res.user;
   };
 
