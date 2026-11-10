@@ -69,3 +69,32 @@ body {
 .clip-shield {
   clip-path: polygon(50% 0, 100% 18%, 100% 55%, 50% 100%, 0 55%, 0 18%);
 }
+
+/* ── Savings Jar animations ── */
+@keyframes wave-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-80px); }
+}
+@keyframes coin-drop {
+  0%   { top: -32px; opacity: 1; transform: translateX(-50%); }
+  55%  { top: 56%;   opacity: 1; transform: translateX(-50%) scaleY(.88); }
+  70%  { top: 50%;   opacity: 1; transform: translateX(-50%) scaleY(1.14); }
+  83%  { top: 58%;   opacity: 1; transform: translateX(-50%) scaleY(.96); }
+  100% { top: 62%;   opacity: 0; transform: translateX(-50%) scaleY(1); }
+}
+@keyframes jar-pop {
+  from { transform: scale(.82); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes goal-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,210,255,.4); }
+  50%     { box-shadow: 0 0 0 8px rgba(0,210,255,.0); }
+}
+.wave-anim { animation: wave-scroll 2.8s linear infinite; }
+.coin-anim { animation: coin-drop .88s cubic-bezier(.22,.61,.36,1) forwards; }
+.jar-pop   { animation: jar-pop .4s cubic-bezier(.34,1.56,.64,1); }
+.goal-pulse { animation: goal-pulse 1.6s ease-in-out 3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-anim, .coin-anim, .jar-pop, .goal-pulse { animation: none !important; }
+}

@@ -4,8 +4,8 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 import Landing from './pages/Landing';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
-import AddSubscriptions from './pages/AddSubscriptions';
 import AppDirectory from './pages/AppDirectory';
+import SavingsJar from './pages/SavingsJar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
@@ -20,7 +20,6 @@ export default function App() {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const [hasScanned, setHasScanned] = useState(false);
   const [globalToast, setGlobalToast] = useState(null);
 
   const showGlobalToast = (message) => {
@@ -32,7 +31,7 @@ export default function App() {
     if (nextPage === 'landing') navigate('/');
     else if (nextPage === 'dashboard') navigate('/dashboard');
     else if (nextPage === 'directory') navigate('/directory');
-    else if (nextPage === 'add') navigate('/add');
+    else if (nextPage === 'jar') navigate('/jar');
     else if (nextPage === 'settings') navigate('/settings/connections');
     else if (nextPage === 'about') navigate('/about');
     else navigate('/' + nextPage);
@@ -128,7 +127,24 @@ export default function App() {
                     : {}
                 }
               >
-                Dashboard
+                Overview
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/about')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  location.pathname === '/about'
+                    ? 'bg-white/10'
+                    : 'text-mute hover:text-white'
+                }`}
+                style={
+                  location.pathname === '/about'
+                    ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
+                    : {}
+                }
+              >
+                About
               </button>
 
               <button
@@ -150,19 +166,19 @@ export default function App() {
 
               <button
                 type="button"
-                onClick={() => navigate('/add')}
+                onClick={() => navigate('/jar')}
                 className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  location.pathname === '/add'
+                  location.pathname === '/jar'
                     ? 'bg-white/10'
                     : 'text-mute hover:text-white'
                 }`}
                 style={
-                  location.pathname === '/add'
+                  location.pathname === '/jar'
                     ? { color: '#00d2ff', border: '1px solid rgba(0,210,255,0.4)' }
                     : {}
                 }
               >
-                Scanner
+                💰 Savings Jar
               </button>
 
               <button
@@ -267,14 +283,10 @@ export default function App() {
             }
           />
           <Route
-            path="/add"
+            path="/jar"
             element={
               <ProtectedRoute>
-                <AddSubscriptions
-                  onNavigate={navigateTo}
-                  onBack={handleBack}
-                  onScanComplete={() => setHasScanned(true)}
-                />
+                <SavingsJar onNavigate={navigateTo} onBack={handleBack} />
               </ProtectedRoute>
             }
           />
@@ -289,7 +301,6 @@ export default function App() {
                 <Landing
                   onGetStarted={() => navigate('/signup')}
                   onSeeDemo={() => navigate('/login')}
-                  hasScanned={hasScanned}
                 />
               ) : (
                 <Navigate to="/dashboard" replace />
@@ -304,7 +315,7 @@ export default function App() {
       <footer className="relative z-10 border-t border-[rgba(0,210,255,0.18)] py-8 px-6 text-center text-xs text-mute/80 space-y-1 w-full flex flex-col items-center bg-[#050a17]">
         <p>Churn Guard • Built for PayPal Hackathon 2026</p>
         <p className="text-[11px] text-mute/50">
-          Flow: Sign Up → Connect PayPal → Scanning → Review → Dashboard • Integrated with PayPal Sandbox.
+          Flow: Sign Up → Connect PayPal → Dashboard → Savings Jar • Integrated with PayPal Sandbox.
         </p>
       </footer>
     </div>

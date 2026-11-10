@@ -196,9 +196,10 @@ export default function AppDirectory({ onNavigate }) {
         color: app.color,
         category: app.category,
         source: 'paypal',
+        interval: plan.interval,
       });
 
-      showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Renewal alarm activated.`);
+      showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Check your Dashboard.`);
     } catch (err) {
       console.error('Subscription error:', err);
       showToast(`Linked ${app.name} (${plan.name}) to your Churn Guard wallet.`);

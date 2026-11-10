@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
+export default function Landing({ onGetStarted, onSeeDemo }) {
   return (
     <div className="relative z-10 w-full min-h-[calc(100vh-80px)] flex items-center justify-center px-6 sm:px-12 py-16">
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -38,7 +38,7 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
                 boxShadow: '0 0 25px rgba(0, 210, 255, 0.45)'
               }}
             >
-              <span>{hasScanned ? 'View my audit' : 'Get started'}</span>
+              <span>Get started</span>
               <span>→</span>
             </button>
 
@@ -56,9 +56,7 @@ export default function Landing({ onGetStarted, onSeeDemo, hasScanned }) {
           </div>
 
           <p className="text-[11px] text-mute/80 pt-1">
-            {hasScanned 
-              ? "✓ Audit ready — review detected subscriptions, savings, and flags."
-              : "New here? 'Get started' launches the scanner to import your statement in 30 seconds."}
+            Explore your subscriptions, browse the app directory, and track your savings.
           </p>
 
           {/* Quick Stat Bar */}

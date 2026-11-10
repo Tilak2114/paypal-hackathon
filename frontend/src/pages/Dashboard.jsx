@@ -130,14 +130,14 @@ export default function Dashboard({ onNavigate, onBack }) {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => onNavigate('add')}
+            onClick={() => onNavigate('directory')}
             className="px-5 py-2.5 rounded-full text-slate-950 text-xs font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
             style={{
               background: '#00d2ff',
               boxShadow: '0 0 20px rgba(0, 210, 255, 0.35)'
             }}
           >
-            <span>+</span> Paste & Scan New
+            <span>+</span> Browse Apps
           </button>
         </div>
       </div>
