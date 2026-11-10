@@ -81,7 +81,7 @@ export default function ScanProgress({ onScanComplete, onSkip }) {
         <p className="text-xs text-mute max-w-sm mx-auto">
           {timedOut
             ? "Your bank or PayPal sandbox ledger took too long to respond. You can retry or skip to dashboard."
-            : "Churn Guard is auditing your ledger to isolate ongoing subscriptions, dormant accounts, and trial periods."}
+            : "Sentinel is auditing your ledger to isolate ongoing subscriptions, dormant accounts, and trial periods."}
         </p>
       </div>
 

@@ -245,7 +245,7 @@ export default function Dashboard({ onNavigate, onBack }) {
         isConnectPrompt={true}
         title="Connect PayPal to Manage Subscriptions"
         serviceName="PayPal Sandbox Integration"
-        effectDescription="To pause or cancel subscriptions with 1-click, Churn Guard requires a connected PayPal account. Connect your sandbox account to continue."
+        effectDescription="To pause or cancel subscriptions with 1-click, Sentinel requires a connected PayPal account. Connect your sandbox account to continue."
         onConnectPayPal={async () => {
           await connectPayPal("sandbox-judge@paypal.com");
           setConnectPromptOpen(false);

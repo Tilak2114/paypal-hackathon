@@ -49,7 +49,7 @@ export default function DetectedList({ subscriptions, onConfirm, loading }) {
               We found <span className="text-mint">{items.length} subscriptions</span> costing ${totalMonthly.toFixed(2)}/mo
             </h2>
             <p className="text-xs text-mute mt-1">
-              Select the ones you wish to track in your Churn Guard renewal alarm dashboard.
+              Select the ones you wish to track in your Sentinel renewal alarm dashboard.
             </p>
           </div>
           <div className="bg-bg/80 border border-line/40 px-4 py-2.5 rounded-2xl flex items-center gap-3">
@@ -213,7 +213,7 @@ export default function DetectedList({ subscriptions, onConfirm, loading }) {
             </>
           ) : (
             <>
-              <span>Confirm & Activate Churn Guard ({selectedCount} Selected)</span>
+              <span>Confirm & Activate Sentinel ({selectedCount} Selected)</span>
               <span>→</span>
             </>
           )}

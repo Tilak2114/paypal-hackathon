@@ -24,7 +24,7 @@ export default function Landing({ onGetStarted, onSeeDemo }) {
           </h1>
 
           <p className="text-mute text-sm sm:text-base font-normal leading-relaxed max-w-md">
-            Churn Guard reads your subscriptions, spots the ones you never open, and warns you before trials end or prices rise. Pause or cancel with one tap through PayPal.
+            Sentinel reads your subscriptions, spots the ones you never open, and warns you before trials end or prices rise. Pause or cancel with one tap through PayPal.
           </p>
 
           {/* Dynamic Button: "Get started" for new users, "View my audit" once ≥1 sub added */}

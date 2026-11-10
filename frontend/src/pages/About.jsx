@@ -27,7 +27,7 @@ export default function About({ onNavigate, onGetStarted }) {
               border: '1px solid rgba(0, 210, 255, 0.3)'
             }}
           >
-            How Churn Guard Works
+            How Sentinel Works
           </span>
         </div>
 
@@ -36,7 +36,7 @@ export default function About({ onNavigate, onGetStarted }) {
             Four jobs, done for you
           </h1>
           <p className="text-mute text-base sm:text-lg">
-            Connect PayPal. Churn Guard does the checking, cancels waste in one tap, and turns your savings into goals.
+            Connect PayPal. Sentinel does the checking, cancels waste in one tap, and turns your savings into goals.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function About({ onNavigate, onGetStarted }) {
               </div>
               <h3 className="font-display font-bold text-2xl text-white mb-3">Act</h3>
               <p className="text-mute text-sm leading-relaxed">
-                Manage, pause or cancel PayPal recurring payments inside Churn Guard with a single tap.
+                Manage, pause or cancel PayPal recurring payments inside Sentinel with a single tap.
               </p>
             </div>
           </div>

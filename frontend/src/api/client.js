@@ -66,7 +66,7 @@ export async function cancelSub(id) {
     return { success: true, message: 'Cancelled via PayPal' };
   }
   try {
-    return await post(`/subscriptions/${id}/cancel`, { confirm: true, reason: 'Cancelled via Churn Guard' });
+    return await post(`/subscriptions/${id}/cancel`, { confirm: true, reason: 'Cancelled via Sentinel' });
   } catch {
     subsState = subsState.map((s) => (s.id === id ? { ...s, status: 'cancelled' } : s));
     return { success: true, message: 'Cancelled via PayPal' };

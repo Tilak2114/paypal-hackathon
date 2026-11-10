@@ -70,7 +70,7 @@ export default function Login() {
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mint/10 text-mint text-xs font-bold border border-mint/30">
             <span>🛡️</span>
-            <span>Churn Guard Safe Auth</span>
+            <span>Sentinel Safe Auth</span>
           </div>
           <h1 className="font-display font-black text-2xl sm:text-3xl text-white">
             Sign In to Your Vault

@@ -49,7 +49,7 @@ export default function PayPalConnectCard({ onConnect, connecting, onSwitchToUpl
             <li className="flex items-start gap-2.5">
               <span className="text-mint font-bold text-sm leading-none mt-0.5">✓</span>
               <div>
-                <strong className="text-white">Manage subscriptions:</strong> Gives Churn Guard permission to Pause or Cancel on your explicit demand.
+                <strong className="text-white">Manage subscriptions:</strong> Gives Sentinel permission to Pause or Cancel on your explicit demand.
               </div>
             </li>
           </ul>

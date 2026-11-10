@@ -105,7 +105,7 @@ export default function App() {
                 style={{ background: 'linear-gradient(135deg, #00d2ff, #2563eb)' }}
               />
               <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors">
-                Churn Guard
+                Sentinel
               </span>
             </div>
           </div>
@@ -313,7 +313,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-[rgba(0,210,255,0.18)] py-8 px-6 text-center text-xs text-mute/80 space-y-1 w-full flex flex-col items-center bg-[#050a17]">
-        <p>Churn Guard • Built for PayPal Hackathon 2026</p>
+        <p>Sentinel • Built for PayPal Hackathon 2026</p>
         <p className="text-[11px] text-mute/50">
           Flow: Sign Up → Connect PayPal → Dashboard → Savings Jar • Integrated with PayPal Sandbox.
         </p>

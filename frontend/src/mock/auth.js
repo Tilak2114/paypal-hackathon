@@ -1,6 +1,6 @@
 // frontend/src/mock/auth.js
 /**
- * Mock Auth & Onboarding Layer for Churn Guard (Person B fakes until live)
+ * Mock Auth & Onboarding Layer for Sentinel (Person B fakes until live)
  * Activated when VITE_USE_MOCKS=true or fallback in sandbox
  */
 import { subscriptions as initialSubs } from './subscriptions';
@@ -329,7 +329,7 @@ export const mockAuthApi = {
       id: `welcome-${Date.now()}`,
       type: "renewal",
       severity: "low",
-      title: "Welcome to Churn Guard!",
+      title: "Welcome to Sentinel!",
       message: `We found ${confirmedList.length} subscriptions you already pay for. PayPal alarms are now active.`,
       action_suggested: "keep",
       read: false,

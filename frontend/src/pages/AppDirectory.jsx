@@ -202,7 +202,7 @@ export default function AppDirectory({ onNavigate }) {
       showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Check your Dashboard.`);
     } catch (err) {
       console.error('Subscription error:', err);
-      showToast(`Linked ${app.name} (${plan.name}) to your Churn Guard wallet.`);
+      showToast(`Linked ${app.name} (${plan.name}) to your Sentinel wallet.`);
     } finally {
       setSubscribingId(null);
     }
@@ -291,7 +291,7 @@ export default function AppDirectory({ onNavigate }) {
               </div>
 
               <p className="text-xs text-center" style={{ color: 'var(--mute)' }}>
-                Churn Guard will track this subscription and alert you before every renewal.
+                Sentinel will track this subscription and alert you before every renewal.
               </p>
 
               {/* Action buttons */}
@@ -423,7 +423,7 @@ export default function AppDirectory({ onNavigate }) {
           </h1>
           <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--mute)' }}>
             Choose any service, explore available tiers, and link directly to your PayPal account.
-            Churn Guard automatically activates renewal alarms and trial trackers.
+            Sentinel automatically activates renewal alarms and trial trackers.
           </p>
         </div>
 
@@ -504,7 +504,7 @@ export default function AppDirectory({ onNavigate }) {
         }}
       >
         <span>Available Apps ({filteredApps.length})</span>
-        <span className="normal-case tracking-normal opacity-70">Protected automatically by Churn Guard</span>
+        <span className="normal-case tracking-normal opacity-70">Protected automatically by Sentinel</span>
       </div>
 
       {/* ── App Cards Grid ── */}

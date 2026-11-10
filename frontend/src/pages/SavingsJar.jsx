@@ -223,7 +223,7 @@ export default function SavingsJar() {
             Savings Jar
           </h1>
           <p className="text-sm mt-1" style={{ color: '#8295b5' }}>
-            Watch your savings grow as you cancel unused subscriptions across Churn Guard.
+            Watch your savings grow as you cancel unused subscriptions across Sentinel.
           </p>
         </div>
         <span
@@ -400,7 +400,7 @@ export default function SavingsJar() {
             <rect x="49" y="8" width="92" height="30" rx="8" fill="url(#rimg)" stroke="rgba(255,255,255,.18)" strokeWidth="1"/>
             <rect x="58" y="11" width="74" height="4" rx="2" fill="rgba(255,255,255,.10)"/>
             <text x="95" y="29" textAnchor="middle" fontSize="8.5" fill="rgba(255,255,255,.35)" fontFamily="DM Sans,system-ui,sans-serif" fontWeight="600" letterSpacing=".9">
-              CHURN GUARD
+              SENTINEL
             </text>
             {/* Rim base */}
             <rect x="52" y="37" width="86" height="5" fill="rgba(255,255,255,.04)"/>

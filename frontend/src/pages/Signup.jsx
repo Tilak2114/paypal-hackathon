@@ -177,7 +177,7 @@ export default function Signup() {
             tabIndex={-1}
             className="font-display font-black text-2xl sm:text-3xl text-white outline-none"
           >
-            {step === 1 && "Create Your Churn Guard Account"}
+            {step === 1 && "Create Your Sentinel Account"}
             {step === 2 && "Customize Your Profile"}
             {step === 3 && "Connect Your PayPal Account"}
             {step === 4 && "Scanning Ledger"}
@@ -270,7 +270,7 @@ export default function Signup() {
                 required
               />
               <label htmlFor="terms" className="text-xs text-mute cursor-pointer">
-                I agree to the Churn Guard Privacy Charter. I understand credentials stay with PayPal and funds are never moved without my explicit click.
+                I agree to the Sentinel Privacy Charter. I understand credentials stay with PayPal and funds are never moved without my explicit click.
               </label>
             </div>
 
