@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+// ── App catalogue ─────────────────────────────────────────────────
+// Each app has a brand color used ONLY for the logo tile.
+// All other chrome references CSS variables so light/dark mode works.
 const DIRECTORY_APPS = [
   {
     id: 'app-spotify',
@@ -36,7 +39,7 @@ const DIRECTORY_APPS = [
     category: 'Productivity & AI',
     color: '#10a37f',
     letter: 'O',
-    description: 'Direct access to OpenAI\'s flagship models, custom GPTs, and advanced tools.',
+    description: "Direct access to OpenAI's flagship models, custom GPTs, and advanced tools.",
     trialBadge: 'Instant Activation',
     plans: [
       { name: 'Plus', price: 20.0, interval: 'monthly' },
@@ -150,6 +153,7 @@ const CATEGORIES = [
   'Fitness & Health',
 ];
 
+// ── Component ─────────────────────────────────────────────────────
 export default function AppDirectory({ onNavigate }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -215,49 +219,56 @@ export default function AppDirectory({ onNavigate }) {
 
   return (
     <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 py-10 space-y-8 animate-fadeIn">
-      {/* Toast Notification */}
+
+      {/* ── Toast Notification ── */}
       {toast && (
         <div
           className="fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce"
           style={{
-            background: '#0b162e',
-            border: '1px solid #00d2ff',
-            color: '#00d2ff',
-            boxShadow: '0 0 25px rgba(0, 210, 255, 0.3)',
+            background: 'var(--toast-bg)',
+            border: '1px solid var(--mint)',
+            color: 'var(--mint)',
+            boxShadow: '0 0 25px color-mix(in srgb, var(--mint) 30%, transparent)',
           }}
         >
-          <span className="w-2 h-2 rounded-full" style={{ background: '#00d2ff' }} />
-          <span className="text-sm font-semibold">{toast}</span>
+          <span className="w-2 h-2 rounded-full" style={{ background: 'var(--mint)' }} />
+          <span className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>{toast}</span>
         </div>
       )}
 
-      {/* Plan Selection Modal */}
+      {/* ── Plan Selection Modal ── */}
       {planModalApp && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
           <div
             className="max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-5 animate-scaleUp"
             style={{
-              background: '#0b162e',
-              border: '1px solid rgba(0, 210, 255, 0.4)',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)',
+              background: 'var(--modal-bg)',
+              border: '1px solid var(--card-border)',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
             }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center font-display font-black text-slate-950 text-lg shadow-inner"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center font-display font-black text-white text-lg shadow-inner"
                   style={{ backgroundColor: planModalApp.color }}
                 >
                   {planModalApp.letter}
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-lg">{planModalApp.name} Plans</h3>
-                  <p className="text-xs text-mute">{planModalApp.category}</p>
+                  <h3 className="font-display font-bold text-lg" style={{ color: 'var(--ink)' }}>
+                    {planModalApp.name} Plans
+                  </h3>
+                  <p className="text-xs" style={{ color: 'var(--mute)' }}>{planModalApp.category}</p>
                 </div>
               </div>
               <button
                 onClick={() => setPlanModalApp(null)}
-                className="w-8 h-8 rounded-full border border-white/20 text-mute hover:text-white flex items-center justify-center text-sm"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:opacity-80"
+                style={{
+                  border: '1px solid var(--line)',
+                  color: 'var(--mute)',
+                }}
               >
                 ✕
               </button>
@@ -273,18 +284,24 @@ export default function AppDirectory({ onNavigate }) {
                       setSelectedPlans((prev) => ({ ...prev, [planModalApp.id]: idx }));
                       setPlanModalApp(null);
                     }}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                      isSelected
-                        ? 'border-[#00d2ff] bg-[rgba(0,210,255,0.1)]'
-                        : 'border-white/10 bg-slate-950/40 hover:border-white/30'
-                    }`}
+                    className="p-4 rounded-2xl transition-all cursor-pointer flex items-center justify-between"
+                    style={{
+                      border: isSelected ? '1px solid var(--mint)' : '1px solid var(--card-inner-border)',
+                      background: isSelected ? 'color-mix(in srgb, var(--mint) 10%, transparent)' : 'var(--card-inner)',
+                    }}
                   >
                     <div>
-                      <div className="font-bold text-white text-sm">{p.name}</div>
-                      <div className="text-xs text-mute">${p.price.toFixed(2)} / {p.interval}</div>
+                      <div className="font-bold text-sm" style={{ color: 'var(--ink)' }}>{p.name}</div>
+                      <div className="text-xs" style={{ color: 'var(--mute)' }}>${p.price.toFixed(2)} / {p.interval}</div>
                     </div>
                     {isSelected && (
-                      <span className="text-xs font-bold text-[#00d2ff] px-2 py-0.5 rounded-full bg-[#00d2ff]/10">
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{
+                          color: 'var(--mint)',
+                          background: 'color-mix(in srgb, var(--mint) 12%, transparent)',
+                        }}
+                      >
                         Selected
                       </span>
                     )}
@@ -296,17 +313,24 @@ export default function AppDirectory({ onNavigate }) {
         </div>
       )}
 
-      {/* Header Banner */}
+      {/* ── Header Banner ── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'color-mix(in srgb, var(--mint) 10%, transparent)',
+              color: 'var(--mint)',
+              border: '1px solid color-mix(in srgb, var(--mint) 30%, transparent)',
+            }}
+          >
             <span>✨</span>
             <span>PayPal Verified Subscriptions Directory</span>
           </div>
-          <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight">
-            Discover & Subscribe via PayPal
+          <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight" style={{ color: 'var(--ink)' }}>
+            Discover &amp; Subscribe via PayPal
           </h1>
-          <p className="text-mute text-sm sm:text-base leading-relaxed">
+          <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--mute)' }}>
             Choose any service, explore available tiers, and link directly to your PayPal account.
             Churn Guard automatically activates renewal alarms and trial trackers.
           </p>
@@ -316,10 +340,9 @@ export default function AppDirectory({ onNavigate }) {
           onClick={() => onNavigate('dashboard')}
           className="self-start lg:self-center px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
           style={{
-            border: '1px solid rgba(0, 210, 255, 0.4)',
-            color: '#00d2ff',
-            background: 'rgba(0, 210, 255, 0.08)',
-            boxShadow: '0 0 20px rgba(0, 210, 255, 0.15)',
+            border: '1px solid var(--card-border)',
+            color: 'var(--mint)',
+            background: 'color-mix(in srgb, var(--mint) 8%, transparent)',
           }}
         >
           <span>View Active Dashboard</span>
@@ -327,19 +350,31 @@ export default function AppDirectory({ onNavigate }) {
         </button>
       </div>
 
-      {/* Search Bar */}
+      {/* ── Search Bar ── */}
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-mute text-base">🔍</span>
+        <span
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+          style={{ color: 'var(--mute)' }}
+        >
+          🔍
+        </span>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search apps or services (e.g. Spotify, Netflix, ChatGPT, GitHub Copilot...)"
-          className="w-full bg-[#0b162e]/80 border border-white/15 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-mute/60 focus:outline-none focus:border-[#00d2ff] transition-all"
+          className="w-full rounded-2xl pl-11 pr-4 py-3.5 text-sm backdrop-blur focus:outline-none transition-all"
+          style={{
+            background: 'var(--input-bg)',
+            border: '1px solid var(--card-inner-border)',
+            color: 'var(--ink)',
+          }}
+          onFocus={(e) => (e.target.style.borderColor = 'var(--mint)')}
+          onBlur={(e) => (e.target.style.borderColor = 'var(--card-inner-border)')}
         />
       </div>
 
-      {/* Filter Category Pills */}
+      {/* ── Filter Category Pills ── */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {CATEGORIES.map((cat) => {
           const isActive = selectedCategory === cat;
@@ -347,11 +382,21 @@ export default function AppDirectory({ onNavigate }) {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer"
+              style={
                 isActive
-                  ? 'bg-[#00d2ff] text-slate-950 font-bold shadow-lg shadow-[#00d2ff]/30'
-                  : 'bg-[#0b162e] border border-white/10 text-mute hover:text-white hover:border-white/25'
-              }`}
+                  ? {
+                      background: 'var(--mint)',
+                      color: '#050a17',   /* dark text always looks good on the mint accent */
+                      fontWeight: 700,
+                      boxShadow: '0 4px 14px color-mix(in srgb, var(--mint) 35%, transparent)',
+                    }
+                  : {
+                      background: 'var(--pill-bg)',
+                      border: '1px solid var(--card-inner-border)',
+                      color: 'var(--mute)',
+                    }
+              }
             >
               {cat}
             </button>
@@ -359,13 +404,19 @@ export default function AppDirectory({ onNavigate }) {
         })}
       </div>
 
-      {/* Section Subhead */}
-      <div className="flex items-center justify-between text-xs font-bold text-mute uppercase tracking-wider pt-2 border-t border-white/10">
+      {/* ── Section Subhead ── */}
+      <div
+        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider pt-2"
+        style={{
+          color: 'var(--mute)',
+          borderTop: '1px solid var(--line)',
+        }}
+      >
         <span>Available Apps ({filteredApps.length})</span>
-        <span className="text-mute/70 normal-case tracking-normal">Protected automatically by Churn Guard</span>
+        <span className="normal-case tracking-normal opacity-70">Protected automatically by Churn Guard</span>
       </div>
 
-      {/* App Cards Grid */}
+      {/* ── App Cards Grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredApps.map((app) => {
           const currentPlan = getSelectedPlan(app);
@@ -374,10 +425,18 @@ export default function AppDirectory({ onNavigate }) {
           return (
             <div
               key={app.id}
-              className="rounded-3xl p-6 flex flex-col justify-between border transition-all duration-300 backdrop-blur-xl relative group hover:border-[#00d2ff]/60 hover:shadow-2xl hover:shadow-[#00d2ff]/10"
+              className="rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl relative group"
               style={{
-                background: 'rgba(11, 22, 46, 0.75)',
-                border: '1px solid rgba(0, 210, 255, 0.2)',
+                background: 'var(--card-surface)',
+                border: '1px solid var(--card-border)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--mint)';
+                e.currentTarget.style.boxShadow = '0 8px 32px color-mix(in srgb, var(--mint) 15%, transparent)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--card-border)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               <div className="space-y-4">
@@ -391,23 +450,23 @@ export default function AppDirectory({ onNavigate }) {
                       {app.letter}
                     </div>
                     <div>
-                      <h3 className="font-display font-bold text-white text-lg tracking-tight">
+                      <h3 className="font-display font-bold text-lg tracking-tight" style={{ color: 'var(--ink)' }}>
                         {app.name}
                       </h3>
-                      <p className="text-xs text-mute">{app.category}</p>
+                      <p className="text-xs" style={{ color: 'var(--mute)' }}>{app.category}</p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-display font-black text-white text-lg tracking-tight">
+                    <div className="font-display font-black text-lg tracking-tight" style={{ color: 'var(--ink)' }}>
                       ${currentPlan.price.toFixed(2)}
                     </div>
-                    <div className="text-[11px] text-mute">/{currentPlan.interval}</div>
+                    <div className="text-[11px]" style={{ color: 'var(--mute)' }}>/{currentPlan.interval}</div>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-mute/90 leading-relaxed min-h-[36px]">
+                <p className="text-xs leading-relaxed min-h-[36px]" style={{ color: 'var(--mute)' }}>
                   {app.description}
                 </p>
 
@@ -415,20 +474,26 @@ export default function AppDirectory({ onNavigate }) {
                 <div
                   className="p-3 rounded-2xl flex items-center justify-between text-xs"
                   style={{
-                    background: 'rgba(5, 10, 23, 0.6)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--card-inner)',
+                    border: '1px solid var(--card-inner-border)',
                   }}
                 >
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-mute block">Selected Plan</span>
-                    <span className="font-semibold text-white">
+                    <span
+                      className="text-[10px] uppercase font-bold block"
+                      style={{ color: 'var(--mute)' }}
+                    >
+                      Selected Plan
+                    </span>
+                    <span className="font-semibold" style={{ color: 'var(--ink)' }}>
                       {currentPlan.name} ${currentPlan.price.toFixed(2)}
                     </span>
                   </div>
 
                   <button
                     onClick={() => setPlanModalApp(app)}
-                    className="text-xs font-semibold text-[#00d2ff] hover:underline px-2.5 py-1 rounded-lg hover:bg-[#00d2ff]/10 transition-all cursor-pointer"
+                    className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer hover:opacity-80"
+                    style={{ color: 'var(--mint)' }}
                   >
                     See all plans ({app.plans.length})
                   </button>
@@ -436,10 +501,16 @@ export default function AppDirectory({ onNavigate }) {
               </div>
 
               {/* Card Footer: Trial Badge & PayPal CTA */}
-              <div className="flex items-center justify-between gap-3 pt-5 mt-4 border-t border-white/10">
+              <div
+                className="flex items-center justify-between gap-3 pt-5 mt-4"
+                style={{ borderTop: '1px solid var(--line)' }}
+              >
                 <span
-                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full text-mute"
-                  style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{
+                    background: 'var(--badge-bg)',
+                    color: 'var(--mute)',
+                  }}
                 >
                   {app.trialBadge}
                 </span>
@@ -447,9 +518,10 @@ export default function AppDirectory({ onNavigate }) {
                 <button
                   onClick={() => handleSubscribe(app)}
                   disabled={isSubscribing}
-                  className="px-4 py-2 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-4 py-2 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                   style={{
                     background: 'linear-gradient(135deg, #0070ba, #003087)',
+                    boxShadow: '0 4px 14px rgba(0, 112, 186, 0.35)',
                   }}
                 >
                   {isSubscribing ? (

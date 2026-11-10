@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Dark mode (default) ───────────────────────────────────────── */
 :root {
   --bg: #050a17;
   --bg2: #0b162e;
@@ -12,15 +13,57 @@
   --coral: #ff3d71;
   --line: rgba(0, 210, 255, 0.16);
   --card: rgba(255, 255, 255, 0.04);
+  /* card surface used by AppDirectory */
+  --card-surface: rgba(11, 22, 46, 0.75);
+  --card-border: rgba(0, 210, 255, 0.2);
+  --card-inner: rgba(5, 10, 23, 0.6);
+  --card-inner-border: rgba(255, 255, 255, 0.08);
+  --modal-bg: #0b162e;
+  --input-bg: rgba(11, 22, 46, 0.80);
+  --pill-bg: #0b162e;
+  --toast-bg: #0b162e;
+  --badge-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Light mode overrides ───────────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0f4ff;
+    --bg2: #e4eaff;
+    --ink: #0d1033;
+    --mute: #4a5080;
+    --mint: #0063cc;        /* deeper blue reads better on white */
+    --ice: #0063cc;
+    --coral: #cc1f4f;
+    --line: rgba(0, 99, 204, 0.18);
+    --card: rgba(255, 255, 255, 0.70);
+    --card-surface: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(0, 99, 204, 0.22);
+    --card-inner: rgba(224, 232, 255, 0.60);
+    --card-inner-border: rgba(0, 99, 204, 0.12);
+    --modal-bg: #ffffff;
+    --input-bg: rgba(255, 255, 255, 0.90);
+    --pill-bg: #e4eaff;
+    --toast-bg: #ffffff;
+    --badge-bg: rgba(0, 99, 204, 0.06);
+  }
 }
 
 body {
   margin: 0;
-  background: radial-gradient(120% 80% at 70% 0%, #0d1e3d, #050a17 70%);
-  background-color: #050a17;
-  color: #f0f6ff;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
   overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Dark-only radial gradient on body */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: radial-gradient(120% 80% at 70% 0%, #0d1e3d, #050a17 70%);
+    background-color: #050a17;
+  }
 }
 
 .clip-shield {
