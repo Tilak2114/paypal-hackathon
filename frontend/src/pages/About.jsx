@@ -33,19 +33,19 @@ export default function About({ onNavigate, onGetStarted }) {
 
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
           <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Three jobs, done for you
+            Four jobs, done for you
           </h1>
           <p className="text-mute text-base sm:text-lg">
-            Paste your list or connect PayPal. Churn Guard does the checking so you don’t have to remember.
+            Connect PayPal. Churn Guard does the checking, cancels waste in one tap, and turns your savings into goals.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card 1: Audit */}
           <div
             onMouseMove={(e) => handleTilt(e, e.currentTarget)}
             onMouseLeave={(e) => handleResetTilt(e.currentTarget)}
-            className="bg-card rounded-3xl p-8 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
+            className="bg-card rounded-3xl p-7 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
             style={{
               border: '1px solid rgba(0, 210, 255, 0.25)',
               boxShadow: '0 10px 30px rgba(5, 10, 23, 0.6)'
@@ -73,7 +73,7 @@ export default function About({ onNavigate, onGetStarted }) {
           <div
             onMouseMove={(e) => handleTilt(e, e.currentTarget)}
             onMouseLeave={(e) => handleResetTilt(e.currentTarget)}
-            className="bg-card rounded-3xl p-8 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
+            className="bg-card rounded-3xl p-7 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
             style={{
               border: '1px solid rgba(255, 61, 113, 0.25)',
               boxShadow: '0 10px 30px rgba(5, 10, 23, 0.6)'
@@ -85,7 +85,7 @@ export default function About({ onNavigate, onGetStarted }) {
               </div>
               <h3 className="font-display font-bold text-2xl text-white mb-3">Warn</h3>
               <p className="text-mute text-sm leading-relaxed">
-                Tells you before a free trial turns into a charge or a price goes up, then suggests pausing or a cheaper plan based on how you use it.
+                Tells you before a free trial turns into a charge or a price goes up, then suggests pausing or a cheaper plan.
               </p>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function About({ onNavigate, onGetStarted }) {
           <div
             onMouseMove={(e) => handleTilt(e, e.currentTarget)}
             onMouseLeave={(e) => handleResetTilt(e.currentTarget)}
-            className="bg-card rounded-3xl p-8 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
+            className="bg-card rounded-3xl p-7 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
             style={{
               border: '1px solid rgba(37, 99, 235, 0.35)',
               boxShadow: '0 10px 30px rgba(5, 10, 23, 0.6)'
@@ -114,6 +114,34 @@ export default function About({ onNavigate, onGetStarted }) {
               <h3 className="font-display font-bold text-2xl text-white mb-3">Act</h3>
               <p className="text-mute text-sm leading-relaxed">
                 Manage, pause or cancel PayPal recurring payments inside Churn Guard with a single tap.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Savings Jar */}
+          <div
+            onMouseMove={(e) => handleTilt(e, e.currentTarget)}
+            onMouseLeave={(e) => handleResetTilt(e.currentTarget)}
+            className="bg-card rounded-3xl p-7 backdrop-blur-xl transition-all duration-150 ease-out flex flex-col justify-between"
+            style={{
+              border: '1px solid rgba(52, 240, 200, 0.3)',
+              boxShadow: '0 10px 30px rgba(5, 10, 23, 0.6)'
+            }}
+          >
+            <div>
+              <div 
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"
+                style={{
+                  background: 'rgba(0, 210, 255, 0.12)',
+                  color: '#00d2ff',
+                  border: '1px solid rgba(0, 210, 255, 0.35)'
+                }}
+              >
+                🫙
+              </div>
+              <h3 className="font-display font-bold text-2xl text-white mb-3">Savings Jar</h3>
+              <p className="text-mute text-sm leading-relaxed">
+                Set goals like weekend trips or new gear. Watch the jar fill up in real time with celebratory cha-chings whenever you cancel waste.
               </p>
             </div>
           </div>
