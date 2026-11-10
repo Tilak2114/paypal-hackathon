@@ -184,19 +184,45 @@ export default function AppDirectory({ onNavigate }) {
     setConfirmApp(null); // close confirm modal
 
     try {
-      // Push to the shared client.js subsState so Dashboard sees it immediately
-      await addSubscription({
-        id: `dir-${app.id}-${Date.now()}`,
-        name: `${app.name} (${plan.name})`,
-        cost: plan.price,
-        lastUsed: 'just now',
-        status: 'active',
-        flag: null,
-        suggestion: null,
-        color: app.color,
-        category: app.category,
-        source: 'paypal',
-        interval: plan.interval,
+      const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      // Ingest into backend DB so it shows immediately on Dashboard as PayPal managed
+      const paypalSubId = 'I-PP-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      await fetch(`${BASE}/ingest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([
+          {
+            name: `${app.name} (${plan.name})`,
+            category: app.category,
+            price: plan.price.toFixed(2),
+            currency: 'USD',
+            interval: 'MONTH',
+            source: 'paypal',
+            managedByPaypal: true,
+            paypalSubscriptionId: paypalSubId,
+            status: 'ACTIVE',
+            lastUsedAt: new Date().toISOString(),
+          },
+        ]),
+      });
+
+      try {
+        if (typeof addSubscription === 'function') {
+          await addSubscription({
+            id: `dir-${app.id}-${Date.now()}`,
+            name: `${app.name} (${plan.name})`,
+            cost: plan.price,
+            lastUsed: 'just now',
+            status: 'active',
+            flag: null,
+            suggestion: null,
+            color: app.color,
+            category: app.category,
+            source: 'paypal',
+            interval: plan.interval,
+          });
+        }
+      } catch (e) {}
       });
 
       showToast(`✅ Subscribed to ${app.name} (${plan.name}) via PayPal! Check your Dashboard.`);
@@ -653,3 +679,4 @@ export default function AppDirectory({ onNavigate }) {
     </div>
   );
 }
+

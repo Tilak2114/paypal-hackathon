@@ -25,7 +25,8 @@ async function post(endpoint, data = {}) {
     body: JSON.stringify(data),
   });
   if (!r.ok) {
-    throw new Error(`API error: ${r.statusText}`);
+    const errBody = await r.json().catch(() => null);
+    throw new Error(errBody?.error?.message || errBody?.message || `API error: ${r.statusText}`);
   }
   return r.json();
 }

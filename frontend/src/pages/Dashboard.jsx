@@ -41,6 +41,11 @@ export default function Dashboard({ onNavigate, onBack }) {
   // Intercept Pause with PayPal connection check + explicit confirmation
   const handlePause = (id) => {
     const target = subscriptions.find((s) => s.id === id);
+    if (!target) return;
+    if (target.source === 'external' || target.managedByPaypal === false) {
+      showToast('Audit only: This external subscription is not managed via PayPal.', 'error');
+      return;
+    }
     if (!user?.paypalConnected) {
       setConnectPromptOpen(true);
       return;
@@ -51,6 +56,11 @@ export default function Dashboard({ onNavigate, onBack }) {
   // Intercept Cancel with PayPal connection check + explicit confirmation
   const handleCancel = (id) => {
     const target = subscriptions.find((s) => s.id === id);
+    if (!target) return;
+    if (target.source === 'external' || target.managedByPaypal === false) {
+      showToast('Audit only: This external subscription is not managed via PayPal.', 'error');
+      return;
+    }
     if (!user?.paypalConnected) {
       setConnectPromptOpen(true);
       return;
@@ -76,16 +86,13 @@ export default function Dashboard({ onNavigate, onBack }) {
         );
         const yearly = (sub.cost || 0) * 12;
 
-        // Calculate and save accumulated savings
         const prevSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
         const newSaved = prevSaved + yearly;
         localStorage.setItem('churnguard_saved', newSaved.toString());
 
-        // Previous fill vs target fuller fill
         const prevFill = Math.min(prevSaved / 600, 0.75);
         const nextFill = Math.min(Math.max(newSaved / 600, prevFill + 0.35), 0.95);
 
-        // Trigger top-right Savings Jar pop-up with liquid rising & cha-ching sound!
         setJarPopup({
           open: true,
           fromFill: Math.max(0.18, prevFill),
@@ -103,11 +110,16 @@ export default function Dashboard({ onNavigate, onBack }) {
 
   const handleUndo = async (id) => {
     const target = subscriptions.find((s) => s.id === id);
-    await undoSub(id);
-    setSubscriptions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'active' } : s))
-    );
-    showToast(`Restored ${target ? target.name : 'subscription'}.`);
+    try {
+      await undoSub(id);
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: 'active' } : s))
+      );
+      showToast(`Restored ${target ? target.name : 'subscription'}.`);
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to restore subscription.', 'error');
+    }
   };
 
   // Calculations for SavingsMeter

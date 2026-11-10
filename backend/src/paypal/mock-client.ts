@@ -163,10 +163,9 @@ export class MockPayPalClient implements IPayPalClient {
     };
   }
 
-  async getSubscription(id: string): Promise<PayPalSubscriptionDetailResponse> {
+  private getOrRegisterSubscription(id: string): MockSubRecord {
     let sub = this.subscriptions.get(id);
     if (!sub) {
-      // Auto-register so demo IDs seamlessly resolve
       this.registerMockSubscription({
         id,
         status: 'ACTIVE',
@@ -174,6 +173,11 @@ export class MockPayPalClient implements IPayPalClient {
       });
       sub = this.subscriptions.get(id)!;
     }
+    return sub;
+  }
+
+  async getSubscription(id: string): Promise<PayPalSubscriptionDetailResponse> {
+    const sub = this.getOrRegisterSubscription(id);
 
     return {
       id: sub.id,
@@ -193,10 +197,7 @@ export class MockPayPalClient implements IPayPalClient {
   }
 
   async suspendSubscription(id: string, reason: string): Promise<{ success: boolean }> {
-    const sub = this.subscriptions.get(id);
-    if (!sub) {
-      throw new PayPalApiError(404, 'RESOURCE_NOT_FOUND', `Subscription ${id} not found.`);
-    }
+    const sub = this.getOrRegisterSubscription(id);
 
     if (sub.status === 'CANCELLED') {
       throw new PayPalApiError(
@@ -221,10 +222,7 @@ export class MockPayPalClient implements IPayPalClient {
   }
 
   async activateSubscription(id: string, reason: string): Promise<{ success: boolean }> {
-    const sub = this.subscriptions.get(id);
-    if (!sub) {
-      throw new PayPalApiError(404, 'RESOURCE_NOT_FOUND', `Subscription ${id} not found.`);
-    }
+    const sub = this.getOrRegisterSubscription(id);
 
     if (sub.status === 'CANCELLED') {
       throw new PayPalApiError(
@@ -249,10 +247,7 @@ export class MockPayPalClient implements IPayPalClient {
   }
 
   async cancelSubscription(id: string, reason: string): Promise<{ success: boolean }> {
-    const sub = this.subscriptions.get(id);
-    if (!sub) {
-      throw new PayPalApiError(404, 'RESOURCE_NOT_FOUND', `Subscription ${id} not found.`);
-    }
+    const sub = this.getOrRegisterSubscription(id);
 
     if (sub.status === 'CANCELLED') {
       throw new PayPalApiError(
@@ -277,10 +272,7 @@ export class MockPayPalClient implements IPayPalClient {
     approveUrl?: string;
     raw: PayPalReviseResponse;
   }> {
-    const sub = this.subscriptions.get(id);
-    if (!sub) {
-      throw new PayPalApiError(404, 'RESOURCE_NOT_FOUND', `Subscription ${id} not found.`);
-    }
+    const sub = this.getOrRegisterSubscription(id);
 
     if (sub.status === 'CANCELLED') {
       throw new PayPalApiError(

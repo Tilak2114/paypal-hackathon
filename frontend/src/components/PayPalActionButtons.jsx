@@ -12,6 +12,23 @@ export default function PayPalActionButtons({ sub, onPause, onCancel, onUndo }) 
     }
   };
 
+  if (sub.source === 'external' || sub.managedByPaypal === false) {
+    return (
+      <div className="flex items-center gap-2">
+        <span 
+          className="text-[11px] font-semibold px-3 py-1 rounded-full text-mute/80"
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}
+          title="Imported from statement audit. Not managed via PayPal."
+        >
+          🔒 Bank Audit Only
+        </span>
+      </div>
+    );
+  }
+
   if (sub.status === 'paused' || sub.status === 'cancelled') {
     return (
       <div className="flex items-center gap-2">

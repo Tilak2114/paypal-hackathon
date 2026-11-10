@@ -252,7 +252,9 @@ export class SubscriptionService {
     db.transaction(() => {
       for (const item of items) {
         const id = item.id || `sub-ingest-${uuidv4().substring(0, 8)}`;
-        const hasPaypalId = Boolean(item.paypalSubscriptionId);
+        const isExplicitPaypal = item.source === 'paypal' || item.managedByPaypal === true;
+        const paypalSubscriptionId = item.paypalSubscriptionId || (isExplicitPaypal ? `I-PP-${uuidv4().substring(0, 8).toUpperCase()}` : null);
+        const hasPaypalId = Boolean(paypalSubscriptionId);
         const source = hasPaypalId ? (item.source || 'paypal') : 'external';
         const managedByPaypal = hasPaypalId ? (item.managedByPaypal ?? true) : false;
         const status = item.status || (source === 'external' ? 'EXTERNAL' : 'ACTIVE');
@@ -268,7 +270,7 @@ export class SubscriptionService {
           status,
           source,
           managedByPaypal: managedByPaypal ? 1 : 0,
-          paypalSubscriptionId: item.paypalSubscriptionId || null,
+          paypalSubscriptionId,
           planId: item.planId || null,
           downgradePlanId: item.downgradePlanId || null,
           nextBillingTime: item.nextBillingTime || null,
