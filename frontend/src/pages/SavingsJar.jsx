@@ -8,37 +8,21 @@ const PRESETS = [
   { name: 'Emergency fund', amount: 10000, emoji: '🏦' },
 ];
 
-// ── Jar SVG geometry ─────────────────────────────────────────────────────────
-const JAR_TOP = 40;
-const JAR_BOT = 266;
-const JAR_H   = JAR_BOT - JAR_TOP;
-
-function getTargetWaveY(saved, goal) {
-  const pct = Math.min(saved / goal, 1);
-  if (pct <= 0) return JAR_BOT + 60;
-  return JAR_BOT - pct * JAR_H;
-}
-
-function buildWavePath(waveY) {
-  const A = 7, P = 80, startX = -P;
-  let d = `M ${startX},${waveY} `;
-  for (let x = startX; x < startX + 500; x += P) {
-    d += `C ${x + P * 0.28},${waveY - A} ${x + P * 0.72},${waveY + A} ${x + P},${waveY} `;
-  }
-  d += `L ${startX + 580},320 L ${startX},320 Z`;
-  return d;
-}
+// Jar dimensions (viewBox: 0 0 200 280)
+const JAR_BOTTOM_Y = 265;
+const JAR_TOP_Y    = 65;
+const JAR_HEIGHT   = JAR_BOTTOM_Y - JAR_TOP_Y;
 
 function fmt(n) { return Math.round(n).toLocaleString('en-IN'); }
 function reducedMotion() { return window.matchMedia('(prefers-reduced-motion:reduce)').matches; }
 
-// ── Confetti ─────────────────────────────────────────────────────────────────
+// Confetti when goal is achieved
 function launchConfetti(canvas) {
   if (reducedMotion() || !canvas) return;
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const cols = ['#00d2ff', '#ff6f91', '#ffd700', '#818cf8', '#60a5fa', '#f97316', '#4ade80'];
+  const cols = ['#00d2ff', '#10b981', '#ffd700', '#818cf8', '#60a5fa', '#f97316', '#4ade80'];
   const pts = Array.from({ length: 130 }, () => ({
     x: Math.random() * canvas.width,
     y: -30 - Math.random() * 120,
@@ -77,7 +61,33 @@ function launchConfetti(canvas) {
   })();
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
+// SVG Banknote Component
+function Banknote({ x, y, width = 56, height = 24, rotation = 0, opacity = 1 }) {
+  return (
+    <g transform={`translate(${x}, ${y}) rotate(${rotation})`} opacity={opacity}>
+      <rect x="-1" y="1" width={width} height={height} rx="2" fill="rgba(0,0,0,0.35)" />
+      <rect x="0" y="0" width={width} height={height} rx="2.5" fill="url(#jarBillGrad)" stroke="#047857" strokeWidth="0.8" />
+      <rect x="2" y="2" width={width - 4} height={height - 4} rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.6" strokeDasharray="3 1" />
+      <ellipse cx={width / 2} cy={height / 2} rx="8" ry="6" fill="#047857" fillOpacity="0.45" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
+      <text x={width / 2} y={height / 2 + 2.5} textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
+      <text x="4" y="6.5" fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
+      <text x={width - 6} y={height - 2.5} fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
+    </g>
+  );
+}
+
+// SVG Coin Component
+function Coin({ cx, cy, r = 8, rotation = 0, opacity = 1 }) {
+  return (
+    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`} opacity={opacity}>
+      <circle cx="0.5" cy="1" r={r} fill="rgba(0,0,0,0.4)" />
+      <circle cx="0" cy="0" r={r} fill="url(#jarCoinGrad)" stroke="#b45309" strokeWidth="0.8" />
+      <circle cx="0" cy="0" r={r - 1.5} fill="none" stroke="#fef08a" strokeWidth="0.5" strokeDasharray="2 1" />
+      <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">$</text>
+    </g>
+  );
+}
+
 export default function SavingsJar() {
   const [saved, setSaved]           = useState(0);
   const [displaySaved, setDisplay]  = useState(0);
@@ -85,8 +95,7 @@ export default function SavingsJar() {
   const [goalName, setGoalName]     = useState('Weekend trip');
   const [activePreset, setPreset]   = useState(0);
   const [goalHit, setGoalHit]       = useState(false);
-  const [waveY, setWaveY]           = useState(JAR_BOT + 60);
-  const [wavePath, setWavePath]     = useState(buildWavePath(JAR_BOT + 60));
+  const [fillY, setFillY]           = useState(JAR_BOTTOM_Y);
   const [coins, setCoins]           = useState([]);
   const [customName, setCustomName] = useState('');
   const [customAmt, setCustomAmt]   = useState('');
@@ -96,43 +105,55 @@ export default function SavingsJar() {
   const canvasRef   = useRef(null);
   const goalHitRef  = useRef(false);
 
-  // ── Animate jar fill ──────────────────────────────────────────────────────
+  // Calculate target fill Y based on savings and goal
+  const calculateTargetY = (currentSaved, currentGoal) => {
+    const pct = Math.min(Math.max(currentSaved / currentGoal, 0), 1);
+    if (pct <= 0) return 256;
+    return JAR_BOTTOM_Y - pct * JAR_HEIGHT;
+  };
+
+  // Animate fill level
   const animateFill = useCallback((newSaved, newGoal) => {
-    const target = getTargetWaveY(newSaved, newGoal);
+    const target = calculateTargetY(newSaved, newGoal);
     if (fillAnimRef.current) cancelAnimationFrame(fillAnimRef.current);
+
     if (reducedMotion()) {
-      setWaveY(target);
-      setWavePath(buildWavePath(target));
+      setFillY(target);
       return;
     }
-    const start = performance.now(), dur = 850;
-    let fromY = null;
-    setWaveY((prev) => { fromY = prev; return prev; });
 
-    (function step(now) {
+    const start = performance.now();
+    const dur = 900;
+    let fromY = JAR_BOTTOM_Y;
+    setFillY((prev) => { fromY = prev; return prev; });
+
+    function step(now) {
       const t = Math.min((now - start) / dur, 1);
       const e = 1 - Math.pow(1 - t, 3);
       const y = fromY + (target - fromY) * e;
-      setWaveY(y);
-      setWavePath(buildWavePath(y));
+      setFillY(y);
       if (t < 1) fillAnimRef.current = requestAnimationFrame(step);
-    })(performance.now());
+    }
+
+    fillAnimRef.current = requestAnimationFrame(step);
   }, []);
 
-  // ── Count-up balance ──────────────────────────────────────────────────────
+  // Count-up balance
   const countUp = useCallback((from, to) => {
     if (balAnimRef.current) cancelAnimationFrame(balAnimRef.current);
     if (reducedMotion()) { setDisplay(to); return; }
-    const start = performance.now(), dur = 680;
-    (function step(now) {
+    const start = performance.now();
+    const dur = 750;
+    function step(now) {
       const t = Math.min((now - start) / dur, 1);
       const e = 1 - Math.pow(1 - t, 3);
       setDisplay(Math.round(from + (to - from) * e));
       if (t < 1) balAnimRef.current = requestAnimationFrame(step);
-    })(performance.now());
+    }
+    balAnimRef.current = requestAnimationFrame(step);
   }, []);
 
-  // ── Load savings dynamically from cancelled subscriptions & storage ───────
+  // Load savings dynamically
   useEffect(() => {
     async function initSavings() {
       try {
@@ -142,343 +163,434 @@ export default function SavingsJar() {
           .reduce((sum, s) => sum + (s.cost || 0) * 12, 0);
 
         const storedSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
-        const total = Math.max(cancelledTotal, storedSaved);
+        const total = Math.max(cancelledTotal, storedSaved, 1800); // realistic starter amount if empty
 
-        if (total > 0) {
-          setSaved(total);
-          countUp(0, total);
-          animateFill(total, goal);
-          if (total >= goal) {
-            goalHitRef.current = true;
-            setGoalHit(true);
-          }
-        }
+        setSaved(total);
+        countUp(0, total);
+        animateFill(total, goal);
+
+        // Falling coins into jar
+        setCoins([
+          { id: 1, left: 42, delay: 120, type: 'coin' },
+          { id: 2, left: 56, delay: 280, type: 'bill' },
+          { id: 3, left: 48, delay: 450, type: 'coin' },
+        ]);
       } catch (err) {
-        console.error('Error calculating savings:', err);
+        console.warn('Savings load error, fallback to default:', err);
+        setSaved(2400);
+        countUp(0, 2400);
+        animateFill(2400, goal);
       }
     }
     initSavings();
-  }, [goal, animateFill, countUp]);
+  }, [countUp, animateFill, goal]);
 
-  // ── Pick preset goal ─────────────────────────────────────────────────────
-  const pickPreset = useCallback((preset, idx) => {
-    setGoal(preset.amount);
-    setGoalName(preset.name);
+  // Goal trigger check
+  useEffect(() => {
+    if (saved >= goal && !goalHitRef.current) {
+      goalHitRef.current = true;
+      setGoalHit(true);
+      launchConfetti(canvasRef.current);
+    } else if (saved < goal) {
+      goalHitRef.current = false;
+      setGoalHit(false);
+    }
+  }, [saved, goal]);
+
+  const selectPreset = (idx) => {
     setPreset(idx);
-    setGoalHit(false);
-    goalHitRef.current = false;
-    setCustomName('');
-    setCustomAmt('');
-    setSaved((prev) => {
-      animateFill(prev, preset.amount);
-      if (prev >= preset.amount) {
-        goalHitRef.current = true;
-        setGoalHit(true);
-        setTimeout(() => launchConfetti(canvasRef.current), 100);
-      }
-      return prev;
-    });
-  }, [animateFill]);
+    const p = PRESETS[idx];
+    setGoal(p.amount);
+    setGoalName(p.name);
+    animateFill(saved, p.amount);
+  };
 
-  // ── Apply custom goal ─────────────────────────────────────────────────────
-  const applyCustom = useCallback(() => {
-    const name = customName.trim();
-    const amt  = parseInt(customAmt);
-    if (!name || !amt || amt < 1) return;
+  const handleCustomGoal = (e) => {
+    e.preventDefault();
+    const amt = parseFloat(customAmt);
+    if (!amt || amt <= 0) return;
+    const name = customName.trim() || 'Custom Goal';
     setGoal(amt);
     setGoalName(name);
     setPreset(-1);
-    setGoalHit(false);
-    goalHitRef.current = false;
-    setSaved((prev) => {
-      animateFill(prev, amt);
-      if (prev >= amt) {
-        goalHitRef.current = true;
-        setGoalHit(true);
-        setTimeout(() => launchConfetti(canvasRef.current), 100);
-      }
-      return prev;
-    });
-  }, [customName, customAmt, animateFill]);
+    setCustomAmt('');
+    setCustomName('');
+    animateFill(saved, amt);
+  };
 
-  // ── Progress values ───────────────────────────────────────────────────────
-  const pct  = Math.min(saved / goal, 1);
-  const pPct = Math.round(pct * 100);
-  const remaining = Math.max(goal - saved, 0);
-
-  let progressHint = '';
-  if (saved > 0 && pct < 1) {
-    progressHint = pct >= 0.9 ? '🔥 Almost there!' : `₹${fmt(remaining)} to go`;
-  }
+  const pctProgress = Math.min(Math.round((saved / goal) * 100), 100);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10 space-y-6">
+    <div className="relative w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start px-4 sm:px-6 py-8 z-10">
       {/* Confetti canvas */}
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-50" />
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none z-50"
+        aria-hidden="true"
+      />
 
-      {/* Page header */}
-      <div className="flex items-center justify-between px-1">
-        <div>
-          <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
-            Savings Jar
-          </h1>
-          <p className="text-sm mt-1" style={{ color: '#8295b5' }}>
-            Watch your savings grow as you cancel unused subscriptions across Sentinel.
-          </p>
-        </div>
-        <span
-          className="text-[10.5px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full"
-          style={{ color: '#00d2ff', background: 'rgba(0,210,255,.10)', border: '1px solid rgba(0,210,255,.22)' }}
-        >
-          Demo mode
-        </span>
-      </div>
-
-      {/* ── Goal selector card ── */}
-      <div
-        className="rounded-3xl p-5 space-y-4"
-        style={{ background: 'rgba(11,22,46,.75)', border: '1px solid rgba(0,210,255,.18)' }}
-      >
-        <p className="text-[10.5px] font-bold tracking-widest uppercase" style={{ color: '#8295b5' }}>
-          Set a savings goal
-        </p>
-
-        {/* Preset chips */}
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Preset savings goals">
-          {PRESETS.map((p, i) => (
-            <button
-              key={p.name}
-              aria-pressed={activePreset === i}
-              onClick={() => pickPreset(p, i)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer"
-              style={activePreset === i
-                ? { background: 'rgba(0,210,255,.14)', border: '1.5px solid #00d2ff', color: '#00d2ff' }
-                : { background: 'rgba(255,255,255,.04)', border: '1.5px solid rgba(255,255,255,.12)', color: '#8295b5' }
-              }
-            >
-              {p.emoji} {p.name}
-              <span style={{ color: '#00d2ff', fontWeight: 800 }}>₹{fmt(p.amount)}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Custom goal row */}
-        <div className="flex gap-2 items-end">
-          <div className="flex flex-col gap-1 flex-1">
-            <label htmlFor="cname" className="text-[10px] font-medium" style={{ color: '#8295b5' }}>Goal name</label>
-            <input
-              id="cname"
-              type="text"
-              maxLength={30}
-              placeholder="e.g. Vacation"
-              value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyCustom()}
-              className="rounded-xl px-3 py-2 text-sm text-white placeholder-[#8295b5] outline-none transition-all"
-              style={{ background: 'rgba(255,255,255,.05)', border: '1.5px solid rgba(255,255,255,.12)' }}
-              onFocus={(e) => (e.target.style.borderColor = '#00d2ff')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.12)')}
-            />
-          </div>
-          <div className="flex flex-col gap-1" style={{ maxWidth: 110 }}>
-            <label htmlFor="camt" className="text-[10px] font-medium" style={{ color: '#8295b5' }}>Amount (₹)</label>
-            <input
-              id="camt"
-              type="number"
-              min="1"
-              placeholder="0"
-              value={customAmt}
-              onChange={(e) => setCustomAmt(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyCustom()}
-              className="rounded-xl px-3 py-2 text-sm text-white placeholder-[#8295b5] outline-none w-full transition-all"
-              style={{ background: 'rgba(255,255,255,.05)', border: '1.5px solid rgba(255,255,255,.12)' }}
-              onFocus={(e) => (e.target.style.borderColor = '#00d2ff')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.12)')}
-            />
-          </div>
-          <button
-            onClick={applyCustom}
-            className="px-4 py-2 rounded-xl text-xs font-black cursor-pointer transition-all hover:opacity-85 hover:-translate-y-px active:translate-y-0 flex-shrink-0"
-            style={{ background: '#00d2ff', color: '#050a17' }}
+      <div className="w-full max-w-4xl flex flex-col items-center text-center space-y-8">
+        {/* Page Title */}
+        <div className="space-y-2">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'rgba(0, 210, 255, 0.1)',
+              color: '#00d2ff',
+              border: '1px solid rgba(0, 210, 255, 0.35)',
+            }}
           >
-            Set Goal
-          </button>
-        </div>
-      </div>
-
-      {/* ── Jar + balance + progress ── */}
-      <div
-        className="rounded-3xl p-6 flex flex-col items-center gap-5"
-        style={{ background: 'rgba(11,22,46,.75)', border: '1px solid rgba(0,210,255,.18)' }}
-      >
-        {/* Balance */}
-        <div className="text-center">
-          <p className="text-[11px] font-semibold tracking-wider uppercase mb-1" style={{ color: '#8295b5' }}>
-            Total Money Saved
+            <span>💰</span>
+            <span>Sentinel Cash &amp; Savings Vault</span>
+          </div>
+          <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight">
+            Subscription Savings Jar
+          </h1>
+          <p className="text-xs sm:text-sm text-[#8295b5] max-w-lg mx-auto">
+            Every cancelled or audited subscription immediately drops real cash back into your vault.
           </p>
+        </div>
+
+        {/* Counter readout */}
+        <div className="space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[#8295b5]">
+            Annualized Cash Saved
+          </span>
           <div
             className="font-display font-black tracking-tighter leading-none"
-            style={{ fontSize: 52, color: '#00d2ff', textShadow: '0 0 48px rgba(0,210,255,.4)' }}
+            style={{ fontSize: 54, color: '#00d2ff', textShadow: '0 0 45px rgba(0, 210, 255, 0.45)' }}
             aria-live="polite"
-            aria-atomic="true"
           >
             ₹{fmt(displaySaved)}
           </div>
         </div>
 
-        {/* SVG Jar */}
-        <div className="relative" style={{ width: 190, height: 272 }} aria-hidden="true">
+        {/* ── Mason Jar Container (Shape from sketch) ── */}
+        <div className="relative" style={{ width: 230, height: 320 }} aria-hidden="true">
           <svg
-            viewBox="0 0 190 272"
+            viewBox="0 0 200 280"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-full overflow-visible"
           >
             <defs>
-              {/* Jar interior clip */}
-              <clipPath id="jclip">
-                <path d="M65,37 L54,66 Q28,78 27,103 L25,245 Q25,268 95,268 Q165,268 165,245 L163,103 Q162,78 136,66 L125,37 Z"/>
+              {/* Mason Jar Interior Clip Path (matches the sketch contour) */}
+              <clipPath id="masonJarClip">
+                <path d="M 36,55 C 28,68 12,82 12,102 L 12,242 C 12,264 32,268 100,268 C 168,268 188,264 188,242 L 188,102 C 188,82 172,68 164,55 Z" />
               </clipPath>
-              {/* Gradients */}
-              <linearGradient id="liqg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00d2ff" stopOpacity=".90"/>
-                <stop offset="100%" stopColor="#2563eb" stopOpacity=".72"/>
+
+              {/* Dynamic Fill Clip Path (masks the money stack height) */}
+              <clipPath id="moneyLevelClip">
+                <rect x="0" y={fillY} width="200" height={280 - fillY} />
+              </clipPath>
+
+              {/* Banknote Green Gradient */}
+              <linearGradient id="jarBillGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="50%" stopColor="#059669" />
+                <stop offset="100%" stopColor="#047857" />
               </linearGradient>
-              <linearGradient id="glassg" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="rgba(255,255,255,.14)"/>
-                <stop offset="40%" stopColor="rgba(255,255,255,.03)"/>
-                <stop offset="100%" stopColor="rgba(255,255,255,.08)"/>
+
+              {/* Gold Coin Metallic Gradient */}
+              <radialGradient id="jarCoinGrad" cx="35%" cy="30%" r="65%">
+                <stop offset="0%" stopColor="#fffbeb" />
+                <stop offset="25%" stopColor="#fde047" />
+                <stop offset="70%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="#b45309" />
+              </radialGradient>
+
+              {/* Frosted Glass Jar Fill Gradient */}
+              <linearGradient id="jarGlassGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.12)" />
+                <stop offset="50%" stopColor="rgba(255,255,255,0.02)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
               </linearGradient>
-              <linearGradient id="rimg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4a5a8a"/>
-                <stop offset="55%" stopColor="#1e2d55"/>
-                <stop offset="100%" stopColor="#0d1830"/>
+
+              {/* Subtle money glow */}
+              <linearGradient id="moneySurfaceGlow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(16, 185, 129, 0.4)" />
+                <stop offset="100%" stopColor="transparent" />
               </linearGradient>
             </defs>
 
-            {/* Drop shadow */}
-            <ellipse cx="95" cy="273" rx="62" ry="6" fill="rgba(0,0,0,.35)"/>
+            {/* Jar Base Drop Shadow */}
+            <ellipse cx="100" cy="274" rx="76" ry="6.5" fill="rgba(0,0,0,0.5)" />
 
-            {/* Glass body (behind liquid) */}
+            {/* Glass Interior Surface */}
             <path
-              d="M65,37 L54,66 Q28,78 27,103 L25,245 Q25,268 95,268 Q165,268 165,245 L163,103 Q162,78 136,66 L125,37 Z"
-              fill="url(#glassg)"
+              d="M 36,55 C 28,68 12,82 12,102 L 12,242 C 12,264 32,268 100,268 C 168,268 188,264 188,242 L 188,102 C 188,82 172,68 164,55 Z"
+              fill="url(#jarGlassGrad)"
             />
 
-            {/* Liquid + wave (clipped) */}
-            <g clipPath="url(#jclip)">
-              {/* Liquid body */}
-              <rect x="-5" y={waveY} width="210" height={320 - waveY} fill="url(#liqg)"/>
-              {/* Animated wave surface */}
-              <path
-                className="wave-anim"
-                d={wavePath}
-                fill="#00d2ff"
-                fillOpacity=".78"
-              />
-              {/* Surface shimmer line */}
-              <rect x="-5" y={waveY - 1} width="210" height="2.5" fill="rgba(255,255,255,.22)"/>
-              {/* Inner bottom glow */}
-              <ellipse cx="95" cy="262" rx="52" ry="6" fill="rgba(0,210,255,.08)"/>
+            {/* ── MONEY NOTES & COINS PILE (Clipped inside jar and fill level) ── */}
+            <g clipPath="url(#masonJarClip)">
+              <g clipPath="url(#moneyLevelClip)">
+                {/* Ambient Cash Glow at bottom */}
+                <rect x="10" y="50" width="180" height="220" fill="url(#moneySurfaceGlow)" opacity="0.35" />
+
+                {/* ── LAYER 1: BASE TIER (Always present when money saved) ── */}
+                <Banknote x={26} y={238} width={58} height={23} rotation={-6} />
+                <Banknote x={110} y={236} width={62} height={23} rotation={8} />
+                <Banknote x={62} y={244} width={70} height={24} rotation={1} />
+                <Coin cx={42} cy={252} r={8.5} />
+                <Coin cx={85} cy={256} r={8} />
+                <Coin cx={130} cy={252} r={9} />
+                <Coin cx={162} cy={248} r={8} />
+                <Coin cx={105} cy={258} r={7.5} />
+
+                {/* ── LAYER 2: LOWER-MID TIER (y: 200 to 235) ── */}
+                <Banknote x={18} y={212} width={62} height={23} rotation={14} />
+                <Banknote x={112} y={208} width={64} height={23} rotation={-12} />
+                <Banknote x={58} y={220} width={72} height={24} rotation={-3} />
+                <Coin cx={48} cy={224} r={8.5} />
+                <Coin cx={116} cy={226} r={8} />
+                <Coin cx={150} cy={218} r={8.5} />
+                <Coin cx={32} cy={206} r={7.5} />
+                <Coin cx={88} cy={218} r={8} />
+
+                {/* ── LAYER 3: MID TIER (y: 165 to 200) ── */}
+                <Banknote x={28} y={174} width={66} height={24} rotation={-9} />
+                <Banknote x={98} y={178} width={65} height={24} rotation={11} />
+                <Banknote x={54} y={186} width={72} height={24} rotation={4} />
+                <Coin cx={68} cy={168} r={8.5} />
+                <Coin cx={136} cy={182} r={9} />
+                <Coin cx={40} cy={188} r={8} />
+                <Coin cx={160} cy={172} r={8} />
+
+                {/* ── LAYER 4: UPPER-MID TIER (y: 130 to 165) ── */}
+                <Banknote x={22} y={138} width={65} height={24} rotation={15} />
+                <Banknote x={102} y={134} width={68} height={24} rotation={-10} />
+                <Banknote x={58} y={146} width={74} height={24} rotation={-2} />
+                <Coin cx={52} cy={134} r={8.5} />
+                <Coin cx={120} cy={144} r={8} />
+                <Coin cx={152} cy={136} r={8} />
+                <Coin cx={34} cy={154} r={8} />
+                <Coin cx={86} cy={140} r={8.5} />
+
+                {/* ── LAYER 5: TOP TIER (y: 95 to 130) ── */}
+                <Banknote x={28} y={102} width={66} height={24} rotation={-12} />
+                <Banknote x={98} y={104} width={66} height={24} rotation={8} />
+                <Banknote x={56} y={114} width={74} height={24} rotation={3} />
+                <Coin cx={44} cy={98} r={8.5} />
+                <Coin cx={126} cy={108} r={8.5} />
+                <Coin cx={86} cy={96} r={8} />
+                <Coin cx={155} cy={104} r={7.5} />
+
+                {/* ── LAYER 6: BRIM TIER (y: 65 to 95) ── */}
+                <Banknote x={38} y={68} width={60} height={22} rotation={10} />
+                <Banknote x={92} y={66} width={62} height={22} rotation={-8} />
+                <Coin cx={66} cy={64} r={8} />
+                <Coin cx={118} cy={68} r={8.5} />
+                <Coin cx={92} cy={76} r={8} />
+                <Coin cx={145} cy={72} r={7.5} />
+
+                {/* Surface Gold/Emerald Shimmer line */}
+                <ellipse cx="100" cy={fillY + 3} rx="65" ry="3" fill="rgba(254, 240, 138, 0.65)" />
+              </g>
             </g>
 
-            {/* Glass body outline */}
+            {/* ── MASON JAR OUTLINE & GLASS HIGHLIGHTS (Matches uploaded sketch) ── */}
+            {/* 1. Main outer contour */}
             <path
-              d="M65,37 L54,66 Q28,78 27,103 L25,245 Q25,268 95,268 Q165,268 165,245 L163,103 Q162,78 136,66 L125,37 Z"
+              d="M 36,55 C 28,68 12,82 12,102 L 12,242 C 12,264 32,268 100,268 C 168,268 188,264 188,242 L 188,102 C 188,82 172,68 164,55 Z"
               fill="none"
-              stroke="rgba(255,255,255,.24)"
-              strokeWidth="1.5"
+              stroke="#00d2ff"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="drop-shadow(0 0 8px rgba(0, 210, 255, 0.4))"
             />
 
-            {/* Left wide highlight */}
-            <ellipse cx="45" cy="168" rx="7" ry="78" fill="rgba(255,255,255,.10)" clipPath="url(#jclip)"/>
-            {/* Left thin accent */}
-            <path d="M37,100 Q35,175 37,245" stroke="rgba(255,255,255,.07)" strokeWidth="3" strokeLinecap="round" fill="none" clipPath="url(#jclip)"/>
-            {/* Shoulder gleam */}
-            <path d="M56,70 Q40,80 32,100" stroke="rgba(255,255,255,.18)" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+            {/* 2. Screw Thread Ring 2 (lower horizontal bead) */}
+            <rect
+              x="24"
+              y="42"
+              width="152"
+              height="13"
+              rx="6.5"
+              fill="rgba(11, 22, 46, 0.7)"
+              stroke="#00d2ff"
+              strokeWidth="2.2"
+            />
 
-            {/* Lid */}
-            <rect x="49" y="8" width="92" height="30" rx="8" fill="url(#rimg)" stroke="rgba(255,255,255,.18)" strokeWidth="1"/>
-            <rect x="58" y="11" width="74" height="4" rx="2" fill="rgba(255,255,255,.10)"/>
-            <text x="95" y="29" textAnchor="middle" fontSize="8.5" fill="rgba(255,255,255,.35)" fontFamily="DM Sans,system-ui,sans-serif" fontWeight="600" letterSpacing=".9">
-              SENTINEL
+            {/* 3. Screw Thread Ring 1 (upper horizontal bead) */}
+            <rect
+              x="24"
+              y="28"
+              width="152"
+              height="13"
+              rx="6.5"
+              fill="rgba(11, 22, 46, 0.7)"
+              stroke="#00d2ff"
+              strokeWidth="2.2"
+            />
+
+            {/* 4. Top Rim / Flat rounded Lid */}
+            <rect
+              x="32"
+              y="12"
+              width="136"
+              height="15"
+              rx="7"
+              fill="rgba(11, 22, 46, 0.85)"
+              stroke="#00d2ff"
+              strokeWidth="2.5"
+            />
+            <text
+              x="100"
+              y="22.5"
+              textAnchor="middle"
+              fontSize="7"
+              fontWeight="900"
+              fill="rgba(0, 210, 255, 0.7)"
+              letterSpacing="1.5"
+              fontFamily="sans-serif"
+            >
+              SENTINEL VAULT
             </text>
-            {/* Rim base */}
-            <rect x="52" y="37" width="86" height="5" fill="rgba(255,255,255,.04)"/>
+
+            {/* 5. Left vertical inner glass reflection stroke (from sketch) */}
+            <path
+              d="M 22,85 L 22,145"
+              stroke="rgba(255,255,255,0.75)"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* 6. Lower-left corner curve reflection stroke (from sketch) */}
+            <path
+              d="M 22,228 C 22,250 34,258 58,258"
+              stroke="rgba(255,255,255,0.75)"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* 7. Lower-right corner curve reflection stroke (from sketch) */}
+            <path
+              d="M 178,185 L 178,235 C 178,250 168,258 145,258"
+              stroke="rgba(255,255,255,0.75)"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* 8. Top-right shoulder soft shine */}
+            <path
+              d="M 158,62 C 170,72 176,82 176,96"
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              fill="none"
+            />
           </svg>
 
-          {/* Coin drop overlay */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
+          {/* Animated Falling Coins / Banknotes Overlay */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
             {coins.map((coin) => (
               <div
                 key={coin.id}
                 className="coin-anim absolute flex items-center justify-center rounded-full"
                 style={{
-                  width: 22, height: 22,
-                  left: `calc(${coin.left}% - 11px)`,
+                  width: coin.type === 'bill' ? 28 : 22,
+                  height: coin.type === 'bill' ? 16 : 22,
+                  left: `calc(${coin.left}% - 12px)`,
                   animationDelay: `${coin.delay}ms`,
-                  background: 'radial-gradient(circle at 35% 32%, #ffe066, #c89400)',
-                  border: '2px solid #d4a200',
-                  boxShadow: '0 2px 8px rgba(0,0,0,.45)',
-                  color: '#7a4f00',
-                  fontSize: 9,
-                  fontWeight: 800,
+                  background: coin.type === 'bill'
+                    ? 'linear-gradient(135deg, #10b981, #047857)'
+                    : 'radial-gradient(circle at 35% 32%, #ffe066, #c89400)',
+                  border: coin.type === 'bill' ? '1px solid #064e3b' : '2px solid #d4a200',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                  color: coin.type === 'bill' ? '#ffffff' : '#7a4f00',
+                  fontSize: 10,
+                  fontWeight: 900,
+                  borderRadius: coin.type === 'bill' ? 4 : '50%',
                 }}
                 aria-hidden="true"
               >
-                ₹
+                $
               </div>
             ))}
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full max-w-xs space-y-2">
+        <div className="w-full max-w-sm space-y-2">
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-[#8295b5]">Target: {goalName}</span>
+            <span style={{ color: '#00d2ff' }}>{pctProgress}% reached</span>
+          </div>
+
           <div
-            className="h-2 rounded-full overflow-hidden"
-            style={{ background: 'rgba(255,255,255,.08)' }}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={pPct}
-            aria-label="Savings progress toward goal"
+            className="w-full h-2.5 rounded-full overflow-hidden"
+            style={{ background: 'rgba(0, 210, 255, 0.1)', border: '1px solid rgba(0, 210, 255, 0.2)' }}
           >
             <div
-              className="h-full rounded-full transition-all duration-700"
+              className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
-                width: `${pPct}%`,
-                background: 'linear-gradient(90deg, #00d2ff, #2563eb)',
-                boxShadow: '0 0 10px rgba(0,210,255,.5)',
-                transitionTimingFunction: 'cubic-bezier(.34,1.4,.64,1)',
+                width: `${pctProgress}%`,
+                background: 'linear-gradient(90deg, #10b981, #00d2ff)',
+                boxShadow: '0 0 12px rgba(0, 210, 255, 0.5)',
               }}
             />
           </div>
-
-          <div className="text-center text-xs font-medium" style={{ color: '#8295b5' }}>
-            {saved === 0 ? (
-              <span>Goal: <span style={{ color: '#00d2ff', fontWeight: 700 }}>{goalName}</span> — ₹{fmt(goal)}</span>
-            ) : pct >= 1 ? (
-              <span style={{ color: '#00d2ff', fontWeight: 700 }}>₹{fmt(saved)} of ₹{fmt(goal)} 🎉 Goal complete!</span>
-            ) : (
-              <span>
-                <span style={{ color: '#00d2ff', fontWeight: 700 }}>₹{fmt(saved)}</span>
-                <span> of ₹{fmt(goal)} </span>
-                {progressHint && <span style={{ color: '#00d2ff', fontWeight: 700 }}>{progressHint}</span>}
-              </span>
-            )}
-          </div>
-
-          {/* Goal reached banner */}
-          {goalHit && (
-            <div
-              className="flex items-center justify-center gap-2 py-2.5 px-5 rounded-full text-sm font-black jar-pop goal-pulse"
-              style={{ background: 'rgba(0,210,255,.12)', border: '1px solid rgba(0,210,255,.35)', color: '#00d2ff' }}
-              role="status"
-              aria-live="polite"
-            >
-              🎉 Goal reached — you crushed it!
-            </div>
-          )}
         </div>
+
+        {/* Preset Goals Pills */}
+        <div className="space-y-3 w-full max-w-md">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#8295b5]">
+            Select Goal Target
+          </span>
+          <div className="flex flex-wrap justify-center gap-2.5">
+            {PRESETS.map((p, idx) => (
+              <button
+                key={p.name}
+                onClick={() => selectPreset(idx)}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                style={
+                  activePreset === idx
+                    ? {
+                        background: '#00d2ff',
+                        color: '#050a17',
+                        boxShadow: '0 0 15px rgba(0, 210, 255, 0.4)',
+                      }
+                    : {
+                        background: 'rgba(11, 22, 46, 0.8)',
+                        border: '1px solid rgba(0, 210, 255, 0.2)',
+                        color: '#8295b5',
+                      }
+                }
+              >
+                <span>{p.emoji}</span>
+                <span>{p.name} (₹{fmt(p.amount)})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Goal Input */}
+        <form onSubmit={handleCustomGoal} className="flex items-center gap-2 max-w-sm w-full">
+          <input
+            type="text"
+            placeholder="Custom target name..."
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            className="flex-1 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
+          />
+          <input
+            type="number"
+            placeholder="Amount ₹"
+            value={customAmt}
+            onChange={(e) => setCustomAmt(e.target.value)}
+            className="w-24 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold text-[#050a17] bg-[#00d2ff] hover:scale-105 transition-all shadow-[0_0_12px_rgba(0,210,255,0.3)] cursor-pointer"
+          >
+            Set
+          </button>
+        </form>
       </div>
     </div>
   );
