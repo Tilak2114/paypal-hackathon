@@ -115,6 +115,33 @@ app.use('/api/analyze', analyzeRoute);
 app.use('/webhooks', webhooksRoute);
 app.use('/api/webhooks', webhooksRoute);
 
+// ── Ingest Route (App Directory Subscriptions & Statement imports) ─
+const db = require('./db');
+function handleIngest(req, res) {
+  try {
+    const rawItems = Array.isArray(req.body) ? req.body : [req.body];
+    const inserted = rawItems.map((item) => {
+      return db.createSubscription({
+        id: item.id || `sub_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: item.name || 'Unnamed Subscription',
+        cost: Number(item.cost || item.price || item.amount || 0),
+        currency: item.currency || 'USD',
+        lastUsed: item.lastUsed || item.lastUsedAt || 'Just now',
+        status: (item.status || 'active').toLowerCase(),
+        flag: item.flag || null,
+        suggestion: item.suggestion || null,
+        paypalSubscriptionId: item.paypalSubscriptionId || null,
+      });
+    });
+    return res.status(201).json({ ok: true, count: inserted.length, subscriptions: inserted });
+  } catch (err) {
+    console.error('[POST /ingest Error]', err);
+    return res.status(500).json({ ok: false, error: 'Failed to ingest subscriptions.' });
+  }
+}
+app.post('/ingest', handleIngest);
+app.post('/api/ingest', handleIngest);
+
 // ── 7. 404 Handler ─────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({
