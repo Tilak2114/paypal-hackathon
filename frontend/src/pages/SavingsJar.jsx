@@ -8,11 +8,6 @@ const PRESETS = [
   { name: 'Emergency fund', amount: 10000, emoji: '🏦' },
 ];
 
-// Jar dimensions (viewBox: 0 0 200 280)
-const JAR_BOTTOM_Y = 265;
-const JAR_TOP_Y    = 65;
-const JAR_HEIGHT   = JAR_BOTTOM_Y - JAR_TOP_Y;
-
 function fmt(n) { return Math.round(n).toLocaleString('en-IN'); }
 function reducedMotion() { return window.matchMedia('(prefers-reduced-motion:reduce)').matches; }
 
@@ -61,10 +56,10 @@ function launchConfetti(canvas) {
   })();
 }
 
-// SVG Banknote Component
-function Banknote({ x, y, width = 56, height = 24, rotation = 0, opacity = 1 }) {
+// Complete SVG Banknote Component (Never cut or clipped)
+function Banknote({ x, y, width = 56, height = 24, rotation = 0 }) {
   return (
-    <g transform={`translate(${x}, ${y}) rotate(${rotation})`} opacity={opacity}>
+    <g transform={`translate(${x}, ${y}) rotate(${rotation})`} className="money-settle">
       <rect x="-1" y="1" width={width} height={height} rx="2" fill="rgba(0,0,0,0.35)" />
       <rect x="0" y="0" width={width} height={height} rx="2.5" fill="url(#jarBillGrad)" stroke="#047857" strokeWidth="0.8" />
       <rect x="2" y="2" width={width - 4} height={height - 4} rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.6" strokeDasharray="3 1" />
@@ -76,10 +71,10 @@ function Banknote({ x, y, width = 56, height = 24, rotation = 0, opacity = 1 }) 
   );
 }
 
-// SVG Coin Component
-function Coin({ cx, cy, r = 8, rotation = 0, opacity = 1 }) {
+// Complete SVG Coin Component (Never cut or clipped)
+function Coin({ cx, cy, r = 8, rotation = 0 }) {
   return (
-    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`} opacity={opacity}>
+    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`} className="money-settle">
       <circle cx="0.5" cy="1" r={r} fill="rgba(0,0,0,0.4)" />
       <circle cx="0" cy="0" r={r} fill="url(#jarCoinGrad)" stroke="#b45309" strokeWidth="0.8" />
       <circle cx="0" cy="0" r={r - 1.5} fill="none" stroke="#fef08a" strokeWidth="0.5" strokeDasharray="2 1" />
@@ -88,6 +83,57 @@ function Coin({ cx, cy, r = 8, rotation = 0, opacity = 1 }) {
   );
 }
 
+// Fixed positions of whole banknotes and coins sitting naturally in the jar
+// Items unlock progressively from bottom to top as savings reach thresholds
+const PILE_ITEMS = [
+  // ── Layer 1: Base (0% - 15%) ──
+  { id: 'b1', type: 'note', x: 26, y: 238, w: 58, h: 23, rot: -6, threshold: 0.02 },
+  { id: 'b2', type: 'note', x: 110, y: 236, w: 62, h: 23, rot: 8, threshold: 0.04 },
+  { id: 'c1', type: 'coin', cx: 42, cy: 252, r: 8.5, threshold: 0.06 },
+  { id: 'b3', type: 'note', x: 62, y: 244, w: 70, h: 24, rot: 1, threshold: 0.08 },
+  { id: 'c2', type: 'coin', cx: 85, cy: 256, r: 8, threshold: 0.10 },
+  { id: 'c3', type: 'coin', cx: 130, cy: 252, r: 9, threshold: 0.12 },
+  { id: 'c4', type: 'coin', cx: 162, cy: 248, r: 8, threshold: 0.14 },
+
+  // ── Layer 2: Lower-mid (15% - 35%) ──
+  { id: 'b4', type: 'note', x: 18, y: 212, w: 62, h: 23, rot: 14, threshold: 0.18 },
+  { id: 'c5', type: 'coin', cx: 48, cy: 224, r: 8.5, threshold: 0.21 },
+  { id: 'b5', type: 'note', x: 112, y: 208, w: 64, h: 23, rot: -12, threshold: 0.25 },
+  { id: 'b6', type: 'note', x: 58, y: 220, w: 72, h: 24, rot: -3, threshold: 0.28 },
+  { id: 'c6', type: 'coin', cx: 116, cy: 226, r: 8, threshold: 0.31 },
+  { id: 'c7', type: 'coin', cx: 150, cy: 218, r: 8.5, threshold: 0.33 },
+  { id: 'c8', type: 'coin', cx: 88, cy: 218, r: 8, threshold: 0.35 },
+
+  // ── Layer 3: Mid (35% - 55%) ──
+  { id: 'b7', type: 'note', x: 28, y: 174, w: 66, h: 24, rot: -9, threshold: 0.38 },
+  { id: 'c9', type: 'coin', cx: 68, cy: 168, r: 8.5, threshold: 0.42 },
+  { id: 'b8', type: 'note', x: 98, y: 178, w: 65, h: 24, rot: 11, threshold: 0.46 },
+  { id: 'b9', type: 'note', x: 54, y: 186, w: 72, h: 24, rot: 4, threshold: 0.49 },
+  { id: 'c10', type: 'coin', cx: 136, cy: 182, r: 9, threshold: 0.52 },
+  { id: 'c11', type: 'coin', cx: 40, cy: 188, r: 8, threshold: 0.55 },
+
+  // ── Layer 4: Upper-mid (55% - 75%) ──
+  { id: 'b10', type: 'note', x: 22, y: 138, w: 65, h: 24, rot: 15, threshold: 0.58 },
+  { id: 'c12', type: 'coin', cx: 52, cy: 134, r: 8.5, threshold: 0.62 },
+  { id: 'b11', type: 'note', x: 102, y: 134, w: 68, h: 24, rot: -10, threshold: 0.65 },
+  { id: 'b12', type: 'note', x: 58, y: 146, w: 74, h: 24, rot: -2, threshold: 0.68 },
+  { id: 'c13', type: 'coin', cx: 120, cy: 144, r: 8, threshold: 0.71 },
+  { id: 'c14', type: 'coin', cx: 152, cy: 136, r: 8, threshold: 0.74 },
+
+  // ── Layer 5: Top (75% - 90%) ──
+  { id: 'b13', type: 'note', x: 28, y: 102, w: 66, h: 24, rot: -12, threshold: 0.77 },
+  { id: 'c15', type: 'coin', cx: 44, cy: 98, r: 8.5, threshold: 0.81 },
+  { id: 'b14', type: 'note', x: 98, y: 104, w: 66, h: 24, rot: 8, threshold: 0.84 },
+  { id: 'b15', type: 'note', x: 56, y: 114, w: 74, h: 24, rot: 3, threshold: 0.87 },
+  { id: 'c16', type: 'coin', cx: 126, cy: 108, r: 8.5, threshold: 0.90 },
+
+  // ── Layer 6: Brim (90% - 100%) ──
+  { id: 'b16', type: 'note', x: 38, y: 68, w: 60, h: 22, rot: 10, threshold: 0.93 },
+  { id: 'b17', type: 'note', x: 92, y: 66, w: 62, h: 22, rot: -8, threshold: 0.96 },
+  { id: 'c17', type: 'coin', cx: 66, cy: 64, r: 8, threshold: 0.98 },
+  { id: 'c18', type: 'coin', cx: 118, cy: 68, r: 8.5, threshold: 1.00 },
+];
+
 export default function SavingsJar() {
   const [saved, setSaved]           = useState(0);
   const [displaySaved, setDisplay]  = useState(0);
@@ -95,48 +141,13 @@ export default function SavingsJar() {
   const [goalName, setGoalName]     = useState('Weekend trip');
   const [activePreset, setPreset]   = useState(0);
   const [goalHit, setGoalHit]       = useState(false);
-  const [fillY, setFillY]           = useState(JAR_BOTTOM_Y);
   const [coins, setCoins]           = useState([]);
   const [customName, setCustomName] = useState('');
   const [customAmt, setCustomAmt]   = useState('');
 
   const balAnimRef  = useRef(null);
-  const fillAnimRef = useRef(null);
   const canvasRef   = useRef(null);
   const goalHitRef  = useRef(false);
-
-  // Calculate target fill Y based on savings and goal
-  const calculateTargetY = (currentSaved, currentGoal) => {
-    const pct = Math.min(Math.max(currentSaved / currentGoal, 0), 1);
-    if (pct <= 0) return 256;
-    return JAR_BOTTOM_Y - pct * JAR_HEIGHT;
-  };
-
-  // Animate fill level
-  const animateFill = useCallback((newSaved, newGoal) => {
-    const target = calculateTargetY(newSaved, newGoal);
-    if (fillAnimRef.current) cancelAnimationFrame(fillAnimRef.current);
-
-    if (reducedMotion()) {
-      setFillY(target);
-      return;
-    }
-
-    const start = performance.now();
-    const dur = 900;
-    let fromY = JAR_BOTTOM_Y;
-    setFillY((prev) => { fromY = prev; return prev; });
-
-    function step(now) {
-      const t = Math.min((now - start) / dur, 1);
-      const e = 1 - Math.pow(1 - t, 3);
-      const y = fromY + (target - fromY) * e;
-      setFillY(y);
-      if (t < 1) fillAnimRef.current = requestAnimationFrame(step);
-    }
-
-    fillAnimRef.current = requestAnimationFrame(step);
-  }, []);
 
   // Count-up balance
   const countUp = useCallback((from, to) => {
@@ -163,13 +174,12 @@ export default function SavingsJar() {
           .reduce((sum, s) => sum + (s.cost || 0) * 12, 0);
 
         const storedSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
-        const total = Math.max(cancelledTotal, storedSaved, 1800); // realistic starter amount if empty
+        const total = Math.max(cancelledTotal, storedSaved, 1800);
 
         setSaved(total);
         countUp(0, total);
-        animateFill(total, goal);
 
-        // Falling coins into jar
+        // Falling coins/notes into jar
         setCoins([
           { id: 1, left: 42, delay: 120, type: 'coin' },
           { id: 2, left: 56, delay: 280, type: 'bill' },
@@ -179,11 +189,10 @@ export default function SavingsJar() {
         console.warn('Savings load error, fallback to default:', err);
         setSaved(2400);
         countUp(0, 2400);
-        animateFill(2400, goal);
       }
     }
     initSavings();
-  }, [countUp, animateFill, goal]);
+  }, [countUp]);
 
   // Goal trigger check
   useEffect(() => {
@@ -202,7 +211,6 @@ export default function SavingsJar() {
     const p = PRESETS[idx];
     setGoal(p.amount);
     setGoalName(p.name);
-    animateFill(saved, p.amount);
   };
 
   const handleCustomGoal = (e) => {
@@ -215,10 +223,14 @@ export default function SavingsJar() {
     setPreset(-1);
     setCustomAmt('');
     setCustomName('');
-    animateFill(saved, amt);
   };
 
-  const pctProgress = Math.min(Math.round((saved / goal) * 100), 100);
+  const ratio = Math.min(Math.max(saved / goal, 0), 1);
+  const pctProgress = Math.min(Math.round(ratio * 100), 100);
+
+  // Filter which items are sitting in the jar based on current progress
+  // Always include the minimum starter layer (first 3 items) so an initial jar isn't totally blank
+  const visibleItems = PILE_ITEMS.filter((item, index) => index < 3 || ratio >= item.threshold);
 
   return (
     <div className="relative w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start px-4 sm:px-6 py-8 z-10">
@@ -247,7 +259,7 @@ export default function SavingsJar() {
             Subscription Savings Jar
           </h1>
           <p className="text-xs sm:text-sm text-[#8295b5] max-w-lg mx-auto">
-            Every cancelled or audited subscription immediately drops real cash back into your vault.
+            Every cancelled or audited subscription drops real cash and gold into your vault.
           </p>
         </div>
 
@@ -265,7 +277,7 @@ export default function SavingsJar() {
           </div>
         </div>
 
-        {/* ── Mason Jar Container (Shape from sketch) ── */}
+        {/* ── Mason Jar Container (Clean cyan outline, NO white highlights, NO horizontal cut) ── */}
         <div className="relative" style={{ width: 230, height: 320 }} aria-hidden="true">
           <svg
             viewBox="0 0 200 280"
@@ -273,16 +285,6 @@ export default function SavingsJar() {
             className="w-full h-full overflow-visible"
           >
             <defs>
-              {/* Mason Jar Interior Clip Path (matches the sketch contour) */}
-              <clipPath id="masonJarClip">
-                <path d="M 36,55 C 28,68 12,82 12,102 L 12,242 C 12,264 32,268 100,268 C 168,268 188,264 188,242 L 188,102 C 188,82 172,68 164,55 Z" />
-              </clipPath>
-
-              {/* Dynamic Fill Clip Path (masks the money stack height) */}
-              <clipPath id="moneyLevelClip">
-                <rect x="0" y={fillY} width="200" height={280 - fillY} />
-              </clipPath>
-
               {/* Banknote Green Gradient */}
               <linearGradient id="jarBillGrad" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#10b981" />
@@ -298,17 +300,11 @@ export default function SavingsJar() {
                 <stop offset="100%" stopColor="#b45309" />
               </radialGradient>
 
-              {/* Frosted Glass Jar Fill Gradient */}
+              {/* Glass subtle tint */}
               <linearGradient id="jarGlassGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="rgba(255,255,255,0.12)" />
-                <stop offset="50%" stopColor="rgba(255,255,255,0.02)" />
-                <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
-              </linearGradient>
-
-              {/* Subtle money glow */}
-              <linearGradient id="moneySurfaceGlow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(16, 185, 129, 0.4)" />
-                <stop offset="100%" stopColor="transparent" />
+                <stop offset="0%" stopColor="rgba(0, 210, 255, 0.08)" />
+                <stop offset="50%" stopColor="rgba(0, 210, 255, 0.02)" />
+                <stop offset="100%" stopColor="rgba(0, 210, 255, 0.06)" />
               </linearGradient>
             </defs>
 
@@ -321,74 +317,33 @@ export default function SavingsJar() {
               fill="url(#jarGlassGrad)"
             />
 
-            {/* ── MONEY NOTES & COINS PILE (Clipped inside jar and fill level) ── */}
-            <g clipPath="url(#masonJarClip)">
-              <g clipPath="url(#moneyLevelClip)">
-                {/* Ambient Cash Glow at bottom */}
-                <rect x="10" y="50" width="180" height="220" fill="url(#moneySurfaceGlow)" opacity="0.35" />
-
-                {/* ── LAYER 1: BASE TIER (Always present when money saved) ── */}
-                <Banknote x={26} y={238} width={58} height={23} rotation={-6} />
-                <Banknote x={110} y={236} width={62} height={23} rotation={8} />
-                <Banknote x={62} y={244} width={70} height={24} rotation={1} />
-                <Coin cx={42} cy={252} r={8.5} />
-                <Coin cx={85} cy={256} r={8} />
-                <Coin cx={130} cy={252} r={9} />
-                <Coin cx={162} cy={248} r={8} />
-                <Coin cx={105} cy={258} r={7.5} />
-
-                {/* ── LAYER 2: LOWER-MID TIER (y: 200 to 235) ── */}
-                <Banknote x={18} y={212} width={62} height={23} rotation={14} />
-                <Banknote x={112} y={208} width={64} height={23} rotation={-12} />
-                <Banknote x={58} y={220} width={72} height={24} rotation={-3} />
-                <Coin cx={48} cy={224} r={8.5} />
-                <Coin cx={116} cy={226} r={8} />
-                <Coin cx={150} cy={218} r={8.5} />
-                <Coin cx={32} cy={206} r={7.5} />
-                <Coin cx={88} cy={218} r={8} />
-
-                {/* ── LAYER 3: MID TIER (y: 165 to 200) ── */}
-                <Banknote x={28} y={174} width={66} height={24} rotation={-9} />
-                <Banknote x={98} y={178} width={65} height={24} rotation={11} />
-                <Banknote x={54} y={186} width={72} height={24} rotation={4} />
-                <Coin cx={68} cy={168} r={8.5} />
-                <Coin cx={136} cy={182} r={9} />
-                <Coin cx={40} cy={188} r={8} />
-                <Coin cx={160} cy={172} r={8} />
-
-                {/* ── LAYER 4: UPPER-MID TIER (y: 130 to 165) ── */}
-                <Banknote x={22} y={138} width={65} height={24} rotation={15} />
-                <Banknote x={102} y={134} width={68} height={24} rotation={-10} />
-                <Banknote x={58} y={146} width={74} height={24} rotation={-2} />
-                <Coin cx={52} cy={134} r={8.5} />
-                <Coin cx={120} cy={144} r={8} />
-                <Coin cx={152} cy={136} r={8} />
-                <Coin cx={34} cy={154} r={8} />
-                <Coin cx={86} cy={140} r={8.5} />
-
-                {/* ── LAYER 5: TOP TIER (y: 95 to 130) ── */}
-                <Banknote x={28} y={102} width={66} height={24} rotation={-12} />
-                <Banknote x={98} y={104} width={66} height={24} rotation={8} />
-                <Banknote x={56} y={114} width={74} height={24} rotation={3} />
-                <Coin cx={44} cy={98} r={8.5} />
-                <Coin cx={126} cy={108} r={8.5} />
-                <Coin cx={86} cy={96} r={8} />
-                <Coin cx={155} cy={104} r={7.5} />
-
-                {/* ── LAYER 6: BRIM TIER (y: 65 to 95) ── */}
-                <Banknote x={38} y={68} width={60} height={22} rotation={10} />
-                <Banknote x={92} y={66} width={62} height={22} rotation={-8} />
-                <Coin cx={66} cy={64} r={8} />
-                <Coin cx={118} cy={68} r={8.5} />
-                <Coin cx={92} cy={76} r={8} />
-                <Coin cx={145} cy={72} r={7.5} />
-
-                {/* Surface Gold/Emerald Shimmer line */}
-                <ellipse cx="100" cy={fillY + 3} rx="65" ry="3" fill="rgba(254, 240, 138, 0.65)" />
-              </g>
+            {/* ── WHOLE BANKNOTES & COINS SITTING INSIDE (NO CLIPPED/SLICED BILLS) ── */}
+            <g>
+              {visibleItems.map((item) => {
+                if (item.type === 'note') {
+                  return (
+                    <Banknote
+                      key={item.id}
+                      x={item.x}
+                      y={item.y}
+                      width={item.w}
+                      height={item.h}
+                      rotation={item.rot}
+                    />
+                  );
+                }
+                return (
+                  <Coin
+                    key={item.id}
+                    cx={item.cx}
+                    cy={item.cy}
+                    r={item.r}
+                  />
+                );
+              })}
             </g>
 
-            {/* ── MASON JAR OUTLINE & GLASS HIGHLIGHTS (Matches uploaded sketch) ── */}
+            {/* ── MASON JAR CLEAN CYAN OUTLINE (NO WHITE HIGHLIGHTS) ── */}
             {/* 1. Main outer contour */}
             <path
               d="M 36,55 C 28,68 12,82 12,102 L 12,242 C 12,264 32,268 100,268 C 168,268 188,264 188,242 L 188,102 C 188,82 172,68 164,55 Z"
@@ -397,7 +352,7 @@ export default function SavingsJar() {
               strokeWidth="2.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              filter="drop-shadow(0 0 8px rgba(0, 210, 255, 0.4))"
+              filter="drop-shadow(0 0 10px rgba(0, 210, 255, 0.45))"
             />
 
             {/* 2. Screw Thread Ring 2 (lower horizontal bead) */}
@@ -441,48 +396,12 @@ export default function SavingsJar() {
               textAnchor="middle"
               fontSize="7"
               fontWeight="900"
-              fill="rgba(0, 210, 255, 0.7)"
+              fill="#00d2ff"
               letterSpacing="1.5"
               fontFamily="sans-serif"
             >
               SENTINEL VAULT
             </text>
-
-            {/* 5. Left vertical inner glass reflection stroke (from sketch) */}
-            <path
-              d="M 22,85 L 22,145"
-              stroke="rgba(255,255,255,0.75)"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              fill="none"
-            />
-
-            {/* 6. Lower-left corner curve reflection stroke (from sketch) */}
-            <path
-              d="M 22,228 C 22,250 34,258 58,258"
-              stroke="rgba(255,255,255,0.75)"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              fill="none"
-            />
-
-            {/* 7. Lower-right corner curve reflection stroke (from sketch) */}
-            <path
-              d="M 178,185 L 178,235 C 178,250 168,258 145,258"
-              stroke="rgba(255,255,255,0.75)"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              fill="none"
-            />
-
-            {/* 8. Top-right shoulder soft shine */}
-            <path
-              d="M 158,62 C 170,72 176,82 176,96"
-              stroke="rgba(255,255,255,0.4)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              fill="none"
-            />
           </svg>
 
           {/* Animated Falling Coins / Banknotes Overlay */}

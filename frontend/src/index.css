@@ -64,6 +64,16 @@ body {
 .jar-pop   { animation: jar-pop .4s cubic-bezier(.34,1.56,.64,1); }
 .goal-pulse { animation: goal-pulse 1.6s ease-in-out 3; }
 
+@keyframes money-land {
+  0%   { transform: translateY(-70px) scale(0.9); opacity: 0; }
+  65%  { transform: translateY(4px) scale(1.02); opacity: 1; }
+  85%  { transform: translateY(-2px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.money-settle {
+  animation: money-land 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .wave-anim, .coin-anim, .jar-pop, .goal-pulse { animation: none !important; }
+  .wave-anim, .coin-anim, .jar-pop, .goal-pulse, .money-settle { animation: none !important; }
 }
