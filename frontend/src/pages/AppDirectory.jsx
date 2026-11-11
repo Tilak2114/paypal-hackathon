@@ -267,13 +267,13 @@ export default function AppDirectory({ onNavigate }) {
       {confirmApp && (() => {
         const plan = getSelectedPlan(confirmApp);
         return (
-          <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
             <div
               className="max-w-sm w-full rounded-3xl p-7 space-y-5"
               style={{
-                background: 'var(--modal-bg)',
-                border: '1px solid var(--card-border)',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                background: 'rgba(7, 17, 38, 0.95)',
+                border: '1px solid #00d2ff',
+                boxShadow: '0 0 50px rgba(0, 210, 255, 0.3)',
               }}
             >
               {/* App logo + name */}
@@ -285,10 +285,10 @@ export default function AppDirectory({ onNavigate }) {
                   {confirmApp.letter}
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--mute)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#8295b5]">
                     Confirm subscription
                   </p>
-                  <h3 className="font-display font-black text-lg" style={{ color: 'var(--ink)' }}>
+                  <h3 className="font-display font-black text-lg text-white">
                     {confirmApp.name}
                   </h3>
                 </div>
@@ -297,25 +297,25 @@ export default function AppDirectory({ onNavigate }) {
               {/* Summary box */}
               <div
                 className="rounded-2xl p-4 space-y-1"
-                style={{ background: 'var(--card-inner)', border: '1px solid var(--card-inner-border)' }}
+                style={{ background: 'rgba(5, 10, 23, 0.8)', border: '1px solid rgba(0, 210, 255, 0.15)' }}
               >
                 <div className="flex justify-between text-sm">
-                  <span style={{ color: 'var(--mute)' }}>Plan</span>
-                  <span className="font-semibold" style={{ color: 'var(--ink)' }}>{plan.name}</span>
+                  <span className="text-[#8295b5]">Plan</span>
+                  <span className="font-semibold text-white">{plan.name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span style={{ color: 'var(--mute)' }}>Amount</span>
-                  <span className="font-black text-base" style={{ color: 'var(--mint)' }}>
-                    ${plan.price.toFixed(2)}<span className="text-xs font-normal" style={{ color: 'var(--mute)' }}>/{plan.interval}</span>
+                  <span className="text-[#8295b5]">Amount</span>
+                  <span className="font-black text-base text-[#00d2ff]">
+                    ${plan.price.toFixed(2)}<span className="text-xs font-normal text-[#8295b5]">/{plan.interval}</span>
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span style={{ color: 'var(--mute)' }}>Payment</span>
-                  <span className="font-semibold italic" style={{ color: 'var(--ink)' }}>PayPal</span>
+                  <span className="text-[#8295b5]">Payment</span>
+                  <span className="font-semibold italic text-white">PayPal</span>
                 </div>
               </div>
 
-              <p className="text-xs text-center" style={{ color: 'var(--mute)' }}>
+              <p className="text-xs text-center text-[#8295b5]">
                 Sentinel will track this subscription and alert you before every renewal.
               </p>
 
@@ -325,8 +325,8 @@ export default function AppDirectory({ onNavigate }) {
                   onClick={() => setConfirmApp(null)}
                   className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer hover:opacity-80"
                   style={{
-                    border: '1px solid var(--line)',
-                    color: 'var(--mute)',
+                    border: '1px solid rgba(0, 210, 255, 0.25)',
+                    color: '#8295b5',
                     background: 'transparent',
                   }}
                 >
@@ -336,7 +336,10 @@ export default function AppDirectory({ onNavigate }) {
                   onClick={() => handleSubscribe(confirmApp)}
                   disabled={subscribingId === confirmApp.id}
                   className="flex-1 py-2.5 rounded-full text-sm font-black text-white transition-all cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #0070ba, #003087)' }}
+                  style={{
+                    background: 'linear-gradient(135deg, #0070ba, #003087)',
+                    boxShadow: '0 4px 14px rgba(0, 112, 186, 0.4)',
+                  }}
                 >
                   {subscribingId === confirmApp.id ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -353,14 +356,15 @@ export default function AppDirectory({ onNavigate }) {
         );
       })()}
 
-      {/* ── Plan Selection Modal ── */}      {planModalApp && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+      {/* ── Plan Selection Modal ── */}
+      {planModalApp && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
           <div
             className="max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-5 animate-scaleUp"
             style={{
-              background: 'var(--modal-bg)',
-              border: '1px solid var(--card-border)',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+              background: 'rgba(7, 17, 38, 0.95)',
+              border: '1px solid #00d2ff',
+              boxShadow: '0 0 50px rgba(0, 210, 255, 0.3)',
             }}
           >
             <div className="flex items-center justify-between">
@@ -372,18 +376,18 @@ export default function AppDirectory({ onNavigate }) {
                   {planModalApp.letter}
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-lg" style={{ color: 'var(--ink)' }}>
+                  <h3 className="font-display font-bold text-lg text-white">
                     {planModalApp.name} Plans
                   </h3>
-                  <p className="text-xs" style={{ color: 'var(--mute)' }}>{planModalApp.category}</p>
+                  <p className="text-xs text-[#8295b5]">{planModalApp.category}</p>
                 </div>
               </div>
               <button
                 onClick={() => setPlanModalApp(null)}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:opacity-80"
                 style={{
-                  border: '1px solid var(--line)',
-                  color: 'var(--mute)',
+                  border: '1px solid rgba(0, 210, 255, 0.3)',
+                  color: '#00d2ff',
                 }}
               >
                 ✕
@@ -402,20 +406,21 @@ export default function AppDirectory({ onNavigate }) {
                     }}
                     className="p-4 rounded-2xl transition-all cursor-pointer flex items-center justify-between"
                     style={{
-                      border: isSelected ? '1px solid var(--mint)' : '1px solid var(--card-inner-border)',
-                      background: isSelected ? 'color-mix(in srgb, var(--mint) 10%, transparent)' : 'var(--card-inner)',
+                      border: isSelected ? '1px solid #00d2ff' : '1px solid rgba(0, 210, 255, 0.15)',
+                      background: isSelected ? 'rgba(0, 210, 255, 0.15)' : 'rgba(5, 10, 23, 0.7)',
                     }}
                   >
                     <div>
-                      <div className="font-bold text-sm" style={{ color: 'var(--ink)' }}>{p.name}</div>
-                      <div className="text-xs" style={{ color: 'var(--mute)' }}>${p.price.toFixed(2)} / {p.interval}</div>
+                      <div className="font-bold text-sm text-white">{p.name}</div>
+                      <div className="text-xs text-[#8295b5]">${p.price.toFixed(2)} / {p.interval}</div>
                     </div>
                     {isSelected && (
                       <span
                         className="text-xs font-bold px-2 py-0.5 rounded-full"
                         style={{
-                          color: 'var(--mint)',
-                          background: 'color-mix(in srgb, var(--mint) 12%, transparent)',
+                          color: '#00d2ff',
+                          background: 'rgba(0, 210, 255, 0.15)',
+                          border: '1px solid rgba(0, 210, 255, 0.3)',
                         }}
                       >
                         Selected
@@ -435,18 +440,18 @@ export default function AppDirectory({ onNavigate }) {
           <div
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
             style={{
-              background: 'color-mix(in srgb, var(--mint) 10%, transparent)',
-              color: 'var(--mint)',
-              border: '1px solid color-mix(in srgb, var(--mint) 30%, transparent)',
+              background: 'rgba(0, 210, 255, 0.1)',
+              color: '#00d2ff',
+              border: '1px solid rgba(0, 210, 255, 0.35)',
             }}
           >
             <span>✨</span>
             <span>PayPal Verified Subscriptions Directory</span>
           </div>
-          <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight" style={{ color: 'var(--ink)' }}>
+          <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight text-white">
             Discover &amp; Subscribe via PayPal
           </h1>
-          <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--mute)' }}>
+          <p className="text-sm sm:text-base leading-relaxed text-[#8295b5]">
             Choose any service, explore available tiers, and link directly to your PayPal account.
             Sentinel automatically activates renewal alarms and trial trackers.
           </p>
@@ -456,9 +461,10 @@ export default function AppDirectory({ onNavigate }) {
           onClick={() => onNavigate('dashboard')}
           className="self-start lg:self-center px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
           style={{
-            border: '1px solid var(--card-border)',
-            color: 'var(--mint)',
-            background: 'color-mix(in srgb, var(--mint) 8%, transparent)',
+            border: '1px solid #00d2ff',
+            color: '#00d2ff',
+            background: 'rgba(0, 210, 255, 0.08)',
+            boxShadow: '0 0 15px rgba(0, 210, 255, 0.15)',
           }}
         >
           <span>View Active Dashboard</span>
@@ -469,8 +475,7 @@ export default function AppDirectory({ onNavigate }) {
       {/* ── Search Bar ── */}
       <div className="relative">
         <span
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
-          style={{ color: 'var(--mute)' }}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-base text-[#8295b5]"
         >
           🔍
         </span>
@@ -479,14 +484,19 @@ export default function AppDirectory({ onNavigate }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search apps or services (e.g. Spotify, Netflix, ChatGPT, GitHub Copilot...)"
-          className="w-full rounded-2xl pl-11 pr-4 py-3.5 text-sm backdrop-blur focus:outline-none transition-all"
+          className="w-full rounded-2xl pl-11 pr-4 py-3.5 text-sm backdrop-blur focus:outline-none transition-all text-white placeholder-[#8295b5]"
           style={{
-            background: 'var(--input-bg)',
-            border: '1px solid var(--card-inner-border)',
-            color: 'var(--ink)',
+            background: 'rgba(7, 14, 30, 0.9)',
+            border: '1px solid rgba(0, 210, 255, 0.25)',
           }}
-          onFocus={(e) => (e.target.style.borderColor = 'var(--mint)')}
-          onBlur={(e) => (e.target.style.borderColor = 'var(--card-inner-border)')}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#00d2ff';
+            e.target.style.boxShadow = '0 0 15px rgba(0, 210, 255, 0.2)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(0, 210, 255, 0.25)';
+            e.target.style.boxShadow = 'none';
+          }}
         />
       </div>
 
@@ -502,17 +512,29 @@ export default function AppDirectory({ onNavigate }) {
               style={
                 isActive
                   ? {
-                      background: 'var(--mint)',
-                      color: '#050a17',   /* dark text always looks good on the mint accent */
+                      background: '#00d2ff',
+                      color: '#050a17',
                       fontWeight: 700,
-                      boxShadow: '0 4px 14px color-mix(in srgb, var(--mint) 35%, transparent)',
+                      boxShadow: '0 0 15px rgba(0, 210, 255, 0.4)',
                     }
                   : {
-                      background: 'var(--pill-bg)',
-                      border: '1px solid var(--card-inner-border)',
-                      color: 'var(--mute)',
+                      background: 'rgba(11, 22, 46, 0.8)',
+                      border: '1px solid rgba(0, 210, 255, 0.2)',
+                      color: '#8295b5',
                     }
               }
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.borderColor = '#00d2ff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = '#8295b5';
+                  e.currentTarget.style.borderColor = 'rgba(0, 210, 255, 0.2)';
+                }
+              }}
             >
               {cat}
             </button>
@@ -524,11 +546,11 @@ export default function AppDirectory({ onNavigate }) {
       <div
         className="flex items-center justify-between text-xs font-bold uppercase tracking-wider pt-2"
         style={{
-          color: 'var(--mute)',
-          borderTop: '1px solid var(--line)',
+          color: '#8295b5',
+          borderTop: '1px solid rgba(0, 210, 255, 0.16)',
         }}
       >
-        <span>Available Apps ({filteredApps.length})</span>
+        <span className="text-white">Available Apps ({filteredApps.length})</span>
         <span className="normal-case tracking-normal opacity-70">Protected automatically by Sentinel</span>
       </div>
 
@@ -543,15 +565,15 @@ export default function AppDirectory({ onNavigate }) {
               key={app.id}
               className="rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl relative group"
               style={{
-                background: 'var(--card-surface)',
-                border: '1px solid var(--card-border)',
+                background: 'rgba(7, 17, 38, 0.85)',
+                border: '1px solid rgba(0, 210, 255, 0.2)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--mint)';
-                e.currentTarget.style.boxShadow = '0 8px 32px color-mix(in srgb, var(--mint) 15%, transparent)';
+                e.currentTarget.style.borderColor = '#00d2ff';
+                e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 210, 255, 0.25)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--card-border)';
+                e.currentTarget.style.borderColor = 'rgba(0, 210, 255, 0.2)';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
@@ -566,50 +588,53 @@ export default function AppDirectory({ onNavigate }) {
                       {app.letter}
                     </div>
                     <div>
-                      <h3 className="font-display font-bold text-lg tracking-tight" style={{ color: 'var(--ink)' }}>
+                      <h3 className="font-display font-bold text-lg tracking-tight text-white">
                         {app.name}
                       </h3>
-                      <p className="text-xs" style={{ color: 'var(--mute)' }}>{app.category}</p>
+                      <p className="text-xs text-[#8295b5]">{app.category}</p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-display font-black text-lg tracking-tight" style={{ color: 'var(--ink)' }}>
+                    <div className="font-display font-black text-xl tracking-tight text-white">
                       ${currentPlan.price.toFixed(2)}
                     </div>
-                    <div className="text-[11px]" style={{ color: 'var(--mute)' }}>/{currentPlan.interval}</div>
+                    <div className="text-[11px] text-[#8295b5]">/{currentPlan.interval}</div>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-xs leading-relaxed min-h-[36px]" style={{ color: 'var(--mute)' }}>
+                <p className="text-xs leading-relaxed min-h-[36px] text-[#8295b5]">
                   {app.description}
                 </p>
 
                 {/* Selected Plan Box */}
                 <div
-                  className="p-3 rounded-2xl flex items-center justify-between text-xs"
+                  className="p-3.5 rounded-2xl flex items-center justify-between text-xs"
                   style={{
-                    background: 'var(--card-inner)',
-                    border: '1px solid var(--card-inner-border)',
+                    background: 'rgba(5, 10, 23, 0.75)',
+                    border: '1px solid rgba(0, 210, 255, 0.15)',
                   }}
                 >
                   <div>
                     <span
-                      className="text-[10px] uppercase font-bold block"
-                      style={{ color: 'var(--mute)' }}
+                      className="text-[10px] uppercase font-bold block text-[#8295b5]"
                     >
                       Selected Plan
                     </span>
-                    <span className="font-semibold" style={{ color: 'var(--ink)' }}>
+                    <span className="font-semibold text-white">
                       {currentPlan.name} ${currentPlan.price.toFixed(2)}
                     </span>
                   </div>
 
                   <button
                     onClick={() => setPlanModalApp(app)}
-                    className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer hover:opacity-80"
-                    style={{ color: 'var(--mint)' }}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-[#00d2ff]/15"
+                    style={{
+                      border: '1px solid rgba(0, 210, 255, 0.4)',
+                      background: 'rgba(0, 210, 255, 0.08)',
+                      color: '#00d2ff',
+                    }}
                   >
                     See all plans ({app.plans.length})
                   </button>
@@ -619,13 +644,14 @@ export default function AppDirectory({ onNavigate }) {
               {/* Card Footer: Trial Badge & PayPal CTA */}
               <div
                 className="flex items-center justify-between gap-3 pt-5 mt-4"
-                style={{ borderTop: '1px solid var(--line)' }}
+                style={{ borderTop: '1px solid rgba(0, 210, 255, 0.16)' }}
               >
                 <span
-                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  className="text-[11px] font-semibold px-3 py-1.5 rounded-full"
                   style={{
-                    background: 'var(--badge-bg)',
-                    color: 'var(--mute)',
+                    background: 'rgba(0, 210, 255, 0.08)',
+                    border: '1px solid rgba(0, 210, 255, 0.25)',
+                    color: '#00d2ff',
                   }}
                 >
                   {app.trialBadge}
@@ -640,10 +666,10 @@ export default function AppDirectory({ onNavigate }) {
                     }
                   }}
                   disabled={isSubscribing}
-                  className="px-4 py-2 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-full font-bold text-xs text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                   style={{
                     background: 'linear-gradient(135deg, #0070ba, #003087)',
-                    boxShadow: '0 4px 14px rgba(0, 112, 186, 0.35)',
+                    boxShadow: '0 4px 14px rgba(0, 112, 186, 0.4)',
                   }}
                 >
                   {isSubscribing ? (
