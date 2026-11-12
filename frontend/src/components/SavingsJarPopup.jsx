@@ -50,44 +50,44 @@ function Sparkle({ delay, left, top, size = 3 }) {
   );
 }
 
-// Whole items placed inside the jar
+// Whole items placed inside the jar (Calibrated safely above the jar bottom)
 const POPUP_ITEMS = [
   // Tier 1: Base (0% - 20%)
-  { id: 'pb1', type: 'note', x: 16, y: 142, w: 38, h: 15, rot: -6, threshold: 0.05 },
-  { id: 'pb2', type: 'note', x: 66, y: 140, w: 40, h: 15, rot: 8, threshold: 0.08 },
-  { id: 'pc1', type: 'coin', cx: 26, cy: 152, r: 5.5, threshold: 0.12 },
-  { id: 'pb3', type: 'note', x: 38, y: 146, w: 44, h: 16, rot: 1, threshold: 0.16 },
-  { id: 'pc2', type: 'coin', cx: 52, cy: 154, r: 5.2, threshold: 0.18 },
-  { id: 'pc3', type: 'coin', cx: 82, cy: 152, r: 5.5, threshold: 0.20 },
+  { id: 'pb1', type: 'note', x: 20, y: 132, w: 36, h: 14, rot: -5, threshold: 0.05 },
+  { id: 'pb2', type: 'note', x: 62, y: 130, w: 38, h: 14, rot: 7, threshold: 0.08 },
+  { id: 'pc1', type: 'coin', cx: 30, cy: 140, r: 5, threshold: 0.12 },
+  { id: 'pb3', type: 'note', x: 40, y: 134, w: 40, h: 14, rot: 1, threshold: 0.16 },
+  { id: 'pc2', type: 'coin', cx: 58, cy: 142, r: 5, threshold: 0.18 },
+  { id: 'pc3', type: 'coin', cx: 80, cy: 138, r: 5, threshold: 0.20 },
 
   // Tier 2: Lower-mid (20% - 40%)
-  { id: 'pb4', type: 'note', x: 12, y: 120, w: 40, h: 15, rot: 14, threshold: 0.25 },
-  { id: 'pc4', type: 'coin', cx: 30, cy: 128, r: 5.5, threshold: 0.28 },
-  { id: 'pb5', type: 'note', x: 68, y: 118, w: 42, h: 15, rot: -12, threshold: 0.32 },
-  { id: 'pb6', type: 'note', x: 36, y: 126, w: 44, h: 16, rot: -3, threshold: 0.36 },
-  { id: 'pc5', type: 'coin', cx: 72, cy: 130, r: 5.2, threshold: 0.38 },
-  { id: 'pc6', type: 'coin', cx: 94, cy: 124, r: 5, threshold: 0.40 },
+  { id: 'pb4', type: 'note', x: 16, y: 114, w: 38, h: 14, rot: 12, threshold: 0.25 },
+  { id: 'pc4', type: 'coin', cx: 34, cy: 120, r: 5, threshold: 0.28 },
+  { id: 'pb5', type: 'note', x: 66, y: 112, w: 38, h: 14, rot: -10, threshold: 0.32 },
+  { id: 'pb6', type: 'note', x: 38, y: 118, w: 42, h: 14, rot: -2, threshold: 0.36 },
+  { id: 'pc5', type: 'coin', cx: 72, cy: 122, r: 5, threshold: 0.38 },
+  { id: 'pc6', type: 'coin', cx: 90, cy: 116, r: 4.8, threshold: 0.40 },
 
   // Tier 3: Mid (40% - 65%)
-  { id: 'pb7', type: 'note', x: 16, y: 96, w: 42, h: 16, rot: -9, threshold: 0.45 },
-  { id: 'pc7', type: 'coin', cx: 44, cy: 92, r: 5.2, threshold: 0.48 },
-  { id: 'pb8', type: 'note', x: 60, y: 98, w: 40, h: 15, rot: 11, threshold: 0.52 },
-  { id: 'pb9', type: 'note', x: 34, y: 104, w: 45, h: 16, rot: 4, threshold: 0.56 },
-  { id: 'pc8', type: 'coin', cx: 86, cy: 100, r: 5.5, threshold: 0.60 },
-  { id: 'pc9', type: 'coin', cx: 25, cy: 105, r: 5, threshold: 0.64 },
+  { id: 'pb7', type: 'note', x: 18, y: 92, w: 40, h: 14, rot: -8, threshold: 0.45 },
+  { id: 'pc7', type: 'coin', cx: 44, cy: 88, r: 5, threshold: 0.48 },
+  { id: 'pb8', type: 'note', x: 60, y: 94, w: 38, h: 14, rot: 9, threshold: 0.52 },
+  { id: 'pb9', type: 'note', x: 36, y: 98, w: 42, h: 14, rot: 3, threshold: 0.56 },
+  { id: 'pc8', type: 'coin', cx: 84, cy: 94, r: 5, threshold: 0.60 },
+  { id: 'pc9', type: 'coin', cx: 28, cy: 100, r: 4.8, threshold: 0.64 },
 
   // Tier 4: Top (65% - 85%)
-  { id: 'pb10', type: 'note', x: 14, y: 72, w: 42, h: 16, rot: 15, threshold: 0.68 },
-  { id: 'pc10', type: 'coin', cx: 32, cy: 70, r: 5.5, threshold: 0.72 },
-  { id: 'pb11', type: 'note', x: 62, y: 70, w: 42, h: 16, rot: -10, threshold: 0.76 },
-  { id: 'pb12', type: 'note', x: 36, y: 78, w: 45, h: 16, rot: -2, threshold: 0.80 },
-  { id: 'pc11', type: 'coin', cx: 74, cy: 76, r: 5.2, threshold: 0.83 },
+  { id: 'pb10', type: 'note', x: 16, y: 70, w: 40, h: 14, rot: 13, threshold: 0.68 },
+  { id: 'pc10', type: 'coin', cx: 34, cy: 68, r: 5, threshold: 0.72 },
+  { id: 'pb11', type: 'note', x: 62, y: 68, w: 40, h: 14, rot: -9, threshold: 0.76 },
+  { id: 'pb12', type: 'note', x: 38, y: 74, w: 42, h: 14, rot: -2, threshold: 0.80 },
+  { id: 'pc11', type: 'coin', cx: 74, cy: 72, r: 5, threshold: 0.83 },
 
   // Tier 5: Brim (85% - 100%)
-  { id: 'pb13', type: 'note', x: 22, y: 48, w: 38, h: 15, rot: -12, threshold: 0.88 },
-  { id: 'pb14', type: 'note', x: 58, y: 50, w: 38, h: 15, rot: 8, threshold: 0.92 },
-  { id: 'pc12', type: 'coin', cx: 28, cy: 46, r: 5.2, threshold: 0.95 },
-  { id: 'pc13', type: 'coin', cx: 78, cy: 52, r: 5.2, threshold: 0.98 },
+  { id: 'pb13', type: 'note', x: 24, y: 46, w: 36, h: 14, rot: -10, threshold: 0.88 },
+  { id: 'pb14', type: 'note', x: 58, y: 48, w: 36, h: 14, rot: 7, threshold: 0.92 },
+  { id: 'pc12', type: 'coin', cx: 30, cy: 44, r: 4.8, threshold: 0.95 },
+  { id: 'pc13', type: 'coin', cx: 76, cy: 48, r: 4.8, threshold: 0.98 },
 ];
 
 export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFill = 0.65, savedAmount }) {
@@ -252,6 +252,11 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                   <stop offset="50%" stopColor="rgba(0, 210, 255, 0.02)" />
                   <stop offset="100%" stopColor="rgba(0, 210, 255, 0.06)" />
                 </linearGradient>
+
+                {/* Inner Jar Containment Clip */}
+                <clipPath id="popupGlassInnerClip">
+                  <path d="M 22,34 C 17,42 9,50 9,62 L 9,144 C 9,158 20,160 60,160 C 100,160 111,158 111,144 L 111,62 C 111,50 103,42 98,34 Z" />
+                </clipPath>
               </defs>
 
               {/* Base shadow */}
@@ -263,8 +268,8 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                 fill="url(#popupGlassGrad)"
               />
 
-              {/* ── WHOLE Banknotes and Coins Dropping & Staying Inside (No cuts, No vanishing) ── */}
-              <g>
+              {/* ── WHOLE Banknotes and Coins Dropping & Staying Inside (Contained in glass, No spill) ── */}
+              <g clipPath="url(#popupGlassInnerClip)">
                 {visibleItems.map((item, idx) => {
                   const staggerDelay = Math.min(idx * 45, 450);
                   if (item.type === 'note') {

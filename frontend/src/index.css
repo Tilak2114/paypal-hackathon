@@ -66,17 +66,17 @@ body {
 
 @keyframes money-fall-down {
   0% {
-    transform: translateY(-260px) scale(0.85);
+    transform: translateY(-240px) scale(0.85);
     opacity: 0;
   }
   15% {
     opacity: 1;
   }
-  68% {
-    transform: translateY(7px) scale(1.02);
+  75% {
+    transform: translateY(0) scale(1.02);
   }
-  84% {
-    transform: translateY(-3px) scale(0.99);
+  88% {
+    transform: translateY(-5px) scale(0.99);
   }
   100% {
     transform: translateY(0) scale(1);
@@ -90,17 +90,17 @@ body {
 
 @keyframes money-fall-down-mini {
   0% {
-    transform: translateY(-160px) scale(0.85);
+    transform: translateY(-150px) scale(0.85);
     opacity: 0;
   }
   15% {
     opacity: 1;
   }
-  68% {
-    transform: translateY(5px) scale(1.02);
+  75% {
+    transform: translateY(0) scale(1.02);
   }
-  84% {
-    transform: translateY(-2px) scale(0.99);
+  88% {
+    transform: translateY(-3px) scale(0.99);
   }
   100% {
     transform: translateY(0) scale(1);

@@ -79,7 +79,7 @@ function Banknote({ x, y, width = 58, height = 23, rotation = 0, delay = 0 }) {
 }
 
 // Complete SVG Coin Component (Never cut or clipped, drops and stays in jar)
-function Coin({ cx, cy, r = 8, rotation = 0, delay = 0 }) {
+function Coin({ cx, cy, r = 7.5, rotation = 0, delay = 0 }) {
   return (
     <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`}>
       <g className="money-drop-item" style={{ animationDelay: `${delay}ms` }}>
@@ -93,57 +93,98 @@ function Coin({ cx, cy, r = 8, rotation = 0, delay = 0 }) {
 }
 
 // Fixed positions of whole banknotes and coins sitting naturally in the jar
-// Items unlock progressively from bottom to top based directly on saved vs goal ratio
+// Calibrated with comfortable bottom margin so no money touches the base or falls out
 const PILE_ITEMS = [
   // ── Tier 1: Base (0% - 15%) ──
-  { id: 'b1', type: 'note', x: 28, y: 244, w: 56, h: 22, rot: -7, threshold: 0.03 },
-  { id: 'c1', type: 'coin', cx: 104, cy: 254, r: 8, threshold: 0.06 },
-  { id: 'b2', type: 'note', x: 106, y: 242, w: 58, h: 22, rot: 8, threshold: 0.09 },
-  { id: 'c2', type: 'coin', cx: 50, cy: 252, r: 8.5, threshold: 0.12 },
-  { id: 'b3', type: 'note', x: 62, y: 246, w: 66, h: 23, rot: 1, threshold: 0.15 },
+  { id: 'b1', type: 'note', x: 34, y: 224, w: 54, h: 21, rot: -5, threshold: 0.03 },
+  { id: 'c1', type: 'coin', cx: 100, cy: 236, r: 7.5, threshold: 0.06 },
+  { id: 'b2', type: 'note', x: 104, y: 222, w: 56, h: 21, rot: 6, threshold: 0.09 },
+  { id: 'c2', type: 'coin', cx: 58, cy: 238, r: 8, threshold: 0.12 },
+  { id: 'b3', type: 'note', x: 62, y: 225, w: 64, h: 21, rot: 1, threshold: 0.15 },
 
   // ── Tier 2: Lower-mid (15% - 32%) ──
-  { id: 'c3', type: 'coin', cx: 146, cy: 244, r: 8, threshold: 0.18 },
-  { id: 'b4', type: 'note', x: 24, y: 222, w: 58, h: 22, rot: 12, threshold: 0.22 },
-  { id: 'c4', type: 'coin', cx: 78, cy: 232, r: 8.5, threshold: 0.25 },
-  { id: 'b5', type: 'note', x: 108, y: 220, w: 60, h: 22, rot: -10, threshold: 0.28 },
-  { id: 'c5', type: 'coin', cx: 126, cy: 228, r: 8, threshold: 0.32 },
+  { id: 'c3', type: 'coin', cx: 138, cy: 230, r: 7.5, threshold: 0.18 },
+  { id: 'b4', type: 'note', x: 28, y: 202, w: 56, h: 21, rot: 10, threshold: 0.22 },
+  { id: 'c4', type: 'coin', cx: 78, cy: 212, r: 8, threshold: 0.25 },
+  { id: 'b5', type: 'note', x: 106, y: 200, w: 58, h: 21, rot: -9, threshold: 0.28 },
+  { id: 'c5', type: 'coin', cx: 124, cy: 208, r: 7.5, threshold: 0.32 },
 
   // ── Tier 3: Mid (32% - 50%) ──
-  { id: 'b6', type: 'note', x: 55, y: 218, w: 68, h: 23, rot: -2, threshold: 0.36 },
-  { id: 'c6', type: 'coin', cx: 38, cy: 206, r: 8, threshold: 0.39 },
-  { id: 'b7', type: 'note', x: 25, y: 190, w: 62, h: 23, rot: -8, threshold: 0.43 },
-  { id: 'b8', type: 'note', x: 102, y: 192, w: 62, h: 23, rot: 10, threshold: 0.46 },
-  { id: 'c7', type: 'coin', cx: 88, cy: 196, r: 8.5, threshold: 0.50 },
+  { id: 'b6', type: 'note', x: 56, y: 198, w: 66, h: 22, rot: -2, threshold: 0.36 },
+  { id: 'c6', type: 'coin', cx: 40, cy: 188, r: 7.5, threshold: 0.39 },
+  { id: 'b7', type: 'note', x: 28, y: 174, w: 60, h: 22, rot: -7, threshold: 0.43 },
+  { id: 'b8', type: 'note', x: 102, y: 176, w: 60, h: 22, rot: 8, threshold: 0.46 },
+  { id: 'c7', type: 'coin', cx: 88, cy: 180, r: 8, threshold: 0.50 },
 
   // ── Tier 4: Upper-mid (50% - 70%) ──
-  { id: 'b9', type: 'note', x: 50, y: 182, w: 70, h: 23, rot: 3, threshold: 0.54 },
-  { id: 'c8', type: 'coin', cx: 148, cy: 188, r: 8, threshold: 0.58 },
-  { id: 'c9', type: 'coin', cx: 56, cy: 166, r: 8.5, threshold: 0.62 },
-  { id: 'b10', type: 'note', x: 22, y: 152, w: 64, h: 23, rot: 11, threshold: 0.66 },
-  { id: 'b11', type: 'note', x: 104, y: 154, w: 64, h: 23, rot: -9, threshold: 0.70 },
+  { id: 'b9', type: 'note', x: 52, y: 166, w: 68, h: 22, rot: 3, threshold: 0.54 },
+  { id: 'c8', type: 'coin', cx: 144, cy: 172, r: 7.5, threshold: 0.58 },
+  { id: 'c9', type: 'coin', cx: 56, cy: 152, r: 8, threshold: 0.62 },
+  { id: 'b10', type: 'note', x: 26, y: 140, w: 62, h: 22, rot: 9, threshold: 0.66 },
+  { id: 'b11', type: 'note', x: 104, y: 142, w: 62, h: 22, rot: -8, threshold: 0.70 },
 
   // ── Tier 5: High (70% - 86%) ──
-  { id: 'c10', type: 'coin', cx: 130, cy: 160, r: 8, threshold: 0.74 },
-  { id: 'b12', type: 'note', x: 54, y: 146, w: 70, h: 23, rot: -3, threshold: 0.78 },
-  { id: 'c11', type: 'coin', cx: 44, cy: 134, r: 8.5, threshold: 0.82 },
-  { id: 'b13', type: 'note', x: 28, y: 118, w: 62, h: 22, rot: -10, threshold: 0.86 },
+  { id: 'c10', type: 'coin', cx: 128, cy: 148, r: 7.5, threshold: 0.74 },
+  { id: 'b12', type: 'note', x: 54, y: 134, w: 68, h: 22, rot: -3, threshold: 0.78 },
+  { id: 'c11', type: 'coin', cx: 46, cy: 124, r: 8, threshold: 0.82 },
+  { id: 'b13', type: 'note', x: 30, y: 110, w: 60, h: 21, rot: -8, threshold: 0.86 },
 
   // ── Tier 6: Brim (86% - 100%) ──
-  { id: 'b14', type: 'note', x: 96, y: 120, w: 62, h: 22, rot: 8, threshold: 0.90 },
-  { id: 'c12', type: 'coin', cx: 118, cy: 124, r: 8, threshold: 0.93 },
-  { id: 'b15', type: 'note', x: 52, y: 110, w: 68, h: 22, rot: 3, threshold: 0.96 },
-  { id: 'c13', type: 'coin', cx: 72, cy: 94, r: 8.5, threshold: 0.98 },
-  { id: 'b16', type: 'note', x: 48, y: 82, w: 64, h: 22, rot: -4, threshold: 1.00 },
+  { id: 'b14', type: 'note', x: 96, y: 112, w: 60, h: 21, rot: 7, threshold: 0.90 },
+  { id: 'c12', type: 'coin', cx: 116, cy: 116, r: 7.5, threshold: 0.93 },
+  { id: 'b15', type: 'note', x: 54, y: 102, w: 66, h: 21, rot: 2, threshold: 0.96 },
+  { id: 'c13', type: 'coin', cx: 72, cy: 88, r: 8, threshold: 0.98 },
+  { id: 'b16', type: 'note', x: 50, y: 78, w: 62, h: 21, rot: -4, threshold: 1.00 },
 ];
 
 export default function SavingsJar() {
   const [saved, setSaved]           = useState(0);
   const [displaySaved, setDisplay]  = useState(0);
-  const [goal, setGoal]             = useState(5000);
-  const [goalName, setGoalName]     = useState('Weekend trip');
-  const [activePreset, setPreset]   = useState(0);
-  const [goalHit, setGoalHit]       = useState(false);
+
+  // Restore persisted goal or default to Weekend trip
+  const [goal, setGoal]             = useState(() => {
+    try {
+      const stored = localStorage.getItem('churnguard_selected_goal');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.amount) return parsed.amount;
+      }
+    } catch {}
+    return 5000;
+  });
+
+  const [goalName, setGoalName]     = useState(() => {
+    try {
+      const stored = localStorage.getItem('churnguard_selected_goal');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.name) return parsed.name;
+      }
+    } catch {}
+    return 'Weekend trip';
+  });
+
+  const [activePreset, setPreset]   = useState(() => {
+    try {
+      const stored = localStorage.getItem('churnguard_selected_goal');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.isCustom) return -1;
+        if (typeof parsed.presetIndex === 'number') return parsed.presetIndex;
+      }
+    } catch {}
+    return 0;
+  });
+
+  const [customGoal, setCustomGoal] = useState(() => {
+    try {
+      const stored = localStorage.getItem('churnguard_custom_goal');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [customName, setCustomName] = useState('');
   const [customAmt, setCustomAmt]   = useState('');
 
@@ -189,15 +230,13 @@ export default function SavingsJar() {
     initSavings();
   }, [countUp]);
 
-  // Goal trigger check
+  // Goal celebration check (fires once upon reaching 100%, never auto-switches goal)
   useEffect(() => {
-    if (saved >= goal && !goalHitRef.current) {
+    if (saved >= goal && !goalHitRef.current && goal > 0) {
       goalHitRef.current = true;
-      setGoalHit(true);
       launchConfetti(canvasRef.current);
     } else if (saved < goal) {
       goalHitRef.current = false;
-      setGoalHit(false);
     }
   }, [saved, goal]);
 
@@ -206,6 +245,24 @@ export default function SavingsJar() {
     const p = PRESETS[idx];
     setGoal(p.amount);
     setGoalName(p.name);
+    localStorage.setItem('churnguard_selected_goal', JSON.stringify({
+      isCustom: false,
+      presetIndex: idx,
+      name: p.name,
+      amount: p.amount,
+    }));
+  };
+
+  const selectCustomGoal = () => {
+    if (!customGoal) return;
+    setPreset(-1);
+    setGoal(customGoal.amount);
+    setGoalName(customGoal.name);
+    localStorage.setItem('churnguard_selected_goal', JSON.stringify({
+      isCustom: true,
+      name: customGoal.name,
+      amount: customGoal.amount,
+    }));
   };
 
   const handleCustomGoal = (e) => {
@@ -213,9 +270,17 @@ export default function SavingsJar() {
     const amt = parseFloat(customAmt);
     if (!amt || amt <= 0) return;
     const name = customName.trim() || 'Custom Goal';
+    const newCustom = { name, amount: amt };
+    setCustomGoal(newCustom);
     setGoal(amt);
     setGoalName(name);
     setPreset(-1);
+    localStorage.setItem('churnguard_custom_goal', JSON.stringify(newCustom));
+    localStorage.setItem('churnguard_selected_goal', JSON.stringify({
+      isCustom: true,
+      name,
+      amount: amt,
+    }));
     setCustomAmt('');
     setCustomName('');
   };
@@ -234,8 +299,10 @@ export default function SavingsJar() {
     countUp(saved, 0);
   };
 
-  const ratio = Math.min(Math.max(saved / goal, 0), 1);
+  const ratio = goal > 0 ? Math.min(Math.max(saved / goal, 0), 1) : 0;
   const pctProgress = Math.min(Math.round(ratio * 100), 100);
+  const isFull = saved >= goal && goal > 0;
+  const extraSaved = saved > goal ? saved - goal : 0;
 
   // Directly proportional to money saved vs goal:
   // Items unlock in sequence as ratio passes their threshold
@@ -315,6 +382,11 @@ export default function SavingsJar() {
                 <stop offset="50%" stopColor="rgba(0, 210, 255, 0.02)" />
                 <stop offset="100%" stopColor="rgba(0, 210, 255, 0.06)" />
               </linearGradient>
+
+              {/* Inner Jar Clip - Guaranteed containment so no note or coin can ever poke outside */}
+              <clipPath id="jarGlassInnerClip">
+                <path d="M 36,55 C 28,68 15,82 15,102 L 15,236 C 15,258 35,263 100,263 C 165,263 185,258 185,236 L 185,102 C 185,82 172,68 164,55 Z" />
+              </clipPath>
             </defs>
 
             {/* Jar Base Drop Shadow */}
@@ -326,10 +398,10 @@ export default function SavingsJar() {
               fill="url(#jarGlassGrad)"
             />
 
-            {/* ── WHOLE BANKNOTES & COINS DROPPING & STAYING INSIDE (NO CUTS, NO VANISHING) ── */}
-            <g>
+            {/* ── WHOLE BANKNOTES & COINS DROPPING & STAYING INSIDE (CLIP INSIDE GLASS, NO SPILL) ── */}
+            <g clipPath="url(#jarGlassInnerClip)">
               {visibleItems.map((item, idx) => {
-                const staggerDelay = Math.min(idx * 40, 500);
+                const staggerDelay = Math.min(idx * 35, 450);
                 if (item.type === 'note') {
                   return (
                     <Banknote
@@ -417,23 +489,67 @@ export default function SavingsJar() {
           </svg>
         </div>
 
+        {/* 100% Full Celebratory Banner (persists, never auto-switches goal) */}
+        {isFull && (
+          <div
+            className="w-full max-w-md p-4 rounded-2xl flex items-center justify-between gap-3 text-left transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 210, 255, 0.18))',
+              border: '1px solid rgba(0, 210, 255, 0.5)',
+              boxShadow: '0 0 30px rgba(0, 210, 255, 0.3)',
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🏆</span>
+              <div>
+                <div className="text-xs font-black uppercase tracking-wider text-[#00d2ff] flex items-center gap-1.5">
+                  <span>Vault 100% Full</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#10b981]/25 text-[#10b981] font-bold">
+                    Goal Achieved!
+                  </span>
+                </div>
+                <div className="text-xs text-white/90 font-medium mt-0.5">
+                  Target reached for <strong>{goalName}</strong>!
+                  {extraSaved > 0 && (
+                    <span className="text-[#00d2ff] ml-1 font-bold">
+                      (+₹{fmt(extraSaved)} extra saved)
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] text-[#8295b5] mt-0.5">
+                  Your jar remains full. Ready for a new milestone? Pick or enter a target below.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar */}
         <div className="w-full max-w-sm space-y-2">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-[#8295b5]">Target: {goalName}</span>
-            <span style={{ color: '#00d2ff' }}>{pctProgress}% reached ({visibleItems.length}/{PILE_ITEMS.length} items)</span>
+            <span className="text-[#8295b5]">
+              Target: <strong className="text-white">{goalName}</strong>
+            </span>
+            <span style={{ color: isFull ? '#10b981' : '#00d2ff' }} className="font-bold">
+              {isFull ? '100% FULL 🎉' : `${pctProgress}% reached`} ({visibleItems.length}/{PILE_ITEMS.length} items)
+            </span>
           </div>
 
           <div
-            className="w-full h-2.5 rounded-full overflow-hidden"
-            style={{ background: 'rgba(0, 210, 255, 0.1)', border: '1px solid rgba(0, 210, 255, 0.2)' }}
+            className="w-full h-3 rounded-full overflow-hidden"
+            style={{
+              background: 'rgba(0, 210, 255, 0.1)',
+              border: `1px solid ${isFull ? 'rgba(16, 185, 129, 0.6)' : 'rgba(0, 210, 255, 0.25)'}`,
+            }}
           >
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
                 width: `${pctProgress}%`,
-                background: 'linear-gradient(90deg, #10b981, #00d2ff)',
-                boxShadow: '0 0 12px rgba(0, 210, 255, 0.5)',
+                background: isFull
+                  ? 'linear-gradient(90deg, #10b981, #00d2ff, #34d399)'
+                  : 'linear-gradient(90deg, #10b981, #00d2ff)',
+                boxShadow: isFull ? '0 0 16px rgba(16, 185, 129, 0.7)' : '0 0 12px rgba(0, 210, 255, 0.5)',
               }}
             />
           </div>
@@ -443,14 +559,14 @@ export default function SavingsJar() {
             <button
               type="button"
               onClick={() => addSavings(500)}
-              className="px-3 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
             >
               <span>+</span> ₹500
             </button>
             <button
               type="button"
               onClick={() => addSavings(1000)}
-              className="px-3 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
             >
               <span>+</span> ₹1,000
             </button>
@@ -465,15 +581,20 @@ export default function SavingsJar() {
           </div>
         </div>
 
-        {/* Preset Goals Pills */}
+        {/* Goal Targets (Presets + Custom Goal) */}
         <div className="space-y-3 w-full max-w-md">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#8295b5]">
-            Select Goal Target
-          </span>
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#8295b5]">
+            <span>Goal Target</span>
+            {activePreset === -1 && (
+              <span className="text-[#00d2ff] font-bold">Custom Target Active</span>
+            )}
+          </div>
+
           <div className="flex flex-wrap justify-center gap-2.5">
             {PRESETS.map((p, idx) => (
               <button
                 key={p.name}
+                type="button"
                 onClick={() => selectPreset(idx)}
                 className="px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 style={
@@ -494,32 +615,58 @@ export default function SavingsJar() {
                 <span>{p.name} (₹{fmt(p.amount)})</span>
               </button>
             ))}
-          </div>
-        </div>
 
-        {/* Custom Goal Input */}
-        <form onSubmit={handleCustomGoal} className="flex items-center gap-2 max-w-sm w-full">
-          <input
-            type="text"
-            placeholder="Custom target name..."
-            value={customName}
-            onChange={(e) => setCustomName(e.target.value)}
-            className="flex-1 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
-          />
-          <input
-            type="number"
-            placeholder="Amount ₹"
-            value={customAmt}
-            onChange={(e) => setCustomAmt(e.target.value)}
-            className="w-24 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-[#050a17] bg-[#00d2ff] hover:scale-105 transition-all shadow-[0_0_12px_rgba(0,210,255,0.3)] cursor-pointer"
-          >
-            Set
-          </button>
-        </form>
+            {/* Custom Goal Pill (Active / selectable if set) */}
+            {customGoal && (
+              <button
+                type="button"
+                onClick={selectCustomGoal}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                style={
+                  activePreset === -1
+                    ? {
+                        background: '#00d2ff',
+                        color: '#050a17',
+                        boxShadow: '0 0 15px rgba(0, 210, 255, 0.4)',
+                      }
+                    : {
+                        background: 'rgba(11, 22, 46, 0.8)',
+                        border: '1px solid rgba(0, 210, 255, 0.2)',
+                        color: '#8295b5',
+                      }
+                }
+              >
+                <span>🎯</span>
+                <span>{customGoal.name} (₹{fmt(customGoal.amount)})</span>
+              </button>
+            )}
+          </div>
+
+          {/* Custom Goal Input - Users can type any custom target name and amount */}
+          <form onSubmit={handleCustomGoal} className="flex items-center gap-2 max-w-md w-full pt-1">
+            <input
+              id="custom-goal-input"
+              type="text"
+              placeholder="Or set custom goal (e.g. Bali Trip)..."
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              className="flex-1 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
+            />
+            <input
+              type="number"
+              placeholder="Amount ₹"
+              value={customAmt}
+              onChange={(e) => setCustomAmt(e.target.value)}
+              className="w-28 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-[#050a17] bg-[#00d2ff] hover:scale-105 transition-all shadow-[0_0_12px_rgba(0,210,255,0.3)] cursor-pointer whitespace-nowrap"
+            >
+              {activePreset === -1 && customGoal ? 'Update Goal' : 'Set Goal'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
