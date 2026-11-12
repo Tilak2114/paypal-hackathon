@@ -2,27 +2,31 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { playChaChingSound } from '../utils/audio';
 
-// Banknote helper component (Never clipped)
-function BanknoteMini({ x, y, width = 38, height = 15, rotation = 0 }) {
+// Banknote helper component (Never clipped, drops and stays)
+function BanknoteMini({ x, y, width = 38, height = 15, rotation = 0, delay = 0 }) {
   return (
-    <g transform={`translate(${x}, ${y}) rotate(${rotation})`} className="money-settle">
-      <rect x="-0.5" y="0.5" width={width} height={height} rx="1.5" fill="rgba(0,0,0,0.35)" />
-      <rect x="0" y="0" width={width} height={height} rx="1.5" fill="url(#popupBillGrad)" stroke="#047857" strokeWidth="0.6" />
-      <rect x="1.5" y="1.5" width={width - 3} height={height - 3} rx="1" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" strokeDasharray="2 1" />
-      <ellipse cx={width / 2} cy={height / 2} rx="5" ry="4" fill="#047857" fillOpacity="0.4" />
-      <text x={width / 2} y={height / 2 + 1.8} textAnchor="middle" fontSize="4.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
+    <g transform={`translate(${x}, ${y}) rotate(${rotation})`}>
+      <g className="money-drop-mini" style={{ animationDelay: `${delay}ms` }}>
+        <rect x="-0.5" y="0.5" width={width} height={height} rx="1.5" fill="rgba(0,0,0,0.35)" />
+        <rect x="0" y="0" width={width} height={height} rx="1.5" fill="url(#popupBillGrad)" stroke="#047857" strokeWidth="0.6" />
+        <rect x="1.5" y="1.5" width={width - 3} height={height - 3} rx="1" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" strokeDasharray="2 1" />
+        <ellipse cx={width / 2} cy={height / 2} rx="5" ry="4" fill="#047857" fillOpacity="0.4" />
+        <text x={width / 2} y={height / 2 + 1.8} textAnchor="middle" fontSize="4.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">₹</text>
+      </g>
     </g>
   );
 }
 
-// Coin helper component (Never clipped)
-function CoinMini({ cx, cy, r = 5.5, rotation = 0 }) {
+// Coin helper component (Never clipped, drops and stays)
+function CoinMini({ cx, cy, r = 5.5, rotation = 0, delay = 0 }) {
   return (
-    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`} className="money-settle">
-      <circle cx="0.4" cy="0.6" r={r} fill="rgba(0,0,0,0.4)" />
-      <circle cx="0" cy="0" r={r} fill="url(#popupCoinGrad)" stroke="#b45309" strokeWidth="0.6" />
-      <circle cx="0" cy="0" r={r - 1} fill="none" stroke="#fef08a" strokeWidth="0.4" />
-      <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">$</text>
+    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`}>
+      <g className="money-drop-mini" style={{ animationDelay: `${delay}ms` }}>
+        <circle cx="0.4" cy="0.6" r={r} fill="rgba(0,0,0,0.4)" />
+        <circle cx="0" cy="0" r={r} fill="url(#popupCoinGrad)" stroke="#b45309" strokeWidth="0.6" />
+        <circle cx="0" cy="0" r={r - 1} fill="none" stroke="#fef08a" strokeWidth="0.4" />
+        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">₹</text>
+      </g>
     </g>
   );
 }
@@ -169,8 +173,8 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
 
   const fillPercent = Math.round(currentFill * 100);
 
-  // Visible items based on current fill ratio (with initial 3 starter items)
-  const visibleItems = POPUP_ITEMS.filter((item, index) => index < 3 || currentFill >= item.threshold);
+  // Visible items strictly based on current fill ratio
+  const visibleItems = POPUP_ITEMS.filter((item) => currentFill >= item.threshold);
 
   return (
     <div
@@ -259,9 +263,10 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                 fill="url(#popupGlassGrad)"
               />
 
-              {/* ── WHOLE Banknotes and Coins Sitting Inside (Never cut) ── */}
+              {/* ── WHOLE Banknotes and Coins Dropping & Staying Inside (No cuts, No vanishing) ── */}
               <g>
-                {visibleItems.map((item) => {
+                {visibleItems.map((item, idx) => {
+                  const staggerDelay = Math.min(idx * 45, 450);
                   if (item.type === 'note') {
                     return (
                       <BanknoteMini
@@ -271,6 +276,7 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                         width={item.w}
                         height={item.h}
                         rotation={item.rot}
+                        delay={staggerDelay}
                       />
                     );
                   }
@@ -280,6 +286,7 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                       cx={item.cx}
                       cy={item.cy}
                       r={item.r}
+                      delay={staggerDelay}
                     />
                   );
                 })}
@@ -304,33 +311,6 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
               {/* Top Lid */}
               <rect x="20" y="7" width="80" height="9" rx="4.5" fill="rgba(11,22,46,0.85)" stroke="#00d2ff" strokeWidth="1.5" />
             </svg>
-
-            {/* Dropping Coins & Notes */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
-              {coins.map((coin) => (
-                <div
-                  key={coin.id}
-                  className="coin-anim absolute flex items-center justify-center rounded-full"
-                  style={{
-                    width: coin.type === 'bill' ? 18 : 14,
-                    height: coin.type === 'bill' ? 11 : 14,
-                    left: `calc(${coin.left}% - 8px)`,
-                    animationDelay: `${coin.delay}ms`,
-                    background: coin.type === 'bill'
-                      ? 'linear-gradient(135deg, #10b981, #047857)'
-                      : 'radial-gradient(circle at 35% 32%, #ffe066, #c89400)',
-                    border: coin.type === 'bill' ? '1px solid #064e3b' : '1px solid #d4a200',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-                    color: coin.type === 'bill' ? '#ffffff' : '#7a4f00',
-                    fontSize: 7.5,
-                    fontWeight: 900,
-                    borderRadius: coin.type === 'bill' ? 2.5 : '50%',
-                  }}
-                >
-                  $
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Text content */}

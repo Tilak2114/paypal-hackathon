@@ -1,6 +1,7 @@
 // frontend/src/pages/SavingsJar.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getSubscriptions } from '../api/client';
+import { playChaChingSound } from '../utils/audio';
 
 const PRESETS = [
   { name: 'Weekend trip',   amount: 5000,  emoji: '🏖️' },
@@ -56,82 +57,84 @@ function launchConfetti(canvas) {
   })();
 }
 
-// Complete SVG Banknote Component (Never cut or clipped)
-function Banknote({ x, y, width = 56, height = 24, rotation = 0 }) {
+// Complete SVG Banknote Component (Never cut or clipped, drops and stays in jar)
+function Banknote({ x, y, width = 58, height = 23, rotation = 0, delay = 0 }) {
   return (
-    <g transform={`translate(${x}, ${y}) rotate(${rotation})`} className="money-settle">
-      <rect x="-1" y="1" width={width} height={height} rx="2" fill="rgba(0,0,0,0.35)" />
-      <rect x="0" y="0" width={width} height={height} rx="2.5" fill="url(#jarBillGrad)" stroke="#047857" strokeWidth="0.8" />
-      <rect x="2" y="2" width={width - 4} height={height - 4} rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.6" strokeDasharray="3 1" />
-      <ellipse cx={width / 2} cy={height / 2} rx="8" ry="6" fill="#047857" fillOpacity="0.45" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
-      <text x={width / 2} y={height / 2 + 2.5} textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
-      <text x="4" y="6.5" fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
-      <text x={width - 6} y={height - 2.5} fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
+    <g transform={`translate(${x}, ${y}) rotate(${rotation})`}>
+      <g className="money-drop-item" style={{ animationDelay: `${delay}ms` }}>
+        {/* Soft shadow */}
+        <rect x="-1" y="1" width={width} height={height} rx="2" fill="rgba(0,0,0,0.4)" />
+        {/* Main bill surface */}
+        <rect x="0" y="0" width={width} height={height} rx="2.5" fill="url(#jarBillGrad)" stroke="#047857" strokeWidth="0.8" />
+        {/* Security dashed line */}
+        <rect x="2" y="2" width={width - 4} height={height - 4} rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.6" strokeDasharray="3 1" />
+        {/* Center medallion */}
+        <ellipse cx={width / 2} cy={height / 2} rx="8" ry="6" fill="#047857" fillOpacity="0.45" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
+        <text x={width / 2} y={height / 2 + 2.5} textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">₹</text>
+        <text x="4" y="6.5" fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">₹</text>
+        <text x={width - 6} y={height - 2.5} fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">₹</text>
+      </g>
     </g>
   );
 }
 
-// Complete SVG Coin Component (Never cut or clipped)
-function Coin({ cx, cy, r = 8, rotation = 0 }) {
+// Complete SVG Coin Component (Never cut or clipped, drops and stays in jar)
+function Coin({ cx, cy, r = 8, rotation = 0, delay = 0 }) {
   return (
-    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`} className="money-settle">
-      <circle cx="0.5" cy="1" r={r} fill="rgba(0,0,0,0.4)" />
-      <circle cx="0" cy="0" r={r} fill="url(#jarCoinGrad)" stroke="#b45309" strokeWidth="0.8" />
-      <circle cx="0" cy="0" r={r - 1.5} fill="none" stroke="#fef08a" strokeWidth="0.5" strokeDasharray="2 1" />
-      <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">$</text>
+    <g transform={`translate(${cx}, ${cy}) rotate(${rotation})`}>
+      <g className="money-drop-item" style={{ animationDelay: `${delay}ms` }}>
+        <circle cx="0.5" cy="1" r={r} fill="rgba(0,0,0,0.4)" />
+        <circle cx="0" cy="0" r={r} fill="url(#jarCoinGrad)" stroke="#b45309" strokeWidth="0.8" />
+        <circle cx="0" cy="0" r={r - 1.5} fill="none" stroke="#fef08a" strokeWidth="0.5" strokeDasharray="2 1" />
+        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">₹</text>
+      </g>
     </g>
   );
 }
 
 // Fixed positions of whole banknotes and coins sitting naturally in the jar
-// Items unlock progressively from bottom to top as savings reach thresholds
+// Items unlock progressively from bottom to top based directly on saved vs goal ratio
 const PILE_ITEMS = [
-  // ── Layer 1: Base (0% - 15%) ──
-  { id: 'b1', type: 'note', x: 26, y: 238, w: 58, h: 23, rot: -6, threshold: 0.02 },
-  { id: 'b2', type: 'note', x: 110, y: 236, w: 62, h: 23, rot: 8, threshold: 0.04 },
-  { id: 'c1', type: 'coin', cx: 42, cy: 252, r: 8.5, threshold: 0.06 },
-  { id: 'b3', type: 'note', x: 62, y: 244, w: 70, h: 24, rot: 1, threshold: 0.08 },
-  { id: 'c2', type: 'coin', cx: 85, cy: 256, r: 8, threshold: 0.10 },
-  { id: 'c3', type: 'coin', cx: 130, cy: 252, r: 9, threshold: 0.12 },
-  { id: 'c4', type: 'coin', cx: 162, cy: 248, r: 8, threshold: 0.14 },
+  // ── Tier 1: Base (0% - 15%) ──
+  { id: 'b1', type: 'note', x: 28, y: 244, w: 56, h: 22, rot: -7, threshold: 0.03 },
+  { id: 'c1', type: 'coin', cx: 104, cy: 254, r: 8, threshold: 0.06 },
+  { id: 'b2', type: 'note', x: 106, y: 242, w: 58, h: 22, rot: 8, threshold: 0.09 },
+  { id: 'c2', type: 'coin', cx: 50, cy: 252, r: 8.5, threshold: 0.12 },
+  { id: 'b3', type: 'note', x: 62, y: 246, w: 66, h: 23, rot: 1, threshold: 0.15 },
 
-  // ── Layer 2: Lower-mid (15% - 35%) ──
-  { id: 'b4', type: 'note', x: 18, y: 212, w: 62, h: 23, rot: 14, threshold: 0.18 },
-  { id: 'c5', type: 'coin', cx: 48, cy: 224, r: 8.5, threshold: 0.21 },
-  { id: 'b5', type: 'note', x: 112, y: 208, w: 64, h: 23, rot: -12, threshold: 0.25 },
-  { id: 'b6', type: 'note', x: 58, y: 220, w: 72, h: 24, rot: -3, threshold: 0.28 },
-  { id: 'c6', type: 'coin', cx: 116, cy: 226, r: 8, threshold: 0.31 },
-  { id: 'c7', type: 'coin', cx: 150, cy: 218, r: 8.5, threshold: 0.33 },
-  { id: 'c8', type: 'coin', cx: 88, cy: 218, r: 8, threshold: 0.35 },
+  // ── Tier 2: Lower-mid (15% - 32%) ──
+  { id: 'c3', type: 'coin', cx: 146, cy: 244, r: 8, threshold: 0.18 },
+  { id: 'b4', type: 'note', x: 24, y: 222, w: 58, h: 22, rot: 12, threshold: 0.22 },
+  { id: 'c4', type: 'coin', cx: 78, cy: 232, r: 8.5, threshold: 0.25 },
+  { id: 'b5', type: 'note', x: 108, y: 220, w: 60, h: 22, rot: -10, threshold: 0.28 },
+  { id: 'c5', type: 'coin', cx: 126, cy: 228, r: 8, threshold: 0.32 },
 
-  // ── Layer 3: Mid (35% - 55%) ──
-  { id: 'b7', type: 'note', x: 28, y: 174, w: 66, h: 24, rot: -9, threshold: 0.38 },
-  { id: 'c9', type: 'coin', cx: 68, cy: 168, r: 8.5, threshold: 0.42 },
-  { id: 'b8', type: 'note', x: 98, y: 178, w: 65, h: 24, rot: 11, threshold: 0.46 },
-  { id: 'b9', type: 'note', x: 54, y: 186, w: 72, h: 24, rot: 4, threshold: 0.49 },
-  { id: 'c10', type: 'coin', cx: 136, cy: 182, r: 9, threshold: 0.52 },
-  { id: 'c11', type: 'coin', cx: 40, cy: 188, r: 8, threshold: 0.55 },
+  // ── Tier 3: Mid (32% - 50%) ──
+  { id: 'b6', type: 'note', x: 55, y: 218, w: 68, h: 23, rot: -2, threshold: 0.36 },
+  { id: 'c6', type: 'coin', cx: 38, cy: 206, r: 8, threshold: 0.39 },
+  { id: 'b7', type: 'note', x: 25, y: 190, w: 62, h: 23, rot: -8, threshold: 0.43 },
+  { id: 'b8', type: 'note', x: 102, y: 192, w: 62, h: 23, rot: 10, threshold: 0.46 },
+  { id: 'c7', type: 'coin', cx: 88, cy: 196, r: 8.5, threshold: 0.50 },
 
-  // ── Layer 4: Upper-mid (55% - 75%) ──
-  { id: 'b10', type: 'note', x: 22, y: 138, w: 65, h: 24, rot: 15, threshold: 0.58 },
-  { id: 'c12', type: 'coin', cx: 52, cy: 134, r: 8.5, threshold: 0.62 },
-  { id: 'b11', type: 'note', x: 102, y: 134, w: 68, h: 24, rot: -10, threshold: 0.65 },
-  { id: 'b12', type: 'note', x: 58, y: 146, w: 74, h: 24, rot: -2, threshold: 0.68 },
-  { id: 'c13', type: 'coin', cx: 120, cy: 144, r: 8, threshold: 0.71 },
-  { id: 'c14', type: 'coin', cx: 152, cy: 136, r: 8, threshold: 0.74 },
+  // ── Tier 4: Upper-mid (50% - 70%) ──
+  { id: 'b9', type: 'note', x: 50, y: 182, w: 70, h: 23, rot: 3, threshold: 0.54 },
+  { id: 'c8', type: 'coin', cx: 148, cy: 188, r: 8, threshold: 0.58 },
+  { id: 'c9', type: 'coin', cx: 56, cy: 166, r: 8.5, threshold: 0.62 },
+  { id: 'b10', type: 'note', x: 22, y: 152, w: 64, h: 23, rot: 11, threshold: 0.66 },
+  { id: 'b11', type: 'note', x: 104, y: 154, w: 64, h: 23, rot: -9, threshold: 0.70 },
 
-  // ── Layer 5: Top (75% - 90%) ──
-  { id: 'b13', type: 'note', x: 28, y: 102, w: 66, h: 24, rot: -12, threshold: 0.77 },
-  { id: 'c15', type: 'coin', cx: 44, cy: 98, r: 8.5, threshold: 0.81 },
-  { id: 'b14', type: 'note', x: 98, y: 104, w: 66, h: 24, rot: 8, threshold: 0.84 },
-  { id: 'b15', type: 'note', x: 56, y: 114, w: 74, h: 24, rot: 3, threshold: 0.87 },
-  { id: 'c16', type: 'coin', cx: 126, cy: 108, r: 8.5, threshold: 0.90 },
+  // ── Tier 5: High (70% - 86%) ──
+  { id: 'c10', type: 'coin', cx: 130, cy: 160, r: 8, threshold: 0.74 },
+  { id: 'b12', type: 'note', x: 54, y: 146, w: 70, h: 23, rot: -3, threshold: 0.78 },
+  { id: 'c11', type: 'coin', cx: 44, cy: 134, r: 8.5, threshold: 0.82 },
+  { id: 'b13', type: 'note', x: 28, y: 118, w: 62, h: 22, rot: -10, threshold: 0.86 },
 
-  // ── Layer 6: Brim (90% - 100%) ──
-  { id: 'b16', type: 'note', x: 38, y: 68, w: 60, h: 22, rot: 10, threshold: 0.93 },
-  { id: 'b17', type: 'note', x: 92, y: 66, w: 62, h: 22, rot: -8, threshold: 0.96 },
-  { id: 'c17', type: 'coin', cx: 66, cy: 64, r: 8, threshold: 0.98 },
-  { id: 'c18', type: 'coin', cx: 118, cy: 68, r: 8.5, threshold: 1.00 },
+  // ── Tier 6: Brim (86% - 100%) ──
+  { id: 'b14', type: 'note', x: 96, y: 120, w: 62, h: 22, rot: 8, threshold: 0.90 },
+  { id: 'c12', type: 'coin', cx: 118, cy: 124, r: 8, threshold: 0.93 },
+  { id: 'b15', type: 'note', x: 52, y: 110, w: 68, h: 22, rot: 3, threshold: 0.96 },
+  { id: 'c13', type: 'coin', cx: 72, cy: 94, r: 8.5, threshold: 0.98 },
+  { id: 'b16', type: 'note', x: 48, y: 82, w: 64, h: 22, rot: -4, threshold: 1.00 },
 ];
 
 export default function SavingsJar() {
@@ -141,7 +144,6 @@ export default function SavingsJar() {
   const [goalName, setGoalName]     = useState('Weekend trip');
   const [activePreset, setPreset]   = useState(0);
   const [goalHit, setGoalHit]       = useState(false);
-  const [coins, setCoins]           = useState([]);
   const [customName, setCustomName] = useState('');
   const [customAmt, setCustomAmt]   = useState('');
 
@@ -178,13 +180,6 @@ export default function SavingsJar() {
 
         setSaved(total);
         countUp(0, total);
-
-        // Falling coins/notes into jar
-        setCoins([
-          { id: 1, left: 42, delay: 120, type: 'coin' },
-          { id: 2, left: 56, delay: 280, type: 'bill' },
-          { id: 3, left: 48, delay: 450, type: 'coin' },
-        ]);
       } catch (err) {
         console.warn('Savings load error, fallback to default:', err);
         setSaved(2400);
@@ -225,12 +220,26 @@ export default function SavingsJar() {
     setCustomName('');
   };
 
+  const addSavings = (amt) => {
+    const next = saved + amt;
+    setSaved(next);
+    localStorage.setItem('churnguard_saved', String(next));
+    countUp(saved, next);
+    playChaChingSound();
+  };
+
+  const resetSavings = () => {
+    setSaved(0);
+    localStorage.setItem('churnguard_saved', '0');
+    countUp(saved, 0);
+  };
+
   const ratio = Math.min(Math.max(saved / goal, 0), 1);
   const pctProgress = Math.min(Math.round(ratio * 100), 100);
 
-  // Filter which items are sitting in the jar based on current progress
-  // Always include the minimum starter layer (first 3 items) so an initial jar isn't totally blank
-  const visibleItems = PILE_ITEMS.filter((item, index) => index < 3 || ratio >= item.threshold);
+  // Directly proportional to money saved vs goal:
+  // Items unlock in sequence as ratio passes their threshold
+  const visibleItems = PILE_ITEMS.filter((item) => ratio >= item.threshold);
 
   return (
     <div className="relative w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start px-4 sm:px-6 py-8 z-10">
@@ -277,7 +286,7 @@ export default function SavingsJar() {
           </div>
         </div>
 
-        {/* ── Mason Jar Container (Clean cyan outline, NO white highlights, NO horizontal cut) ── */}
+        {/* ── Mason Jar Container (Clean cyan outline, whole notes/coins that drop & stay) ── */}
         <div className="relative" style={{ width: 230, height: 320 }} aria-hidden="true">
           <svg
             viewBox="0 0 200 280"
@@ -317,9 +326,10 @@ export default function SavingsJar() {
               fill="url(#jarGlassGrad)"
             />
 
-            {/* ── WHOLE BANKNOTES & COINS SITTING INSIDE (NO CLIPPED/SLICED BILLS) ── */}
+            {/* ── WHOLE BANKNOTES & COINS DROPPING & STAYING INSIDE (NO CUTS, NO VANISHING) ── */}
             <g>
-              {visibleItems.map((item) => {
+              {visibleItems.map((item, idx) => {
+                const staggerDelay = Math.min(idx * 40, 500);
                 if (item.type === 'note') {
                   return (
                     <Banknote
@@ -329,6 +339,7 @@ export default function SavingsJar() {
                       width={item.w}
                       height={item.h}
                       rotation={item.rot}
+                      delay={staggerDelay}
                     />
                   );
                 }
@@ -338,6 +349,7 @@ export default function SavingsJar() {
                     cx={item.cx}
                     cy={item.cy}
                     r={item.r}
+                    delay={staggerDelay}
                   />
                 );
               })}
@@ -403,41 +415,13 @@ export default function SavingsJar() {
               SENTINEL VAULT
             </text>
           </svg>
-
-          {/* Animated Falling Coins / Banknotes Overlay */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-            {coins.map((coin) => (
-              <div
-                key={coin.id}
-                className="coin-anim absolute flex items-center justify-center rounded-full"
-                style={{
-                  width: coin.type === 'bill' ? 28 : 22,
-                  height: coin.type === 'bill' ? 16 : 22,
-                  left: `calc(${coin.left}% - 12px)`,
-                  animationDelay: `${coin.delay}ms`,
-                  background: coin.type === 'bill'
-                    ? 'linear-gradient(135deg, #10b981, #047857)'
-                    : 'radial-gradient(circle at 35% 32%, #ffe066, #c89400)',
-                  border: coin.type === 'bill' ? '1px solid #064e3b' : '2px solid #d4a200',
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                  color: coin.type === 'bill' ? '#ffffff' : '#7a4f00',
-                  fontSize: 10,
-                  fontWeight: 900,
-                  borderRadius: coin.type === 'bill' ? 4 : '50%',
-                }}
-                aria-hidden="true"
-              >
-                $
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Progress bar */}
         <div className="w-full max-w-sm space-y-2">
           <div className="flex justify-between text-xs font-semibold">
             <span className="text-[#8295b5]">Target: {goalName}</span>
-            <span style={{ color: '#00d2ff' }}>{pctProgress}% reached</span>
+            <span style={{ color: '#00d2ff' }}>{pctProgress}% reached ({visibleItems.length}/{PILE_ITEMS.length} items)</span>
           </div>
 
           <div
@@ -452,6 +436,32 @@ export default function SavingsJar() {
                 boxShadow: '0 0 12px rgba(0, 210, 255, 0.5)',
               }}
             />
+          </div>
+
+          {/* Quick test buttons to add savings and watch money drop in */}
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => addSavings(500)}
+              className="px-3 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>+</span> ₹500
+            </button>
+            <button
+              type="button"
+              onClick={() => addSavings(1000)}
+              className="px-3 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>+</span> ₹1,000
+            </button>
+            <button
+              type="button"
+              onClick={resetSavings}
+              className="px-2.5 py-1 rounded-full text-[11px] text-[#8295b5] hover:text-white transition-colors cursor-pointer"
+              title="Reset vault cash to 0 to watch it fill from empty"
+            >
+              Reset
+            </button>
           </div>
         </div>
 
