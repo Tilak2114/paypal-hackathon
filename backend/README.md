@@ -106,12 +106,12 @@ Every subscription object strictly matches this format:
 {
   "id": "sub-tunewave",
   "name": "TuneWave",
-  "cost": 149,
-  "currency": "INR",
+  "cost": 11.99,
+  "currency": "USD",
   "lastUsed": "52 days ago",
   "status": "active",
   "flag": "overlap",
-  "suggestion": "Overlaps with TuneBox. Cancel to save ₹1,788/yr",
+  "suggestion": "Overlaps with TuneBox. Cancel to save $144/yr",
   "paypalSubscriptionId": "I-TWAV3003003"
 }
 ```
@@ -147,7 +147,7 @@ curl -X GET http://localhost:3000/subscriptions
       "id": "sub-streamly",
       "name": "Streamly",
       "cost": 499,
-      "currency": "INR",
+      "currency": "USD",
       "lastUsed": "3 days ago",
       "status": "active",
       "flag": null,
@@ -158,11 +158,11 @@ curl -X GET http://localhost:3000/subscriptions
       "id": "sub-tunewave",
       "name": "TuneWave",
       "cost": 149,
-      "currency": "INR",
+      "currency": "USD",
       "lastUsed": "52 days ago",
       "status": "active",
       "flag": "overlap",
-      "suggestion": "Overlaps with TuneBox. Cancel to save ₹1,788/yr",
+      "suggestion": "Overlaps with TuneBox. Cancel to save $144/yr",
       "paypalSubscriptionId": "I-TWAV3003003"
     }
   ]
@@ -178,7 +178,7 @@ curl -X POST http://localhost:3000/subscriptions \
   -d '{
     "name": "Duolingo Plus",
     "cost": 399,
-    "currency": "INR",
+    "currency": "USD",
     "lastUsed": "12 days ago",
     "flag": "unused",
     "suggestion": "Practice streak stopped"
@@ -192,7 +192,7 @@ curl -X POST http://localhost:3000/subscriptions \
     "id": "sub_1794336199255_e30r",
     "name": "Duolingo Plus",
     "cost": 399,
-    "currency": "INR",
+    "currency": "USD",
     "lastUsed": "12 days ago",
     "status": "active",
     "flag": "unused",
@@ -218,11 +218,11 @@ curl -X POST http://localhost:3000/subscriptions/sub-tunewave/pause \
     "id": "sub-tunewave",
     "name": "TuneWave",
     "cost": 149,
-    "currency": "INR",
+    "currency": "USD",
     "lastUsed": "52 days ago",
     "status": "paused",
     "flag": "overlap",
-    "suggestion": "Overlaps with TuneBox. Cancel to save ₹1,788/yr",
+    "suggestion": "Overlaps with TuneBox. Cancel to save $144/yr",
     "paypalSubscriptionId": "I-TWAV3003003"
   }
 }
@@ -244,11 +244,11 @@ curl -X POST http://localhost:3000/subscriptions/sub-tunewave/cancel \
     "id": "sub-tunewave",
     "name": "TuneWave",
     "cost": 149,
-    "currency": "INR",
+    "currency": "USD",
     "lastUsed": "52 days ago",
     "status": "cancelled",
     "flag": "overlap",
-    "suggestion": "Overlaps with TuneBox. Cancel to save ₹1,788/yr",
+    "suggestion": "Overlaps with TuneBox. Cancel to save $144/yr",
     "paypalSubscriptionId": "I-TWAV3003003"
   }
 }
@@ -270,11 +270,11 @@ curl -X POST http://localhost:3000/subscriptions/sub-tunewave/undo \
     "id": "sub-tunewave",
     "name": "TuneWave",
     "cost": 149,
-    "currency": "INR",
+    "currency": "USD",
     "lastUsed": "52 days ago",
     "status": "active",
     "flag": "overlap",
-    "suggestion": "Overlaps with TuneBox. Cancel to save ₹1,788/yr",
+    "suggestion": "Overlaps with TuneBox. Cancel to save $144/yr",
     "paypalSubscriptionId": "I-TWAV3003003"
   }
 }
@@ -297,7 +297,7 @@ curl -X POST http://localhost:3000/analyze \
       "id": "sub_streamly",
       "name": "Streamly",
       "cost": 499,
-      "currency": "INR",
+      "currency": "USD",
       "lastUsed": "3 days ago",
       "status": "active",
       "flag": null,

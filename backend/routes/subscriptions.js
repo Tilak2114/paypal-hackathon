@@ -61,7 +61,7 @@ router.post('/', (req, res) => {
       id,
       name: name.trim(),
       cost: numericCost,
-      currency: currency || 'INR',
+      currency: currency || 'USD',
       lastUsed: lastUsed || 'Recent',
       status: status || 'active',
       flag: flag || null,

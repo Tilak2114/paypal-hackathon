@@ -11,7 +11,7 @@ function BanknoteMini({ x, y, width = 38, height = 15, rotation = 0, delay = 0 }
         <rect x="0" y="0" width={width} height={height} rx="1.5" fill="url(#popupBillGrad)" stroke="#047857" strokeWidth="0.6" />
         <rect x="1.5" y="1.5" width={width - 3} height={height - 3} rx="1" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" strokeDasharray="2 1" />
         <ellipse cx={width / 2} cy={height / 2} rx="5" ry="4" fill="#047857" fillOpacity="0.4" />
-        <text x={width / 2} y={height / 2 + 1.8} textAnchor="middle" fontSize="4.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">₹</text>
+        <text x={width / 2} y={height / 2 + 1.8} textAnchor="middle" fontSize="4.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
       </g>
     </g>
   );
@@ -25,7 +25,7 @@ function CoinMini({ cx, cy, r = 5.5, rotation = 0, delay = 0 }) {
         <circle cx="0.4" cy="0.6" r={r} fill="rgba(0,0,0,0.4)" />
         <circle cx="0" cy="0" r={r} fill="url(#popupCoinGrad)" stroke="#b45309" strokeWidth="0.6" />
         <circle cx="0" cy="0" r={r - 1} fill="none" stroke="#fef08a" strokeWidth="0.4" />
-        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">₹</text>
+        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">$</text>
       </g>
     </g>
   );

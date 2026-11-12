@@ -74,7 +74,7 @@ db.exec(`
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     cost REAL NOT NULL,
-    currency TEXT NOT NULL DEFAULT 'INR',
+    currency TEXT NOT NULL DEFAULT 'USD',
     lastUsed TEXT,
     status TEXT NOT NULL DEFAULT 'active',
     flag TEXT,
@@ -97,7 +97,7 @@ function toContractShape(row) {
     id: String(row.id),
     name: String(row.name),
     cost: Number(row.cost),
-    currency: String(row.currency || 'INR'),
+    currency: String(row.currency || 'USD'),
     lastUsed: row.lastUsed ? String(row.lastUsed) : null,
     status: row.status, // "active" | "paused" | "cancelled"
     flag: row.flag || null, // null | "overlap" | "unused" | "trial_ending" | "price_increase"
@@ -131,7 +131,7 @@ const dbHelpers = {
     const id = sub.id || `sub_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     const name = String(sub.name || '').trim();
     const cost = Number(sub.cost) || 0;
-    const currency = String(sub.currency || 'INR');
+    const currency = String(sub.currency || 'USD');
     const lastUsed = sub.lastUsed || 'Recent';
     const status = ['active', 'paused', 'cancelled'].includes(sub.status) ? sub.status : 'active';
     const flag = sub.flag || null;

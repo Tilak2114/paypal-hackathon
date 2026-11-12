@@ -7,8 +7,8 @@ const SAMPLE_DATA = [
   {
     id: 'sub-streamly',
     name: 'Streamly',
-    cost: 499,
-    currency: 'INR',
+    cost: 14.99,
+    currency: 'USD',
     lastUsed: '3 days ago',
     status: 'active',
     flag: null,
@@ -18,8 +18,8 @@ const SAMPLE_DATA = [
   {
     id: 'sub-tunebox',
     name: 'TuneBox',
-    cost: 119,
-    currency: 'INR',
+    cost: 9.99,
+    currency: 'USD',
     lastUsed: '5 days ago',
     status: 'active',
     flag: null,
@@ -29,30 +29,30 @@ const SAMPLE_DATA = [
   {
     id: 'sub-tunewave',
     name: 'TuneWave',
-    cost: 149,
-    currency: 'INR',
+    cost: 11.99,
+    currency: 'USD',
     lastUsed: '52 days ago',
     status: 'active',
     flag: 'overlap',
-    suggestion: 'Overlaps with TuneBox. Cancel to save ₹1,788/yr',
+    suggestion: 'Overlaps with TuneBox. Cancel to save $144/yr',
     defaultPaypalId: 'I-TWAV3003003',
   },
   {
     id: 'sub-fitclub',
     name: 'FitClub',
-    cost: 1499,
-    currency: 'INR',
+    cost: 29.99,
+    currency: 'USD',
     lastUsed: '45 days ago',
     status: 'active',
     flag: 'unused',
-    suggestion: 'No gym check-ins in 45 days. Pause to save ₹17,988/yr',
+    suggestion: 'No gym check-ins in 45 days. Pause to save $360/yr',
     defaultPaypalId: 'I-FCLB4004004',
   },
   {
     id: 'sub-pixelpro',
     name: 'PixelPro',
-    cost: 799,
-    currency: 'INR',
+    cost: 19.99,
+    currency: 'USD',
     lastUsed: '14 days ago',
     status: 'active',
     flag: 'trial_ending',
@@ -62,8 +62,8 @@ const SAMPLE_DATA = [
   {
     id: 'sub-clouddrive',
     name: 'CloudDrive',
-    cost: 219,
-    currency: 'INR',
+    cost: 4.99,
+    currency: 'USD',
     lastUsed: '2 days ago',
     status: 'active',
     flag: null,
@@ -97,7 +97,7 @@ async function seed() {
         const plan = await paypal.createPlan({
           productId: prod.id,
           name: `${item.name} Monthly`,
-          cost: (item.cost / 80).toFixed(2), // convert INR to approximate USD for sandbox
+          cost: Number(item.cost).toFixed(2),
           currency: 'USD',
         });
         paypalSubscriptionId = `I-${plan.id.replace('P-', '')}`;
@@ -119,7 +119,7 @@ async function seed() {
       paypalSubscriptionId,
     });
 
-    console.log(`+ Seeded: ${inserted.name} (Cost: ₹${inserted.cost}, Status: ${inserted.status}, Flag: ${inserted.flag || 'none'}, PayPal: ${inserted.paypalSubscriptionId})`);
+    console.log(`+ Seeded: ${inserted.name} (Cost: $${inserted.cost}, Status: ${inserted.status}, Flag: ${inserted.flag || 'none'}, PayPal: ${inserted.paypalSubscriptionId})`);
   }
 
   console.log('----------------------------------------------------');

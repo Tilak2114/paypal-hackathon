@@ -4,12 +4,12 @@ import { getSubscriptions } from '../api/client';
 import { playChaChingSound } from '../utils/audio';
 
 const PRESETS = [
-  { name: 'Weekend trip',   amount: 5000,  emoji: '🏖️' },
-  { name: 'New phone',      amount: 20000, emoji: '📱' },
-  { name: 'Emergency fund', amount: 10000, emoji: '🏦' },
+  { name: 'Weekend trip',   amount: 250,  emoji: '🏖️' },
+  { name: 'New phone',      amount: 800,  emoji: '📱' },
+  { name: 'Emergency fund', amount: 1500, emoji: '🏦' },
 ];
 
-function fmt(n) { return Math.round(n).toLocaleString('en-IN'); }
+function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
 function reducedMotion() { return window.matchMedia('(prefers-reduced-motion:reduce)').matches; }
 
 // Confetti when goal is achieved
@@ -70,9 +70,9 @@ function Banknote({ x, y, width = 58, height = 23, rotation = 0, delay = 0 }) {
         <rect x="2" y="2" width={width - 4} height={height - 4} rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.6" strokeDasharray="3 1" />
         {/* Center medallion */}
         <ellipse cx={width / 2} cy={height / 2} rx="8" ry="6" fill="#047857" fillOpacity="0.45" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
-        <text x={width / 2} y={height / 2 + 2.5} textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">₹</text>
-        <text x="4" y="6.5" fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">₹</text>
-        <text x={width - 6} y={height - 2.5} fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">₹</text>
+        <text x={width / 2} y={height / 2 + 2.5} textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
+        <text x="4" y="6.5" fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
+        <text x={width - 6} y={height - 2.5} fontSize="4.5" fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="sans-serif">$</text>
       </g>
     </g>
   );
@@ -86,7 +86,7 @@ function Coin({ cx, cy, r = 7.5, rotation = 0, delay = 0 }) {
         <circle cx="0.5" cy="1" r={r} fill="rgba(0,0,0,0.4)" />
         <circle cx="0" cy="0" r={r} fill="url(#jarCoinGrad)" stroke="#b45309" strokeWidth="0.8" />
         <circle cx="0" cy="0" r={r - 1.5} fill="none" stroke="#fef08a" strokeWidth="0.5" strokeDasharray="2 1" />
-        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">₹</text>
+        <text x="0" y={r * 0.35} textAnchor="middle" fontSize={r * 0.95} fontWeight="900" fill="#78350f" fontFamily="sans-serif">$</text>
       </g>
     </g>
   );
@@ -150,7 +150,7 @@ export default function SavingsJar() {
         if (parsed.amount) return parsed.amount;
       }
     } catch {}
-    return 5000;
+    return 250;
   });
 
   const [goalName, setGoalName]     = useState(() => {
@@ -217,14 +217,14 @@ export default function SavingsJar() {
           .reduce((sum, s) => sum + (s.cost || 0) * 12, 0);
 
         const storedSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
-        const total = Math.max(cancelledTotal, storedSaved, 1800);
+        const total = Math.max(cancelledTotal, storedSaved, 120);
 
         setSaved(total);
         countUp(0, total);
       } catch (err) {
         console.warn('Savings load error, fallback to default:', err);
-        setSaved(2400);
-        countUp(0, 2400);
+        setSaved(120);
+        countUp(0, 120);
       }
     }
     initSavings();
@@ -349,7 +349,7 @@ export default function SavingsJar() {
             style={{ fontSize: 54, color: '#00d2ff', textShadow: '0 0 45px rgba(0, 210, 255, 0.45)' }}
             aria-live="polite"
           >
-            ₹{fmt(displaySaved)}
+            ${fmt(displaySaved)}
           </div>
         </div>
 
@@ -512,7 +512,7 @@ export default function SavingsJar() {
                   Target reached for <strong>{goalName}</strong>!
                   {extraSaved > 0 && (
                     <span className="text-[#00d2ff] ml-1 font-bold">
-                      (+₹{fmt(extraSaved)} extra saved)
+                      (+$${fmt(extraSaved)} extra saved)
                     </span>
                   )}
                 </div>
@@ -558,17 +558,24 @@ export default function SavingsJar() {
           <div className="flex items-center justify-center gap-2 pt-1">
             <button
               type="button"
-              onClick={() => addSavings(500)}
+              onClick={() => addSavings(25)}
               className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
             >
-              <span>+</span> ₹500
+              <span>+</span> $25
             </button>
             <button
               type="button"
-              onClick={() => addSavings(1000)}
+              onClick={() => addSavings(50)}
               className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
             >
-              <span>+</span> ₹1,000
+              <span>+</span> $50
+            </button>
+            <button
+              type="button"
+              onClick={() => addSavings(100)}
+              className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>+</span> $100
             </button>
             <button
               type="button"
@@ -612,7 +619,7 @@ export default function SavingsJar() {
                 }
               >
                 <span>{p.emoji}</span>
-                <span>{p.name} (₹{fmt(p.amount)})</span>
+                <span>{p.name} (${fmt(p.amount)})</span>
               </button>
             ))}
 
@@ -637,7 +644,7 @@ export default function SavingsJar() {
                 }
               >
                 <span>🎯</span>
-                <span>{customGoal.name} (₹{fmt(customGoal.amount)})</span>
+                <span>{customGoal.name} (${fmt(customGoal.amount)})</span>
               </button>
             )}
           </div>
@@ -654,7 +661,7 @@ export default function SavingsJar() {
             />
             <input
               type="number"
-              placeholder="Amount ₹"
+              placeholder="Amount $"
               value={customAmt}
               onChange={(e) => setCustomAmt(e.target.value)}
               className="w-28 px-3.5 py-2.5 rounded-xl text-xs bg-[#0b162e] border border-[#00d2ff]/25 text-white placeholder-[#8295b5] focus:outline-none focus:border-[#00d2ff]"
