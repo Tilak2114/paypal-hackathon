@@ -323,13 +323,13 @@ export default function SavingsJar() {
           <div
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
             style={{
-              background: 'rgba(0, 210, 255, 0.1)',
-              color: '#00d2ff',
-              border: '1px solid rgba(0, 210, 255, 0.35)',
+              background: isFull ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0, 210, 255, 0.1)',
+              color: isFull ? '#10b981' : '#00d2ff',
+              border: `1px solid ${isFull ? 'rgba(16, 185, 129, 0.45)' : 'rgba(0, 210, 255, 0.35)'}`,
             }}
           >
-            <span>💰</span>
-            <span>Sentinel Cash &amp; Savings Vault</span>
+            <span>{isFull ? '🏆' : '💰'}</span>
+            <span>{isFull ? 'Vault Level: 100% • Target Completed!' : 'Sentinel Cash & Savings Vault'}</span>
           </div>
           <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight">
             Subscription Savings Jar
@@ -471,7 +471,7 @@ export default function SavingsJar() {
               height="15"
               rx="7"
               fill="rgba(11, 22, 46, 0.85)"
-              stroke="#00d2ff"
+              stroke={isFull ? '#10b981' : '#00d2ff'}
               strokeWidth="2.5"
             />
             <text
@@ -480,11 +480,11 @@ export default function SavingsJar() {
               textAnchor="middle"
               fontSize="7"
               fontWeight="900"
-              fill="#00d2ff"
+              fill={isFull ? '#10b981' : '#00d2ff'}
               letterSpacing="1.5"
               fontFamily="sans-serif"
             >
-              SENTINEL VAULT
+              {isFull ? 'VAULT LEVEL 100%' : 'SENTINEL VAULT'}
             </text>
           </svg>
         </div>
@@ -503,9 +503,9 @@ export default function SavingsJar() {
               <span className="text-3xl">🏆</span>
               <div>
                 <div className="text-xs font-black uppercase tracking-wider text-[#00d2ff] flex items-center gap-1.5">
-                  <span>Vault 100% Full</span>
+                  <span className="text-[#10b981]">Vault Level: 100%</span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#10b981]/25 text-[#10b981] font-bold">
-                    Goal Achieved!
+                    Goal Reached!
                   </span>
                 </div>
                 <div className="text-xs text-white/90 font-medium mt-0.5">
@@ -531,7 +531,7 @@ export default function SavingsJar() {
               Target: <strong className="text-white">{goalName}</strong>
             </span>
             <span style={{ color: isFull ? '#10b981' : '#00d2ff' }} className="font-bold">
-              {isFull ? '100% FULL 🎉' : `${pctProgress}% reached`} ({visibleItems.length}/{PILE_ITEMS.length} items)
+              {isFull ? 'Vault Level: 100% (Goal Reached! 🎉)' : `Vault Level: ${pctProgress}%`} ({visibleItems.length}/{PILE_ITEMS.length} items)
             </span>
           </div>
 
