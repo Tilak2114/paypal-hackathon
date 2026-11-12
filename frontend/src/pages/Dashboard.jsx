@@ -86,16 +86,24 @@ export default function Dashboard({ onNavigate, onBack }) {
         );
         const yearly = (sub.cost || 0) * 12;
 
+        const savedGoalData = (() => {
+          try {
+            const raw = localStorage.getItem('churnguard_selected_goal');
+            return raw ? JSON.parse(raw) : null;
+          } catch { return null; }
+        })();
+        const targetGoal = (savedGoalData && savedGoalData.amount) ? savedGoalData.amount : 250;
+
         const prevSaved = parseFloat(localStorage.getItem('churnguard_saved') || '0');
         const newSaved = prevSaved + yearly;
         localStorage.setItem('churnguard_saved', newSaved.toString());
 
-        const prevFill = Math.min(prevSaved / 600, 0.75);
-        const nextFill = Math.min(Math.max(newSaved / 600, prevFill + 0.35), 0.95);
+        const prevFill = Math.min(prevSaved / targetGoal, 1);
+        const nextFill = Math.min(newSaved / targetGoal, 1);
 
         setJarPopup({
           open: true,
-          fromFill: Math.max(0.18, prevFill),
+          fromFill: prevFill,
           toFill: nextFill,
           savedAmount: yearly,
         });

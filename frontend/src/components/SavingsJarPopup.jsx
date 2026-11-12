@@ -50,44 +50,51 @@ function Sparkle({ delay, left, top, size = 3 }) {
   );
 }
 
-// Whole items placed inside the jar (Calibrated safely above the jar bottom)
+// Whole items placed inside the jar (Dense, tightly interlocking money stack with no large empty gaps)
 const POPUP_ITEMS = [
-  // Tier 1: Base (0% - 20%)
-  { id: 'pb1', type: 'note', x: 20, y: 132, w: 36, h: 14, rot: -5, threshold: 0.05 },
-  { id: 'pb2', type: 'note', x: 62, y: 130, w: 38, h: 14, rot: 7, threshold: 0.08 },
-  { id: 'pc1', type: 'coin', cx: 30, cy: 140, r: 5, threshold: 0.12 },
-  { id: 'pb3', type: 'note', x: 40, y: 134, w: 40, h: 14, rot: 1, threshold: 0.16 },
-  { id: 'pc2', type: 'coin', cx: 58, cy: 142, r: 5, threshold: 0.18 },
-  { id: 'pc3', type: 'coin', cx: 80, cy: 138, r: 5, threshold: 0.20 },
+  // ── Tier 1: Base Floor (0% - 18%) ──
+  { id: 'pb1', type: 'note', x: 16, y: 136, w: 38, h: 14, rot: -6, threshold: 0.03 },
+  { id: 'pc1', type: 'coin', cx: 58, cy: 144, r: 5, threshold: 0.06 },
+  { id: 'pb2', type: 'note', x: 56, y: 134, w: 40, h: 14, rot: 7, threshold: 0.09 },
+  { id: 'pc2', type: 'coin', cx: 30, cy: 144, r: 4.8, threshold: 0.12 },
+  { id: 'pb3', type: 'note', x: 34, y: 138, w: 44, h: 14, rot: 1, threshold: 0.15 },
+  { id: 'pc3', type: 'coin', cx: 82, cy: 142, r: 5, threshold: 0.18 },
 
-  // Tier 2: Lower-mid (20% - 40%)
-  { id: 'pb4', type: 'note', x: 16, y: 114, w: 38, h: 14, rot: 12, threshold: 0.25 },
-  { id: 'pc4', type: 'coin', cx: 34, cy: 120, r: 5, threshold: 0.28 },
-  { id: 'pb5', type: 'note', x: 66, y: 112, w: 38, h: 14, rot: -10, threshold: 0.32 },
-  { id: 'pb6', type: 'note', x: 38, y: 118, w: 42, h: 14, rot: -2, threshold: 0.36 },
-  { id: 'pc5', type: 'coin', cx: 72, cy: 122, r: 5, threshold: 0.38 },
-  { id: 'pc6', type: 'coin', cx: 90, cy: 116, r: 4.8, threshold: 0.40 },
+  // ── Tier 2: Lower Layer (18% - 38%) ──
+  { id: 'pb4', type: 'note', x: 14, y: 120, w: 42, h: 14, rot: 11, threshold: 0.21 },
+  { id: 'pc4', type: 'coin', cx: 48, cy: 126, r: 4.8, threshold: 0.24 },
+  { id: 'pb5', type: 'note', x: 62, y: 118, w: 40, h: 14, rot: -10, threshold: 0.27 },
+  { id: 'pb6', type: 'note', x: 32, y: 124, w: 46, h: 14, rot: -2, threshold: 0.31 },
+  { id: 'pc5', type: 'coin', cx: 22, cy: 122, r: 5, threshold: 0.34 },
+  { id: 'pc6', type: 'coin', cx: 78, cy: 124, r: 5, threshold: 0.37 },
+  { id: 'pc7', type: 'coin', cx: 92, cy: 118, r: 4.8, threshold: 0.40 },
 
-  // Tier 3: Mid (40% - 65%)
-  { id: 'pb7', type: 'note', x: 18, y: 92, w: 40, h: 14, rot: -8, threshold: 0.45 },
-  { id: 'pc7', type: 'coin', cx: 44, cy: 88, r: 5, threshold: 0.48 },
-  { id: 'pb8', type: 'note', x: 60, y: 94, w: 38, h: 14, rot: 9, threshold: 0.52 },
-  { id: 'pb9', type: 'note', x: 36, y: 98, w: 42, h: 14, rot: 3, threshold: 0.56 },
-  { id: 'pc8', type: 'coin', cx: 84, cy: 94, r: 5, threshold: 0.60 },
-  { id: 'pc9', type: 'coin', cx: 28, cy: 100, r: 4.8, threshold: 0.64 },
+  // ── Tier 3: Mid Layer (38% - 60%) ──
+  { id: 'pb7', type: 'note', x: 14, y: 102, w: 42, h: 14, rot: -8, threshold: 0.43 },
+  { id: 'pc8', type: 'coin', cx: 56, cy: 108, r: 5, threshold: 0.46 },
+  { id: 'pb8', type: 'note', x: 58, y: 100, w: 42, h: 14, rot: 9, threshold: 0.49 },
+  { id: 'pb9', type: 'note', x: 30, y: 108, w: 48, h: 14, rot: 3, threshold: 0.52 },
+  { id: 'pc9', type: 'coin', cx: 34, cy: 102, r: 4.8, threshold: 0.55 },
+  { id: 'pc10', type: 'coin', cx: 80, cy: 104, r: 5, threshold: 0.58 },
+  { id: 'pb10', type: 'note', x: 44, y: 96, w: 44, h: 14, rot: -4, threshold: 0.61 },
 
-  // Tier 4: Top (65% - 85%)
-  { id: 'pb10', type: 'note', x: 16, y: 70, w: 40, h: 14, rot: 13, threshold: 0.68 },
-  { id: 'pc10', type: 'coin', cx: 34, cy: 68, r: 5, threshold: 0.72 },
-  { id: 'pb11', type: 'note', x: 62, y: 68, w: 40, h: 14, rot: -9, threshold: 0.76 },
-  { id: 'pb12', type: 'note', x: 38, y: 74, w: 42, h: 14, rot: -2, threshold: 0.80 },
-  { id: 'pc11', type: 'coin', cx: 74, cy: 72, r: 5, threshold: 0.83 },
+  // ── Tier 4: Upper-mid Layer (60% - 80%) ──
+  { id: 'pb11', type: 'note', x: 14, y: 82, w: 42, h: 14, rot: 10, threshold: 0.64 },
+  { id: 'pc11', type: 'coin', cx: 50, cy: 88, r: 5, threshold: 0.67 },
+  { id: 'pb12', type: 'note', x: 60, y: 80, w: 40, h: 14, rot: -8, threshold: 0.70 },
+  { id: 'pb13', type: 'note', x: 32, y: 88, w: 46, h: 14, rot: -1, threshold: 0.73 },
+  { id: 'pc12', type: 'coin', cx: 24, cy: 84, r: 4.8, threshold: 0.76 },
+  { id: 'pc13', type: 'coin', cx: 78, cy: 84, r: 5, threshold: 0.79 },
+  { id: 'pb14', type: 'note', x: 44, y: 76, w: 42, h: 14, rot: 5, threshold: 0.82 },
 
-  // Tier 5: Brim (85% - 100%)
-  { id: 'pb13', type: 'note', x: 24, y: 46, w: 36, h: 14, rot: -10, threshold: 0.88 },
-  { id: 'pb14', type: 'note', x: 58, y: 48, w: 36, h: 14, rot: 7, threshold: 0.92 },
-  { id: 'pc12', type: 'coin', cx: 30, cy: 44, r: 4.8, threshold: 0.95 },
-  { id: 'pc13', type: 'coin', cx: 76, cy: 48, r: 4.8, threshold: 0.98 },
+  // ── Tier 5: Top / Brim Layer (80% - 100%) ──
+  { id: 'pb15', type: 'note', x: 18, y: 62, w: 40, h: 14, rot: -9, threshold: 0.85 },
+  { id: 'pc14', type: 'coin', cx: 54, cy: 68, r: 5, threshold: 0.88 },
+  { id: 'pb16', type: 'note', x: 56, y: 60, w: 40, h: 14, rot: 7, threshold: 0.91 },
+  { id: 'pb17', type: 'note', x: 32, y: 66, w: 44, h: 14, rot: 2, threshold: 0.94 },
+  { id: 'pc15', type: 'coin', cx: 30, cy: 58, r: 4.8, threshold: 0.96 },
+  { id: 'pc16', type: 'coin', cx: 76, cy: 62, r: 5, threshold: 0.98 },
+  { id: 'pb18', type: 'note', x: 36, y: 50, w: 42, h: 13, rot: -3, threshold: 1.00 },
 ];
 
 export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFill = 0.65, savedAmount }) {
@@ -171,7 +178,8 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
 
   if (!isOpen && !visible) return null;
 
-  const fillPercent = Math.round(currentFill * 100);
+  const fillPercent = Math.min(Math.round(currentFill * 100), 100);
+  const isVaultFull = currentFill >= 0.99 || fillPercent >= 100;
 
   // Visible items strictly based on current fill ratio
   const visibleItems = POPUP_ITEMS.filter((item) => currentFill >= item.threshold);
@@ -349,8 +357,8 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[9px] text-white/50 font-medium">Vault level</span>
-                <span className="text-[9px] font-bold text-[#00d2ff]">
-                  {fillPercent}%
+                <span className={`text-[9px] font-bold ${isVaultFull ? 'text-[#10b981]' : 'text-[#00d2ff]'}`}>
+                  {isVaultFull ? '100% (Goal Reached! 🏆)' : `${fillPercent}%`}
                 </span>
               </div>
               <div className="w-full h-1.5 rounded-full overflow-hidden bg-[#00d2ff]/10">
@@ -358,8 +366,12 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
                   className="h-full rounded-full transition-all duration-1000 ease-out"
                   style={{
                     width: `${fillPercent}%`,
-                    background: 'linear-gradient(90deg, #10b981, #00d2ff)',
-                    boxShadow: '0 0 8px rgba(0, 210, 255, 0.5)',
+                    background: isVaultFull
+                      ? 'linear-gradient(90deg, #10b981, #00d2ff)'
+                      : 'linear-gradient(90deg, #10b981, #00d2ff)',
+                    boxShadow: isVaultFull
+                      ? '0 0 10px rgba(16, 185, 129, 0.6)'
+                      : '0 0 8px rgba(0, 210, 255, 0.5)',
                   }}
                 />
               </div>
@@ -367,11 +379,13 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
 
             {/* Motivational message */}
             <p
-              className={`text-[10px] text-white/60 italic transition-all duration-700 delay-500 ${
+              className={`text-[10px] ${
+                isVaultFull ? 'text-[#10b981] font-semibold' : 'text-white/60'
+              } italic transition-all duration-700 delay-500 ${
                 showText ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              Smart move! 🎉
+              {isVaultFull ? 'Goal achieved! Vault 100% full! 🎉' : 'Smart move! 🎉'}
             </p>
           </div>
         </div>

@@ -93,48 +93,59 @@ function Coin({ cx, cy, r = 7.5, rotation = 0, delay = 0 }) {
 }
 
 // Fixed positions of whole banknotes and coins sitting naturally in the jar
-// Calibrated with comfortable bottom margin so no money touches the base or falls out
+// Densely packed and overlapping so that when full, there are no big empty gaps
 const PILE_ITEMS = [
-  // ── Tier 1: Base (0% - 15%) ──
-  { id: 'b1', type: 'note', x: 34, y: 224, w: 54, h: 21, rot: -5, threshold: 0.03 },
-  { id: 'c1', type: 'coin', cx: 100, cy: 236, r: 7.5, threshold: 0.06 },
-  { id: 'b2', type: 'note', x: 104, y: 222, w: 56, h: 21, rot: 6, threshold: 0.09 },
-  { id: 'c2', type: 'coin', cx: 58, cy: 238, r: 8, threshold: 0.12 },
-  { id: 'b3', type: 'note', x: 62, y: 225, w: 64, h: 21, rot: 1, threshold: 0.15 },
+  // ── Tier 1: Base Floor (0% - 16%) ──
+  { id: 'b1', type: 'note', x: 26, y: 226, w: 56, h: 21, rot: -6, threshold: 0.02 },
+  { id: 'c1', type: 'coin', cx: 96, cy: 236, r: 7.5, threshold: 0.04 },
+  { id: 'b2', type: 'note', x: 104, y: 224, w: 58, h: 21, rot: 7, threshold: 0.07 },
+  { id: 'c2', type: 'coin', cx: 52, cy: 236, r: 8, threshold: 0.09 },
+  { id: 'b3', type: 'note', x: 58, y: 227, w: 66, h: 21, rot: 1, threshold: 0.12 },
+  { id: 'c3', type: 'coin', cx: 136, cy: 232, r: 7.5, threshold: 0.14 },
+  { id: 'b3b', type: 'note', x: 42, y: 220, w: 60, h: 21, rot: -3, threshold: 0.16 },
 
-  // ── Tier 2: Lower-mid (15% - 32%) ──
-  { id: 'c3', type: 'coin', cx: 138, cy: 230, r: 7.5, threshold: 0.18 },
-  { id: 'b4', type: 'note', x: 28, y: 202, w: 56, h: 21, rot: 10, threshold: 0.22 },
-  { id: 'c4', type: 'coin', cx: 78, cy: 212, r: 8, threshold: 0.25 },
-  { id: 'b5', type: 'note', x: 106, y: 200, w: 58, h: 21, rot: -9, threshold: 0.28 },
-  { id: 'c5', type: 'coin', cx: 124, cy: 208, r: 7.5, threshold: 0.32 },
+  // ── Tier 2: Lower-mid (16% - 35%) ──
+  { id: 'b4', type: 'note', x: 24, y: 204, w: 58, h: 21, rot: 11, threshold: 0.19 },
+  { id: 'c4', type: 'coin', cx: 80, cy: 212, r: 8, threshold: 0.22 },
+  { id: 'b5', type: 'note', x: 102, y: 202, w: 60, h: 21, rot: -9, threshold: 0.25 },
+  { id: 'b6', type: 'note', x: 54, y: 206, w: 68, h: 21, rot: -1, threshold: 0.28 },
+  { id: 'c5', type: 'coin', cx: 126, cy: 210, r: 7.5, threshold: 0.30 },
+  { id: 'c6', type: 'coin', cx: 38, cy: 208, r: 8, threshold: 0.33 },
+  { id: 'b6b', type: 'note', x: 74, y: 198, w: 60, h: 21, rot: 5, threshold: 0.35 },
 
-  // ── Tier 3: Mid (32% - 50%) ──
-  { id: 'b6', type: 'note', x: 56, y: 198, w: 66, h: 22, rot: -2, threshold: 0.36 },
-  { id: 'c6', type: 'coin', cx: 40, cy: 188, r: 7.5, threshold: 0.39 },
-  { id: 'b7', type: 'note', x: 28, y: 174, w: 60, h: 22, rot: -7, threshold: 0.43 },
-  { id: 'b8', type: 'note', x: 102, y: 176, w: 60, h: 22, rot: 8, threshold: 0.46 },
-  { id: 'c7', type: 'coin', cx: 88, cy: 180, r: 8, threshold: 0.50 },
+  // ── Tier 3: Mid (35% - 55%) ──
+  { id: 'b7', type: 'note', x: 24, y: 178, w: 62, h: 21, rot: -8, threshold: 0.38 },
+  { id: 'c7', type: 'coin', cx: 92, cy: 184, r: 8, threshold: 0.41 },
+  { id: 'b8', type: 'note', x: 98, y: 180, w: 62, h: 21, rot: 9, threshold: 0.44 },
+  { id: 'b9', type: 'note', x: 50, y: 184, w: 70, h: 21, rot: 2, threshold: 0.47 },
+  { id: 'c8', type: 'coin', cx: 142, cy: 186, r: 7.5, threshold: 0.50 },
+  { id: 'c9', type: 'coin', cx: 44, cy: 182, r: 8, threshold: 0.52 },
+  { id: 'b9b', type: 'note', x: 70, y: 174, w: 62, h: 21, rot: -4, threshold: 0.55 },
 
-  // ── Tier 4: Upper-mid (50% - 70%) ──
-  { id: 'b9', type: 'note', x: 52, y: 166, w: 68, h: 22, rot: 3, threshold: 0.54 },
-  { id: 'c8', type: 'coin', cx: 144, cy: 172, r: 7.5, threshold: 0.58 },
-  { id: 'c9', type: 'coin', cx: 56, cy: 152, r: 8, threshold: 0.62 },
-  { id: 'b10', type: 'note', x: 26, y: 140, w: 62, h: 22, rot: 9, threshold: 0.66 },
-  { id: 'b11', type: 'note', x: 104, y: 142, w: 62, h: 22, rot: -8, threshold: 0.70 },
+  // ── Tier 4: Upper-mid (55% - 75%) ──
+  { id: 'b10', type: 'note', x: 22, y: 150, w: 64, h: 21, rot: 10, threshold: 0.58 },
+  { id: 'c10', type: 'coin', cx: 88, cy: 156, r: 8, threshold: 0.61 },
+  { id: 'b11', type: 'note', x: 100, y: 152, w: 64, h: 21, rot: -8, threshold: 0.64 },
+  { id: 'b12', type: 'note', x: 52, y: 156, w: 70, h: 21, rot: -2, threshold: 0.67 },
+  { id: 'c11', type: 'coin', cx: 138, cy: 154, r: 7.5, threshold: 0.70 },
+  { id: 'c12', type: 'coin', cx: 42, cy: 152, r: 8, threshold: 0.72 },
+  { id: 'b12b', type: 'note', x: 68, y: 144, w: 62, h: 21, rot: 4, threshold: 0.75 },
 
-  // ── Tier 5: High (70% - 86%) ──
-  { id: 'c10', type: 'coin', cx: 128, cy: 148, r: 7.5, threshold: 0.74 },
-  { id: 'b12', type: 'note', x: 54, y: 134, w: 68, h: 22, rot: -3, threshold: 0.78 },
-  { id: 'c11', type: 'coin', cx: 46, cy: 124, r: 8, threshold: 0.82 },
-  { id: 'b13', type: 'note', x: 30, y: 110, w: 60, h: 21, rot: -8, threshold: 0.86 },
+  // ── Tier 5: High (75% - 90%) ──
+  { id: 'b13', type: 'note', x: 26, y: 120, w: 62, h: 21, rot: -9, threshold: 0.78 },
+  { id: 'c13', type: 'coin', cx: 84, cy: 126, r: 8, threshold: 0.80 },
+  { id: 'b14', type: 'note', x: 96, y: 122, w: 62, h: 21, rot: 8, threshold: 0.83 },
+  { id: 'b15', type: 'note', x: 52, y: 126, w: 68, h: 21, rot: 3, threshold: 0.85 },
+  { id: 'c14', type: 'coin', cx: 130, cy: 124, r: 7.5, threshold: 0.87 },
+  { id: 'c15', type: 'coin', cx: 46, cy: 122, r: 8, threshold: 0.89 },
+  { id: 'b15b', type: 'note', x: 66, y: 114, w: 60, h: 21, rot: -3, threshold: 0.91 },
 
-  // ── Tier 6: Brim (86% - 100%) ──
-  { id: 'b14', type: 'note', x: 96, y: 112, w: 60, h: 21, rot: 7, threshold: 0.90 },
-  { id: 'c12', type: 'coin', cx: 116, cy: 116, r: 7.5, threshold: 0.93 },
-  { id: 'b15', type: 'note', x: 54, y: 102, w: 66, h: 21, rot: 2, threshold: 0.96 },
-  { id: 'c13', type: 'coin', cx: 72, cy: 88, r: 8, threshold: 0.98 },
-  { id: 'b16', type: 'note', x: 50, y: 78, w: 62, h: 21, rot: -4, threshold: 1.00 },
+  // ── Tier 6: Brim (90% - 100%) ──
+  { id: 'b16', type: 'note', x: 34, y: 92, w: 60, h: 21, rot: 8, threshold: 0.93 },
+  { id: 'c16', type: 'coin', cx: 98, cy: 96, r: 8, threshold: 0.95 },
+  { id: 'b17', type: 'note', x: 88, y: 92, w: 62, h: 21, rot: -7, threshold: 0.97 },
+  { id: 'c17', type: 'coin', cx: 62, cy: 92, r: 8, threshold: 0.98 },
+  { id: 'b18', type: 'note', x: 48, y: 80, w: 64, h: 21, rot: -2, threshold: 1.00 },
 ];
 
 export default function SavingsJar() {
