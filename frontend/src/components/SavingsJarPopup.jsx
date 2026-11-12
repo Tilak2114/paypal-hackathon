@@ -2,16 +2,29 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { playChaChingSound } from '../utils/audio';
 
-// Banknote helper component (Never clipped, drops and stays)
+// Banknote helper component — light mint/sage green with gold band like reference image
 function BanknoteMini({ x, y, width = 38, height = 15, rotation = 0, delay = 0 }) {
+  const bandW = width * 0.18;
+  const bandX = width * 0.41;
   return (
     <g transform={`translate(${x}, ${y}) rotate(${rotation})`}>
       <g className="money-drop-mini" style={{ animationDelay: `${delay}ms` }}>
-        <rect x="-0.5" y="0.5" width={width} height={height} rx="1.5" fill="rgba(0,0,0,0.35)" />
-        <rect x="0" y="0" width={width} height={height} rx="1.5" fill="url(#popupBillGrad)" stroke="#047857" strokeWidth="0.6" />
-        <rect x="1.5" y="1.5" width={width - 3} height={height - 3} rx="1" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" strokeDasharray="2 1" />
-        <ellipse cx={width / 2} cy={height / 2} rx="5" ry="4" fill="#047857" fillOpacity="0.4" />
-        <text x={width / 2} y={height / 2 + 1.8} textAnchor="middle" fontSize="4.5" fontWeight="900" fill="#ffffff" fontFamily="sans-serif">$</text>
+        {/* Shadow */}
+        <rect x="0.5" y="1.5" width={width} height={height} rx="1.5" fill="rgba(0,0,0,0.3)" />
+        {/* Light mint-green base */}
+        <rect x="0" y="0" width={width} height={height} rx="1.5" fill="url(#popupBillGrad)" />
+        {/* Top highlight */}
+        <rect x="0" y="0" width={width} height={height * 0.42} rx="1.5" fill="rgba(255,255,255,0.1)" />
+        {/* Border */}
+        <rect x="0" y="0" width={width} height={height} rx="1.5" fill="none" stroke="#4a7c59" strokeWidth="0.5" />
+        {/* Inner dashed frame */}
+        <rect x="1.5" y="1.5" width={width - 3} height={height - 3} rx="1" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.4" strokeDasharray="2 1" />
+        {/* Center medallion */}
+        <ellipse cx={width / 2} cy={height / 2} rx="5" ry="3.8" fill="rgba(60,120,70,0.5)" />
+        <text x={width / 2} y={height / 2 + 1.6} textAnchor="middle" fontSize="4" fontWeight="900" fill="#e8f5e9" fontFamily="sans-serif">$</text>
+        {/* Gold band */}
+        <rect x={bandX} y="-0.5" width={bandW} height={height + 1} rx="0.8" fill="url(#popupBandGrad)" />
+        <rect x={bandX} y="-0.5" width={bandW} height={height + 1} rx="0.8" fill="none" stroke="rgba(180,130,0,0.5)" strokeWidth="0.3" />
       </g>
     </g>
   );
@@ -52,49 +65,58 @@ function Sparkle({ delay, left, top, size = 3 }) {
 
 // Whole items placed inside the jar (Dense, tightly interlocking money stack with no large empty gaps)
 const POPUP_ITEMS = [
-  // ── Tier 1: Base Floor (0% - 18%) ──
-  { id: 'pb1', type: 'note', x: 16, y: 136, w: 38, h: 14, rot: -6, threshold: 0.03 },
-  { id: 'pc1', type: 'coin', cx: 58, cy: 144, r: 5, threshold: 0.06 },
-  { id: 'pb2', type: 'note', x: 56, y: 134, w: 40, h: 14, rot: 7, threshold: 0.09 },
-  { id: 'pc2', type: 'coin', cx: 30, cy: 144, r: 4.8, threshold: 0.12 },
-  { id: 'pb3', type: 'note', x: 34, y: 138, w: 44, h: 14, rot: 1, threshold: 0.15 },
-  { id: 'pc3', type: 'coin', cx: 82, cy: 142, r: 5, threshold: 0.18 },
+  // ── Tier 1: Base Floor (0% - 18%) — centered around x=60 ──
+  { id: 'pb1',  type: 'note', x: 18,  y: 136, w: 40, h: 14, rot: -6,  threshold: 0.03 },
+  { id: 'pc1',  type: 'coin', cx: 62,  cy: 146, r: 5,   threshold: 0.05 },
+  { id: 'pc1b', type: 'coin', cx: 16,  cy: 144, r: 4,   threshold: 0.06 },
+  { id: 'pb2',  type: 'note', x: 58,  y: 134, w: 42, h: 14, rot: 7,   threshold: 0.09 },
+  { id: 'pc2',  type: 'coin', cx: 38,  cy: 144, r: 4.8, threshold: 0.12 },
+  { id: 'pb3',  type: 'note', x: 32,  y: 138, w: 46, h: 14, rot: 1,   threshold: 0.15 },
+  { id: 'pc3',  type: 'coin', cx: 88,  cy: 142, r: 5,   threshold: 0.17 },
+  { id: 'pc3b', type: 'coin', cx: 102, cy: 136, r: 4,   threshold: 0.18 },
 
-  // ── Tier 2: Lower Layer (18% - 38%) ──
-  { id: 'pb4', type: 'note', x: 14, y: 120, w: 42, h: 14, rot: 11, threshold: 0.21 },
-  { id: 'pc4', type: 'coin', cx: 48, cy: 126, r: 4.8, threshold: 0.24 },
-  { id: 'pb5', type: 'note', x: 62, y: 118, w: 40, h: 14, rot: -10, threshold: 0.27 },
-  { id: 'pb6', type: 'note', x: 32, y: 124, w: 46, h: 14, rot: -2, threshold: 0.31 },
-  { id: 'pc5', type: 'coin', cx: 22, cy: 122, r: 5, threshold: 0.34 },
-  { id: 'pc6', type: 'coin', cx: 78, cy: 124, r: 5, threshold: 0.37 },
-  { id: 'pc7', type: 'coin', cx: 92, cy: 118, r: 4.8, threshold: 0.40 },
+  // ── Tier 2: Lower Layer (18% - 40%) ──
+  { id: 'pb4',  type: 'note', x: 16,  y: 120, w: 42, h: 14, rot: 11,  threshold: 0.21 },
+  { id: 'pc4',  type: 'coin', cx: 60,  cy: 128, r: 5,   threshold: 0.24 },
+  { id: 'pc4b', type: 'coin', cx: 100, cy: 124, r: 4.5, threshold: 0.25 },
+  { id: 'pb5',  type: 'note', x: 62,  y: 118, w: 42, h: 14, rot: -10, threshold: 0.28 },
+  { id: 'pb6',  type: 'note', x: 32,  y: 124, w: 48, h: 14, rot: -2,  threshold: 0.31 },
+  { id: 'pc5',  type: 'coin', cx: 24,  cy: 122, r: 5,   threshold: 0.33 },
+  { id: 'pc6',  type: 'coin', cx: 84,  cy: 124, r: 5,   threshold: 0.36 },
+  { id: 'pc7',  type: 'coin', cx: 102, cy: 118, r: 4.5, threshold: 0.38 },
+  { id: 'pc7b', type: 'coin', cx: 16,  cy: 116, r: 4,   threshold: 0.40 },
 
-  // ── Tier 3: Mid Layer (38% - 60%) ──
-  { id: 'pb7', type: 'note', x: 14, y: 102, w: 42, h: 14, rot: -8, threshold: 0.43 },
-  { id: 'pc8', type: 'coin', cx: 56, cy: 108, r: 5, threshold: 0.46 },
-  { id: 'pb8', type: 'note', x: 58, y: 100, w: 42, h: 14, rot: 9, threshold: 0.49 },
-  { id: 'pb9', type: 'note', x: 30, y: 108, w: 48, h: 14, rot: 3, threshold: 0.52 },
-  { id: 'pc9', type: 'coin', cx: 34, cy: 102, r: 4.8, threshold: 0.55 },
-  { id: 'pc10', type: 'coin', cx: 80, cy: 104, r: 5, threshold: 0.58 },
-  { id: 'pb10', type: 'note', x: 44, y: 96, w: 44, h: 14, rot: -4, threshold: 0.61 },
+  // ── Tier 3: Mid Layer (40% - 62%) ──
+  { id: 'pb7',  type: 'note', x: 14,  y: 102, w: 44, h: 14, rot: -8,  threshold: 0.43 },
+  { id: 'pc8',  type: 'coin', cx: 60,  cy: 110, r: 5,   threshold: 0.45 },
+  { id: 'pc8b', type: 'coin', cx: 102, cy: 106, r: 4.5, threshold: 0.46 },
+  { id: 'pb8',  type: 'note', x: 60,  y: 100, w: 44, h: 14, rot: 9,   threshold: 0.49 },
+  { id: 'pb9',  type: 'note', x: 30,  y: 108, w: 50, h: 14, rot: 3,   threshold: 0.52 },
+  { id: 'pc9',  type: 'coin', cx: 36,  cy: 102, r: 4.8, threshold: 0.54 },
+  { id: 'pc10', type: 'coin', cx: 86,  cy: 104, r: 5,   threshold: 0.57 },
+  { id: 'pb10', type: 'note', x: 44,  y: 96,  w: 46, h: 14, rot: -4,  threshold: 0.60 },
+  { id: 'pc10b',type: 'coin', cx: 16,  cy: 100, r: 4,   threshold: 0.62 },
 
-  // ── Tier 4: Upper-mid Layer (60% - 80%) ──
-  { id: 'pb11', type: 'note', x: 14, y: 82, w: 42, h: 14, rot: 10, threshold: 0.64 },
-  { id: 'pc11', type: 'coin', cx: 50, cy: 88, r: 5, threshold: 0.67 },
-  { id: 'pb12', type: 'note', x: 60, y: 80, w: 40, h: 14, rot: -8, threshold: 0.70 },
-  { id: 'pb13', type: 'note', x: 32, y: 88, w: 46, h: 14, rot: -1, threshold: 0.73 },
-  { id: 'pc12', type: 'coin', cx: 24, cy: 84, r: 4.8, threshold: 0.76 },
-  { id: 'pc13', type: 'coin', cx: 78, cy: 84, r: 5, threshold: 0.79 },
-  { id: 'pb14', type: 'note', x: 44, y: 76, w: 42, h: 14, rot: 5, threshold: 0.82 },
+  // ── Tier 4: Upper-mid Layer (62% - 82%) ──
+  { id: 'pb11', type: 'note', x: 14,  y: 82,  w: 44, h: 14, rot: 10,  threshold: 0.64 },
+  { id: 'pc11', type: 'coin', cx: 60,  cy: 90,  r: 5,   threshold: 0.66 },
+  { id: 'pc11b',type: 'coin', cx: 100, cy: 86,  r: 4.5, threshold: 0.67 },
+  { id: 'pb12', type: 'note', x: 62,  y: 80,  w: 42, h: 14, rot: -8,  threshold: 0.70 },
+  { id: 'pb13', type: 'note', x: 30,  y: 88,  w: 48, h: 14, rot: -1,  threshold: 0.73 },
+  { id: 'pc12', type: 'coin', cx: 24,  cy: 84,  r: 4.8, threshold: 0.75 },
+  { id: 'pc13', type: 'coin', cx: 84,  cy: 84,  r: 5,   threshold: 0.78 },
+  { id: 'pb14', type: 'note', x: 44,  y: 76,  w: 44, h: 14, rot: 5,   threshold: 0.81 },
+  { id: 'pc13b',type: 'coin', cx: 16,  cy: 80,  r: 4,   threshold: 0.82 },
 
-  // ── Tier 5: Top / Brim Layer (80% - 100%) ──
-  { id: 'pb15', type: 'note', x: 18, y: 62, w: 40, h: 14, rot: -9, threshold: 0.85 },
-  { id: 'pc14', type: 'coin', cx: 54, cy: 68, r: 5, threshold: 0.88 },
-  { id: 'pb16', type: 'note', x: 56, y: 60, w: 40, h: 14, rot: 7, threshold: 0.91 },
-  { id: 'pb17', type: 'note', x: 32, y: 66, w: 44, h: 14, rot: 2, threshold: 0.94 },
-  { id: 'pc15', type: 'coin', cx: 30, cy: 58, r: 4.8, threshold: 0.96 },
-  { id: 'pc16', type: 'coin', cx: 76, cy: 62, r: 5, threshold: 0.98 },
-  { id: 'pb18', type: 'note', x: 36, y: 50, w: 42, h: 13, rot: -3, threshold: 1.00 },
+  // ── Tier 5: Top / Brim Layer (82% - 100%) ──
+  { id: 'pb15', type: 'note', x: 18,  y: 62,  w: 42, h: 14, rot: -9,  threshold: 0.85 },
+  { id: 'pc14', type: 'coin', cx: 60,  cy: 70,  r: 5,   threshold: 0.87 },
+  { id: 'pc14b',type: 'coin', cx: 100, cy: 66,  r: 4.5, threshold: 0.88 },
+  { id: 'pb16', type: 'note', x: 58,  y: 60,  w: 42, h: 14, rot: 7,   threshold: 0.91 },
+  { id: 'pb17', type: 'note', x: 30,  y: 66,  w: 46, h: 14, rot: 2,   threshold: 0.94 },
+  { id: 'pc15', type: 'coin', cx: 32,  cy: 60,  r: 4.8, threshold: 0.95 },
+  { id: 'pc16', type: 'coin', cx: 80,  cy: 62,  r: 5,   threshold: 0.97 },
+  { id: 'pb18', type: 'note', x: 36,  y: 50,  w: 44, h: 13, rot: -3,  threshold: 1.00 },
 ];
 
 export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFill = 0.65, savedAmount }) {
@@ -242,10 +264,19 @@ export default function SavingsJarPopup({ isOpen, onClose, fromFill = 0.25, toFi
           <div className="relative w-24 h-32 flex-shrink-0">
             <svg viewBox="0 0 120 170" className="w-full h-full overflow-visible">
               <defs>
-                <linearGradient id="popupBillGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="50%" stopColor="#059669" />
-                  <stop offset="100%" stopColor="#047857" />
+                <linearGradient id="popupBillGrad" x1="0" y1="0" x2="0.5" y2="1">
+                  <stop offset="0%" stopColor="#c8e6c9" />
+                  <stop offset="30%" stopColor="#a5d6a7" />
+                  <stop offset="70%" stopColor="#81c784" />
+                  <stop offset="100%" stopColor="#66bb6a" />
+                </linearGradient>
+
+                {/* Gold band gradient */}
+                <linearGradient id="popupBandGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#f9a825" />
+                  <stop offset="40%" stopColor="#ffe082" />
+                  <stop offset="60%" stopColor="#ffd54f" />
+                  <stop offset="100%" stopColor="#f9a825" />
                 </linearGradient>
 
                 <radialGradient id="popupCoinGrad" cx="35%" cy="30%" r="65%">
