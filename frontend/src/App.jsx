@@ -12,6 +12,7 @@ import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
 import Hero3D from './components/Hero3D';
 import NotificationBell from './components/NotificationBell';
+import SentinelLogo3D from './components/SentinelLogo3D';
 import { useAuth } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 
@@ -98,13 +99,10 @@ export default function App() {
 
             <div
               onClick={() => navigate(user ? '/dashboard' : '/')}
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2 cursor-pointer group"
             >
-              <div
-                className="w-5 h-6 clip-shield group-hover:scale-105 transition-transform"
-                style={{ background: 'linear-gradient(135deg, #00d2ff, #2563eb)' }}
-              />
-              <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:transition-colors">
+              <SentinelLogo3D size={42} />
+              <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:text-[#8fe5ff] transition-colors">
                 Sentinel
               </span>
             </div>
