@@ -1,6 +1,5 @@
 // SentinelLogo3D.jsx — compact inline 3D "S" logo for the navbar
-// Renders the same Three.js geometry from the Sentinel brand artifact,
-// scaled down to fit cleanly as a 44×44 nav icon.
+// Darker, solid-looking S — no orbit rings at nav size, tighter camera zoom
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
@@ -12,7 +11,6 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
     if (!el) return;
 
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const W = size * (window.devicePixelRatio || 1);
 
     // ── Renderer ──
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -21,22 +19,22 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
     renderer.setClearColor(0x000000, 0);
     el.appendChild(renderer.domElement);
 
-    // ── Scene / Camera ──
+    // ── Scene / Camera — tighter zoom so S fills the canvas ──
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 0, 11);
+    camera.position.set(0, 0, 7.5);   // was 11 — zoomed in
     camera.lookAt(0, 0, 0);
 
-    // ── Lights ──
-    scene.add(new THREE.AmbientLight(0x6f8fe8, 0.65));
-    const key = new THREE.DirectionalLight(0xffffff, 0.9);
+    // ── Lights — slightly dimmer for a darker look ──
+    scene.add(new THREE.AmbientLight(0x3a5099, 0.7));     // cooler, dimmer ambient
+    const key = new THREE.DirectionalLight(0xaaccff, 0.7); // softer key
     key.position.set(3, 4, 6);
     scene.add(key);
-    const L1 = new THREE.PointLight(0x8fe5ff, 2.4, 40);
-    L1.position.set(5, 3, 5);
+    const L1 = new THREE.PointLight(0x4db8d4, 1.6, 30);   // less intense cyan
+    L1.position.set(4, 2, 4);
     scene.add(L1);
-    const L2 = new THREE.PointLight(0xff6f91, 1.5, 40);
-    L2.position.set(-5, -3, 4);
+    const L2 = new THREE.PointLight(0x1e3a8a, 1.0, 30);   // dark blue fill
+    L2.position.set(-4, -2, 3);
     scene.add(L2);
 
     // ── Build the S path ──
@@ -77,11 +75,11 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
                  CL[0][1] + H * (-T[0][0] * Math.cos(a2) - T[0][1] * Math.sin(a2))]);
     }
 
-    // ── Build geometry ──
+    // ── Build geometry — darker colour ramp ──
     const G = new THREE.Group();
     const Z = 0.3;
-    const mint = new THREE.Color(0x8fe5ff);
-    const vio  = new THREE.Color(0x3b63d9);
+    const mint = new THREE.Color(0x38b2cc);  // darker cyan (was 0x8fe5ff)
+    const vio  = new THREE.Color(0x1e3a8a);  // dark navy (was 0x3b63d9)
     const cc   = new THREE.Color();
 
     function loop3(z, rad, mat) {
@@ -101,23 +99,20 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
     }
 
     const core = new THREE.MeshBasicMaterial({ vertexColors: true });
-    const halo = new THREE.MeshBasicMaterial({
-      vertexColors: true, transparent: true, opacity: 0.16,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    [Z, -Z].forEach(z => { loop3(z, 0.034, core); loop3(z, 0.1, halo); });
+    // No halo at nav size — it made the S look ghostly
+    [Z, -Z].forEach(z => loop3(z, 0.05, core));  // thicker tube = more visible
 
-    // Glass fill
+    // Glass fill — slightly more opaque for solidity
     const sh = new THREE.Shape();
     poly.forEach((q, k) => k ? sh.lineTo(q[0], q[1]) : sh.moveTo(q[0], q[1]));
     const bg = new THREE.ExtrudeGeometry(sh, { depth: Z * 2, bevelEnabled: false, curveSegments: 1 });
     bg.translate(0, 0, -Z);
     G.add(new THREE.Mesh(bg, new THREE.MeshPhysicalMaterial({
-      color: 0x8fe5ff, transparent: true, opacity: 0.07,
+      color: 0x1e4080, transparent: true, opacity: 0.18,  // darker fill
       roughness: 0.1, side: THREE.DoubleSide, depthWrite: false,
     })));
 
-    // Ribs
+    // Ribs — dimmer
     const lp = [];
     for (let i = 0; i < poly.length; i += 7) {
       lp.push(poly[i][0], poly[i][1], Z, poly[i][0], poly[i][1], -Z);
@@ -125,7 +120,7 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
     const lg = new THREE.BufferGeometry();
     lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
     G.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({
-      color: 0xa9ecff, transparent: true, opacity: 0.28,
+      color: 0x4db8d4, transparent: true, opacity: 0.2,
     })));
 
     // Center group
@@ -134,26 +129,8 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
     G.children.forEach(m => m.position.sub(ctr));
     scene.add(G);
 
-    // Orbit rings (smaller for logo)
-    const ring  = new THREE.Group();
-    const ring2 = new THREE.Group();
-    const m1 = new THREE.Mesh(
-      new THREE.TorusGeometry(3.2, 0.018, 10, 160),
-      new THREE.MeshBasicMaterial({ color: 0x8fe5ff, transparent: true, opacity: 0.55 })
-    );
-    m1.rotation.x = Math.PI / 3.1;
-    ring.add(m1);
-    scene.add(ring);
-    const m2 = new THREE.Mesh(
-      new THREE.TorusGeometry(3.6, 0.012, 10, 160),
-      new THREE.MeshBasicMaterial({ color: 0x6f8fe8, transparent: true, opacity: 0.4 })
-    );
-    m2.rotation.x = -Math.PI / 3.4;
-    ring2.add(m2);
-    scene.add(ring2);
-
-    // ── Auto-spin only (no drag on logo) ──
-    const spin = reduce ? 0.004 : 0.012;
+    // ── Auto-spin only — no orbit rings at nav size ──
+    const spin = reduce ? 0.003 : 0.010;
     let frameId;
     const clock = new THREE.Clock();
 
@@ -161,12 +138,10 @@ export default function SentinelLogo3D({ size = 44, className = '' }) {
       frameId = requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
       G.rotation.y += spin;
-      G.rotation.x = Math.sin(t * 0.8) * 0.08;
-      G.position.y = Math.sin(t * 1.2) * 0.05;
-      ring.rotation.y  =  t * 0.4;
-      ring2.rotation.y = -t * 0.3;
-      L1.position.x = Math.cos(t * 0.7) * 5;
-      L1.position.z = Math.sin(t * 0.7) * 5;
+      G.rotation.x = Math.sin(t * 0.8) * 0.06;
+      G.position.y = Math.sin(t * 1.2) * 0.04;
+      L1.position.x = Math.cos(t * 0.7) * 4;
+      L1.position.z = Math.sin(t * 0.7) * 4;
       renderer.render(scene, camera);
     }
     animate();
